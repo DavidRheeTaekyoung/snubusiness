@@ -1,5 +1,6 @@
 /* SNU Business Alumni — shared shell (header / footer / nav / motion) */
 (function () {
+  document.documentElement.classList.add("js");
   const NAV = [
     { label: '동문회 소개', href: '/about/', sub: [
       ['회장 인사말', '/about/#greeting'], ['연혁', '/about/#history'], ['회칙', '/about/#bylaws'],
@@ -83,8 +84,9 @@
     document.querySelectorAll('[data-open-nav]').forEach(b => b.addEventListener('click', () => { mn.classList.add('open'); mn.setAttribute('aria-hidden', 'false'); }));
     document.querySelectorAll('[data-close-nav]').forEach(b => b.addEventListener('click', () => { mn.classList.remove('open'); mn.setAttribute('aria-hidden', 'true'); }));
     // reveal on scroll
-    const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+    const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px -5% 0px' });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    setTimeout(() => document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in')), 2500); // 안전망: 어떤 이유로든 2.5초 후 전부 표시
     // subnav active by hash
     const sync = () => { document.querySelectorAll('.subnav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === location.hash || (!location.hash && a.dataset.default !== undefined))); };
     window.addEventListener('hashchange', sync); sync();

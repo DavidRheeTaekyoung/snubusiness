@@ -248,7 +248,7 @@ p{margin:0 0 1em}
 .badge{display:inline-block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--gold-400);color:var(--gold-500);border-radius:999px;font-family:var(--display);font-weight:700}
 .badge.navy{border-color:var(--navy-800);color:var(--navy-800)}
 .badge.soon{border-color:var(--line-2);color:var(--ink-3)}
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s var(--ease),transform .55s var(--ease)}
+html.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .45s var(--ease),transform .45s var(--ease)}
 .reveal.in{opacity:1;transform:none}
 ::selection{background:var(--gold-300);color:var(--navy-900)}
 
