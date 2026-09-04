@@ -249,7 +249,7 @@ p{margin:0 0 1em}
 .badge.navy{border-color:var(--navy-800);color:var(--navy-800)}
 .badge.soon{border-color:var(--line-2);color:var(--ink-3)}
 html.js .reveal{opacity:0;transform:translateY(14px);transition:opacity .45s var(--ease),transform .45s var(--ease)}
-.reveal.in{opacity:1;transform:none}
+html.js .reveal.in{opacity:1;transform:none}
 ::selection{background:var(--gold-300);color:var(--navy-900)}
 
 /* Mobile refinements */

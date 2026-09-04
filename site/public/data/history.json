@@ -155,6 +155,16 @@
         "sitemap.xml",
         "robots.txt"
       ]
+    },
+    {
+      "id": "L-0015",
+      "ts": "2026-09-04 16:40",
+      "kind": "fix",
+      "title": "홈 하단 섹션이 빈 채로 보이던 버그 수정 — reveal CSS 우선순위",
+      "detail": "L-0014 직후 작업대 주인이 발견. html.js .reveal(0,2,1)이 .reveal.in(0,2,0)보다 우선해 .in이 적용돼도 opacity 0 유지. 선택자를 html.js .reveal.in으로 맞춤. 교훈: 자율점검에 \"스크롤 후 섹션 가시성(computed opacity=1)\" DOM 검사를 표준 시나리오로 추가(S-11).",
+      "files": [
+        "assets/css/main.css"
+      ]
     }
   ]
 }
