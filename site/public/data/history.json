@@ -1,5 +1,6 @@
 {
   "next": [
+    "회의 후: GET /api/meeting 결과를 읽어 결정 사항을 마스터플랜·데이터정의에 반영, 1장 자료 수령 상태에 따라 P2 착수",
     "snubusiness.com 전환 시: Pages 프로젝트를 customsshin 계정으로 이전 배포 후 sitemap/robots를 snubusiness.com으로 복원, snu.artus.kr은 리디렉션 유지",
     "[결정 필요] snubusiness.com 도메인 보유 Cloudflare 계정 확인 → 커스텀 도메인 연결 (토론 #2)",
     "Cloudflare Pages ↔ GitHub 자동 배포 연결 (대시보드: Workers 및 Pages > snubusiness > 설정 > 빌드 > 소스 연결). 그 전까지는 `npx wrangler pages deploy public --project-name snubusiness`",
@@ -176,6 +177,20 @@
         "assets/css/main.css",
         "assets/css/admin.css",
         "*.html"
+      ]
+    },
+    {
+      "id": "L-0017",
+      "ts": "2026-09-04 17:40",
+      "kind": "build",
+      "title": "작업대 8. 회의자료 페이지 — 1장 사람이 줄 자료 13건, 2장 객관식 결정 16건(리서치 요약·권장안), D1 자동 저장, 인쇄용 요약",
+      "detail": "작업대 주인 지시: 조찬 후 짧은 회의에서 중요한 결정을 끝내기 위한 페이지. /api/meeting(key/value upsert). 세션 시작 루틴에 GET /api/meeting 읽기를 추가.",
+      "files": [
+        "admin/meeting/index.html",
+        "data/meeting.json",
+        "functions/api/meeting.js",
+        "assets/js/admin.js",
+        "content/data.md"
       ]
     }
   ]

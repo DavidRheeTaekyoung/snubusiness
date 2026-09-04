@@ -148,6 +148,10 @@ CREATE TABLE IF NOT EXISTS mentoring_matches ( id INTEGER PRIMARY KEY AUTOINCREM
 | `GET /api/discussions/:id` | 스레드 단건 | | `{thread, messages}` |
 | `POST /api/discussions/:id` | 메시지 추가 | `{author, body, role?}` | `{message}` |
 | `PATCH /api/discussions/:id` | 상태 변경 | `{status}` | `{thread}` |
+| `GET /api/meeting` | 회의 결정·입력 현황 전체 | | `{decisions:{key:{value,note,by,updated_at}}}` |
+| `POST /api/meeting` | 결정 저장(upsert) | `{key, value, note?, by?}` | `{decision}` |
+
+회의 결정 테이블: `decisions(key PK, value, note, by, updated_at)`. 키는 `dec:<주제>`(2장 선택) · `input:<자료>`(1장 상태). 정의는 `/data/meeting.json`.
 
 - `role`은 `user`(작업대 주인·방문자) · `persona`(자율점검) · `agent`(에이전트, 서버가 `X-Agent-Key`로 검증) · `system`.
 - P1에서는 쓰기에 인증이 없다(작업대 URL 비공개 전제). **P3에서 Cloudflare Access로 `/admin/*` 보호** — TODO-002.

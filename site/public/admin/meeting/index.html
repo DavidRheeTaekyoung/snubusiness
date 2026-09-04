@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>8. 회의자료 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260904d"><link rel="stylesheet" href="/assets/css/admin.css?v=20260904d"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.chapter{margin:40px 0 18px;display:flex;align-items:baseline;gap:16px}
+.chapter .n{font-family:var(--display);font-size:44px;color:var(--gold-400);line-height:1}
+.chapter h2{font-size:24px}
+.chapter .d{color:var(--ink-3);font-size:14px;margin-left:auto}
+.item{background:var(--paper);border:1px solid var(--line);padding:22px 26px;margin-bottom:12px;display:grid;grid-template-columns:1fr 240px;gap:24px}
+@media (max-width:800px){.item{grid-template-columns:1fr}}
+.item h3{font-size:17px;font-family:var(--sans);font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.item .why{font-size:14px;color:var(--ink-2);margin:8px 0 10px;line-height:1.7}
+.item .meta{font-size:13px;color:var(--ink-3);display:grid;grid-template-columns:64px 1fr;gap:4px 10px}
+.item .meta b{color:var(--navy-800);font-weight:600}
+.item .side{border-left:1px solid var(--line);padding-left:22px;display:flex;flex-direction:column;gap:8px}
+@media (max-width:800px){.item .side{border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:14px}}
+.item .side label{font-size:12px;letter-spacing:.08em;color:var(--ink-3)}
+.item .side select,.item .side textarea{font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line-2);background:var(--paper);border-radius:2px}
+.item .side textarea{min-height:64px;resize:vertical}
+.pri{font-size:10.5px;letter-spacing:.12em;padding:3px 8px;border-radius:999px;font-family:var(--display);font-weight:700;text-transform:uppercase}
+.pri.필수{background:#F8E3E0;color:var(--danger)}.pri.권장{background:#FFF1DD;color:var(--warn)}.pri.선택{background:var(--ivory-2);color:var(--ink-3)}
+.dec{background:var(--paper);border:1px solid var(--line);padding:26px 30px;margin-bottom:14px}
+.dec h3{font-size:18px;margin-bottom:10px}
+.dec .ctx{font-size:14.5px;color:var(--ink-2);line-height:1.75;border-left:2px solid var(--gold-300);padding-left:14px;margin-bottom:16px}
+.dec .ctx::before{content:"리서치";display:block;font-family:var(--display);font-size:11px;letter-spacing:.2em;color:var(--gold-500);margin-bottom:4px;text-transform:uppercase}
+.opt{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:12px 14px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;transition:all .2s;border-radius:2px;align-items:start}
+.opt:hover{border-color:var(--gold-300);background:#FDFBF6}
+.opt.on{border-color:var(--navy-800);background:#F3F5F9;box-shadow:inset 3px 0 0 var(--navy-800)}
+.opt input{margin:4px 0 0;width:16px;height:16px;accent-color:var(--navy-800)}
+.opt .l{font-weight:500;color:var(--ink);font-size:15px}
+.opt .l .rec{font-size:10.5px;letter-spacing:.1em;color:var(--gold-500);border:1px solid var(--gold-400);padding:1px 7px;border-radius:999px;margin-left:8px;font-family:var(--display);font-weight:700;vertical-align:middle}
+.opt .n{font-size:13px;color:var(--ink-3);margin-top:3px}
+.dec .memo{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+.dec .memo textarea{flex:1;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line-2);min-height:44px;resize:vertical;border-radius:2px}
+.saved{font-size:12px;color:var(--success);min-width:70px;text-align:right}
+.summary{background:var(--navy-800);color:var(--paper);padding:28px 32px;margin-top:32px}
+.summary h2{color:var(--paper);font-size:20px;margin-bottom:14px}
+.summary table{width:100%;border-collapse:collapse;font-size:14px}
+.summary td{padding:8px 4px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top}
+.summary td:first-child{color:var(--gold-300);width:44%}
+.summary .none{color:rgba(247,244,238,.45)}
+.progress{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
+.progress b{color:var(--navy-800)}
+@media print{
+  .admin-side,.admin-top .actions,.opt input,.dec .memo,.item .side select{display:none!important}
+  .admin-shell{display:block}.admin-body{padding:0;max-width:none}
+  .opt{border:0;padding:4px 0;margin:0}.opt.on .l::before{content:"☑ "}.opt:not(.on) .l::before{content:"☐ ";color:#999}
+  .dec,.item{break-inside:avoid;border:0;border-bottom:1px solid #ddd;padding:12px 0}
+  .summary{background:#fff;color:#000;border:1px solid #000}.summary h2,.summary td:first-child{color:#000}
+  body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Workbench 8</span><h1 id="m-title">회의자료</h1><div class="sub" id="m-intro"></div></div>
+      <div class="actions"><span style="font-size:13px;color:var(--ink-3);align-self:center">기록자 <input id="by" value="이태경" style="border:0;border-bottom:1px solid var(--line-2);background:transparent;font:inherit;width:90px;padding:2px 4px"></span><button class="btn sm ghost" onclick="window.print()">인쇄 · PDF</button><a class="btn sm" href="#summary">결정 요약으로</a></div></div>
+    <div class="admin-body">
+      <div class="panel" style="padding:18px 26px"><div class="progress"><span>1장 입력 항목 <b id="p-in">—</b></span><span>2장 결정 항목 <b id="p-dec">—</b></span><span>저장소 <b id="p-db">확인 중</b></span><span style="margin-left:auto">선택·메모는 즉시 자동 저장됩니다.</span></div></div>
+
+      <div class="chapter"><span class="n">1</span><h2>사람이 해주셔야 하는 것</h2><span class="d">에이전트가 만들 수 없는, 동문회만 줄 수 있는 자료</span></div>
+      <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목 오른쪽에서 담당자와 상태를 정해 주시면 됩니다. 자료는 카톡·이메일·엑셀 무엇이든 괜찮고, 형식은 에이전트가 맞춥니다.</p>
+      <div id="inputs"></div>
+
+      <div class="chapter"><span class="n">2</span><h2>결정해 주실 것</h2><span class="d">고르기만 하면 개발이 바로 진행됩니다</span></div>
+      <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목의 리서치 요약을 보시고 하나를 고르세요. <span class="rec" style="font-size:10.5px;letter-spacing:.1em;color:var(--gold-500);border:1px solid var(--gold-400);padding:1px 7px;border-radius:999px;font-family:var(--display);font-weight:700">권장</span> 표시는 에이전트의 추천입니다. 다른 의견은 메모에 적어 주세요.</p>
+      <div id="decisions"></div>
+
+      <div class="summary" id="summary"><h2>결정 요약</h2><table id="sum"></table><p style="font-size:12.5px;color:rgba(247,244,238,.55);margin:14px 0 0">이 요약은 저장된 값으로 만들어집니다. 회의 후 에이전트가 이 결정을 읽고 개발이력에 반영합니다.</p></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20260904d"></script><script src="/assets/js/admin.js?v=20260904d"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB;
+  const M = await SNU.json('/data/meeting.json');
+  document.getElementById('m-title').textContent = M.title + ' · ' + M.date;
+  document.getElementById('m-intro').textContent = M.intro;
+  let D = {};
+  try { D = (await api('/meeting')).decisions; document.getElementById('p-db').textContent = 'D1 연결됨'; }
+  catch (e) { document.getElementById('p-db').textContent = '미연결 (선택이 저장되지 않습니다)'; }
+  const get = k => D[k] || {};
+  const STATUS = ['미정', '담당자 지정', '자료 요청함', '자료 받음', '반영 완료'];
+  async function save(key, value, note) {
+    const by = document.getElementById('by').value || '회의';
+    try { const r = await api('/meeting', { method: 'POST', body: { key, value, note, by } }); D[key] = r.decision; flash(key); progress(); summary(); }
+    catch (e) { toast('저장 실패: ' + e.message); }
+  }
+  function flash(key) { const el = document.querySelector(`[data-saved="${key}"]`); if (el) { el.textContent = '저장됨 ✓'; setTimeout(() => el.textContent = '', 1800); } }
+
+  // Chapter 1
+  document.getElementById('inputs').innerHTML = M.inputs.map(i => { const d = get('input:' + i.key); return `
+    <div class="item" id="in-${i.key}">
+      <div><h3>${esc(i.title)} <span class="pri ${i.priority}">${i.priority}</span></h3>
+        <div class="why">${esc(i.why)}</div>
+        <div class="meta"><b>담당</b><span>${esc(i.who)}</span><b>형식</b><span>${esc(i.format)}</span><b>시점</b><span>${esc(i.phase)}</span></div></div>
+      <div class="side"><label>상태</label><select data-in="${i.key}">${STATUS.map(s => `<option ${d.value === s ? 'selected' : ''}>${s}</option>`).join('')}</select>
+        <label>담당자 · 메모</label><textarea data-in-note="${i.key}" placeholder="누가, 언제까지">${esc(d.note || '')}</textarea><span class="saved" data-saved="input:${i.key}"></span></div>
+    </div>`; }).join('');
+  document.getElementById('inputs').addEventListener('change', e => { const k = e.target.dataset.in || e.target.dataset.inNote; if (!k) return; save('input:' + k, document.querySelector(`[data-in="${k}"]`).value, document.querySelector(`[data-in-note="${k}"]`).value); });
+
+  // Chapter 2
+  document.getElementById('decisions').innerHTML = M.decisions.map(q => { const d = get('dec:' + q.key); return `
+    <div class="dec" id="dec-${q.key}"><h3>${esc(q.title)}</h3><div class="ctx">${esc(q.context)}</div>
+      ${q.options.map(o => `<label class="opt ${d.value === o.id ? 'on' : ''}"><input type="radio" name="q-${q.key}" value="${o.id}" ${d.value === o.id ? 'checked' : ''}><div><div class="l">${esc(o.label)}${o.recommended ? '<span class="rec">권장</span>' : ''}</div>${o.note ? `<div class="n">${esc(o.note)}</div>` : ''}</div></label>`).join('')}
+      <div class="memo"><textarea data-dec-note="${q.key}" placeholder="의견 · 조건 · 다른 제안">${esc(d.note || '')}</textarea><span class="saved" data-saved="dec:${q.key}"></span></div>
+    </div>`; }).join('');
+  document.getElementById('decisions').addEventListener('change', e => {
+    const q = e.target.closest('.dec'); if (!q) return; const key = q.id.replace('dec-', '');
+    q.querySelectorAll('.opt').forEach(o => o.classList.toggle('on', o.querySelector('input').checked));
+    const v = q.querySelector('input:checked')?.value || ''; save('dec:' + key, v, q.querySelector('[data-dec-note]').value);
+  });
+
+  function progress() {
+    const inDone = M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).length;
+    const decDone = M.decisions.filter(q => get('dec:' + q.key).value).length;
+    document.getElementById('p-in').textContent = `${inDone} / ${M.inputs.length} 확보`;
+    document.getElementById('p-dec').textContent = `${decDone} / ${M.decisions.length} 결정`;
+  }
+  function summary() {
+    document.getElementById('sum').innerHTML = M.decisions.map(q => { const d = get('dec:' + q.key); const o = q.options.find(x => x.id === d.value); return `<tr><td>${esc(q.title)}</td><td>${o ? esc(o.label) : '<span class="none">미결정</span>'}${d.note ? `<div style="font-size:12.5px;color:rgba(247,244,238,.6)">메모: ${esc(d.note)}</div>` : ''}</td></tr>`; }).join('')
+      + `<tr><td>1장 자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
+  }
+  progress(); summary();
+})();
+</script>
+</body></html>
