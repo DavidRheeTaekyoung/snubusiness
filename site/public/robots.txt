@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
-Sitemap: https://snu.artus.kr/sitemap.xml
+Sitemap: https://snubusiness.com/sitemap.xml

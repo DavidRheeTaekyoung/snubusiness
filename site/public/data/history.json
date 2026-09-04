@@ -1,8 +1,6 @@
 {
   "next": [
     "회의 후: GET /api/meeting 결과를 읽어 결정 사항을 마스터플랜·데이터정의에 반영, 1장 자료 수령 상태에 따라 P2 착수",
-    "snubusiness.com 전환 시: Pages 프로젝트를 customsshin 계정으로 이전 배포 후 sitemap/robots를 snubusiness.com으로 복원, snu.artus.kr은 리디렉션 유지",
-    "[결정 필요] snubusiness.com 도메인 보유 Cloudflare 계정 확인 → 커스텀 도메인 연결 (토론 #2)",
     "Cloudflare Pages ↔ GitHub 자동 배포 연결 (대시보드: Workers 및 Pages > snubusiness > 설정 > 빌드 > 소스 연결). 그 전까지는 `npx wrangler pages deploy public --project-name snubusiness`",
     "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·상대동창회 관계) 자료 요청",
     "P2 진입: 공지·행사 D1 이관 및 작업대 편집 UI, /admin Cloudflare Access 보호"
@@ -203,6 +201,18 @@
         "assets/css/admin.css",
         "assets/css/main.css",
         "assets/js/admin.js"
+      ]
+    },
+    {
+      "id": "L-0019",
+      "ts": "2026-09-04 18:40",
+      "kind": "deploy",
+      "title": "정식 도메인 개통 — https://snubusiness.com (www 포함), snu.artus.kr·pages.dev는 301 리디렉션",
+      "detail": "customsshin 계정이 prodigen을 Domain Administrator로 초대 → 초대 메일 링크로 수락 → shin 계정 DNS에 CNAME @/www → snubusiness.pages.dev(프록시) → prodigen 계정 Pages 프로젝트에 커스텀 도메인 등록·인증서 활성. 사이트·D1은 prodigen 계정에 그대로. sitemap/robots를 정식 도메인으로 복원, _middleware.js로 호스트 통일.",
+      "files": [
+        "functions/_middleware.js",
+        "sitemap.xml",
+        "robots.txt"
       ]
     }
   ]
