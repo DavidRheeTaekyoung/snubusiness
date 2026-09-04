@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>6. 자율점검 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Workbench 6</span><h1>자율점검</h1><div class="sub">페르소나 7인이 가상으로 사이트를 사용하며 문제를 찾습니다. 사소한 문제는 에이전트가 즉시 고치고, 판단이 필요한 문제는 토론에 올립니다.</div></div>
+      <div class="actions"><a class="btn sm ghost" href="/admin/discussion/">토론으로</a><a class="btn sm ghost" href="/admin/history/">이력으로</a></div></div>
+    <div class="admin-body">
+      <div class="kpi" id="kpi"></div>
+      <div class="panel"><div class="panel-head"><h2>점검 실행 기록</h2></div><table class="table" id="runs"><thead><tr><th>실행</th><th>일시</th><th>빌드</th><th>시나리오</th><th>통과</th><th>요약</th></tr></thead><tbody></tbody></table></div>
+      <div class="panel"><div class="panel-head"><h2>발견 항목</h2><div class="pill-row" id="ff"><button class="pill on" data-f="">전체</button><button class="pill" data-f="open">미해결</button><button class="pill" data-f="fixed">수정됨</button><button class="pill" data-f="escalated">토론 이관</button></div></div><div id="findings"></div></div>
+      <div class="panel"><div class="panel-head"><h2>페르소나</h2></div><div id="personas"></div></div>
+      <div class="panel"><h2>점검 시나리오 (표준)</h2>
+        <table class="table"><thead><tr><th>ID</th><th>시나리오</th><th>기대 결과</th></tr></thead><tbody>
+          <tr><td>S-01</td><td>홈 진입 → 3초 안에 이 사이트가 무엇인지 파악</td><td>히어로 카피·인장·통계로 즉시 인지</td></tr>
+          <tr><td>S-02</td><td>모바일에서 메뉴 열고 소식 → 공지 상세 읽기</td><td>햄버거 → 소식 → 목록 → 상세 표시</td></tr>
+          <tr><td>S-03</td><td>다가오는 행사 확인 후 참가 신청 시도</td><td>일정 확인, 신청은 로그인 안내</td></tr>
+          <tr><td>S-04</td><td>동문회비 금액과 납부 방법 찾기</td><td>2클릭 이내, 계좌/온라인 안내</td></tr>
+          <tr><td>S-05</td><td>동문 찾기 시도(비로그인)</td><td>잠금 안내 + 로그인 CTA, 개인정보 안내</td></tr>
+          <tr><td>S-06</td><td>임원·사무국 연락처 찾기</td><td>소개 → 임원/사무국 앵커</td></tr>
+          <tr><td>S-07</td><td>기부 예우·재정 보고 확인</td><td>장학·기부 페이지 하단</td></tr>
+          <tr><td>S-08</td><td>키보드만으로 메인 내비 탐색</td><td>포커스 표시, 서브메뉴 접근</td></tr>
+          <tr><td>S-09</td><td>작업대에서 토론 글 등록 → 새로고침 후 유지</td><td>D1 저장 확인</td></tr>
+          <tr><td>S-10</td><td>느린 네트워크에서 첫 화면</td><td>폰트 폴백, 레이아웃 흔들림 없음</td></tr>
+        </tbody></table></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js"></script><script src="/assets/js/admin.js"></script>
+<script>
+(async () => {
+  const esc = SNU.esc;
+  const P = await SNU.json('/data/personas.json'), I = await SNU.json('/data/inspections.json');
+  const openN = I.findings.filter(f => f.status === 'open').length, fixedN = I.findings.filter(f => f.status === 'fixed').length, escN = I.findings.filter(f => f.status === 'escalated').length;
+  document.getElementById('kpi').innerHTML = `<div class="k"><div class="v">${I.runs.length}</div><div class="l">점검 실행</div></div><div class="k gold"><div class="v">${openN}</div><div class="l">미해결</div></div><div class="k"><div class="v">${fixedN}</div><div class="l">즉시 수정</div></div><div class="k"><div class="v">${escN}</div><div class="l">토론 이관</div></div>`;
+  document.querySelector('#runs tbody').innerHTML = I.runs.slice().reverse().map(r => `<tr><td><strong>${r.id}</strong></td><td class="muted">${esc(r.ts)}</td><td><code>${esc(r.build)}</code></td><td>${r.scenarios}</td><td>${r.pass}/${r.scenarios}</td><td>${esc(r.summary)}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 실행 기록이 없습니다.</td></tr>';
+  const pmap = Object.fromEntries(P.items.map(p => [p.id, p]));
+  let f = '';
+  const ST = { open:['미해결','open'], fixed:['수정됨','done'], escalated:['토론 이관','hold'], wontfix:['보류','todo'] };
+  function rf() { const rows = I.findings.filter(x => !f || x.status === f).slice().reverse();
+    document.getElementById('findings').innerHTML = rows.length ? rows.map(x => { const s = ST[x.status] || ST.open; return `<div class="finding"><div><div class="sev ${x.sev.toLowerCase()}">${x.sev}</div><div class="muted" style="font-size:12px">${x.id} · ${x.run}</div></div><div class="desc"><strong>${esc(x.title)}</strong> <span class="muted" style="font-size:12.5px">— ${esc(pmap[x.persona]?.name || x.persona)} · ${esc(x.page)}</span><div class="ctx">${esc(x.detail)}</div>${x.ref ? `<div class="ctx">→ <a href="${x.ref.startsWith('L-') ? '/admin/history/#' + x.ref : '/admin/discussion/#t' + x.ref.replace('#','')}" style="color:var(--gold-500)">${esc(x.ref)}</a></div>` : ''}</div><div><span class="status ${s[1]}">${s[0]}</span></div></div>`; }).join('') : '<div class="empty">해당 항목이 없습니다.</div>'; }
+  document.getElementById('ff').addEventListener('click', e => { const p = e.target.closest('.pill'); if (!p) return; f = p.dataset.f; [...p.parentElement.children].forEach(x => x.classList.toggle('on', x === p)); rf(); }); rf();
+  document.getElementById('personas').innerHTML = P.items.map(p => `<div class="persona"><div class="av">${esc(p.initial)}</div><div><h3>${esc(p.name)} <span class="muted" style="font-weight:400;font-size:13px">· ${esc(p.age)}세 · ${esc(p.cls)} · ${esc(p.device)}</span></h3><div class="bio">${esc(p.role)}</div><ul class="goals" style="padding-left:18px;margin:0">${p.goals.map(g => `<li>${esc(g)}</li>`).join('')}</ul><div class="muted" style="font-size:13px;margin-top:6px">불편 요소: ${p.pain.map(esc).join(' · ')}</div></div></div>`).join('');
+})();
+</script>
+</body></html>

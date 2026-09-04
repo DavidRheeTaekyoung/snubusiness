@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>7. 개발이력 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Workbench 7</span><h1>개발이력</h1><div class="sub">모든 결정 · 구현 · 수정 · 배포 · 점검 · 토론 반영의 단일 로그. 에이전트가 길을 잃지 않기 위한 기록.</div></div>
+      <div class="actions"><div class="pill-row" id="kf"><button class="pill on" data-k="">전체</button><button class="pill" data-k="decision">결정</button><button class="pill" data-k="build">구현</button><button class="pill" data-k="fix">수정</button><button class="pill" data-k="deploy">배포</button><button class="pill" data-k="inspect">점검</button><button class="pill" data-k="discuss">토론</button><button class="pill" data-k="todo">할 일</button></div></div></div>
+    <div class="admin-body">
+      <div class="panel" id="next"><h2>다음 할 일 <span class="badge">Next</span></h2><ul id="todo" style="margin:0;padding-left:20px;font-size:15px;line-height:1.9"></ul></div>
+      <div class="panel"><div class="panel-head"><h2>로그</h2><span class="muted" id="cnt"></span></div><ul class="log" id="log"></ul></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js"></script><script src="/assets/js/admin.js"></script>
+<script>
+(async () => {
+  const esc = SNU.esc; const H = await SNU.json('/data/history.json'); let k = '';
+  const K = { plan:'계획', build:'구현', fix:'수정', deploy:'배포', decision:'결정', inspect:'점검', discuss:'토론', todo:'할 일', research:'리서치' };
+  document.getElementById('todo').innerHTML = (H.next || []).map(t => `<li>${esc(t)}</li>`).join('') || '<li class="muted">없음</li>';
+  function r() { const rows = H.entries.filter(e => !k || e.kind === k).slice().reverse(); document.getElementById('cnt').textContent = rows.length + '건';
+    document.getElementById('log').innerHTML = rows.map(e => `<li id="${e.id}"><span class="t">${esc(e.ts)}<br><span style="color:var(--gold-500)">${e.id}</span></span><span class="k">${K[e.kind] || e.kind}</span><div class="m"><strong>${esc(e.title)}</strong>${e.detail ? `<div class="d">${esc(e.detail)}</div>` : ''}${e.files?.length ? `<div class="files">${e.files.map(esc).join(' · ')}</div>` : ''}${e.ref ? `<div class="d">ref: ${esc(e.ref)}</div>` : ''}</div></li>`).join(''); }
+  document.getElementById('kf').addEventListener('click', e => { const p = e.target.closest('.pill'); if (!p) return; k = p.dataset.k; [...p.parentElement.children].forEach(x => x.classList.toggle('on', x === p)); r(); }); r();
+  if (location.hash) document.querySelector(location.hash)?.scrollIntoView({ block: 'center' });
+})();
+</script>
+</body></html>

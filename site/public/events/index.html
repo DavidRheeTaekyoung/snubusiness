@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>행사 | 서울대학교 경영대학 총동문회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.ev{display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:center;background:var(--paper);border:1px solid var(--line);padding:26px 30px;margin-bottom:14px;transition:all .35s var(--ease)}
+.ev:hover{border-color:var(--gold-300);box-shadow:var(--shadow-1)}
+.ev .d{text-align:center;border-right:1px solid var(--line);padding-right:20px}
+.ev .d .m{font-family:var(--display);font-size:13px;letter-spacing:.2em;color:var(--gold-500);text-transform:uppercase}
+.ev .d .n{font-family:var(--display);font-size:44px;line-height:1;color:var(--navy-800);font-weight:600}
+.ev .d .w{font-size:12px;color:var(--ink-3)}
+.ev h3{font-size:19px;margin-bottom:6px}
+.ev .i{font-size:14px;color:var(--ink-3)}
+@media (max-width:700px){.ev{grid-template-columns:1fr}.ev .d{border:0;text-align:left;padding:0}}
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+<section class="page-hero"><div class="container">
+  <div class="crumbs"><a href="/">홈</a><span>/</span><span>행사</span></div>
+  <span class="eyebrow">Events</span><h1>행사</h1>
+  <p class="lede">정기총회부터 홈커밍데이, 산행과 골프까지. 동문이 만나는 모든 자리를 안내합니다.</p>
+</div></section>
+<nav class="subnav"><div class="container"><ul>
+  <li><a href="#calendar" data-default>행사 일정</a></li><li><a href="#assembly">정기총회 · 신년하례회</a></li><li><a href="#homecoming">홈커밍데이</a></li><li><a href="#clubs">산행 · 골프 · 바둑</a></li>
+</ul></div></nav>
+
+<section class="section" id="calendar"><div class="container">
+  <div class="section-head"><div><span class="eyebrow">Calendar</span><h2>행사 일정</h2></div>
+    <div class="pill-row" id="filters" style="display:flex;gap:8px;flex-wrap:wrap"></div></div>
+  <div id="ev-list"></div>
+</div></section>
+
+<section class="section paper" id="assembly"><div class="container"><div class="split">
+  <div class="frame" style="aspect-ratio:16/11"><div class="caption"><small>Annual</small>General Assembly</div></div>
+  <div><span class="eyebrow">Assembly</span><h2>정기총회 · 신년하례회</h2><div class="rule-gold"></div>
+    <p class="lede">매년 1월, 한 해를 여는 동문 최대의 모임입니다. 임원 추인과 결산 보고, 장학금 전달식과 함께 세대를 넘어 동문이 한자리에 모입니다.</p>
+    <ul style="color:var(--ink-2);font-size:15px;line-height:2"><li>시기: 매년 1월 셋째 주</li><li>참석 대상: 전 동문 (기별 동문회 단위 참석 권장)</li><li>주요 순서: 개회 · 회장 인사 · 결산 및 사업계획 보고 · 임원 추인 · 장학금 전달 · 만찬</li></ul></div>
+</div></div></section>
+
+<section class="section" id="homecoming"><div class="container"><div class="split">
+  <div><span class="eyebrow">Homecoming</span><h2>홈커밍데이</h2><div class="rule-gold"></div>
+    <p class="lede">졸업 10·20·30·40·50주년을 맞은 동문을 모교로 초청합니다. 캠퍼스 투어, 교수님과의 만남, 기수별 만찬으로 관악의 하루를 다시 채웁니다.</p>
+    <a class="btn ghost mt-2" href="/news/#notice">초청 안내 보기 <span class="arrow">→</span></a></div>
+  <div class="frame" style="aspect-ratio:16/11"><div class="caption"><small>Every May</small>Homecoming Day</div></div>
+</div></div></section>
+
+<section class="section paper" id="clubs"><div class="container">
+  <div class="section-head"><div><span class="eyebrow">Clubs</span><h2>산행 · 골프 · 바둑 · 동호회</h2></div></div>
+  <div class="grid c4">
+    <div class="card"><span class="tag">Hiking</span><h3>산행대회</h3><p>매년 5월 5일, 가족과 함께 관악산을 오릅니다. 어린이 사생대회 병행.</p></div>
+    <div class="card"><span class="tag">Golf</span><h3>골프대회</h3><p>상·하반기 기별 대항전. 우승 기수에는 '뭉치자상'이 수여됩니다.</p></div>
+    <div class="card"><span class="tag">Baduk</span><h3>바둑대회</h3><p>매년 가을 동문회장배 친선 바둑대회.</p></div>
+    <div class="card"><span class="tag">More</span><h3>동호회 개설</h3><p>와인, 러닝, 독서 등 새로운 동호회를 제안해 주세요.</p></div>
+  </div>
+</div></section>
+
+<div id="site-footer"></div>
+<script src="/assets/js/site.js"></script>
+<script>
+(async () => {
+  const { json, esc } = SNU;
+  const items = (await json('/data/events.json')).items.sort((a,b)=>a.date.localeCompare(b.date));
+  const kinds = ['전체', ...new Set(items.map(i=>i.kind))];
+  let cur = '전체';
+  const W = ['일','월','화','수','목','금','토'];
+  const ST = { open:['신청 접수중','gold'], soon:['준비중','navy'], plan:['계획','soon'] };
+  const f = document.getElementById('filters');
+  f.innerHTML = kinds.map(k=>`<button class="pill ${k===cur?'on':''}" data-k="${k}" style="font-size:12.5px;padding:6px 14px;border:1px solid var(--line-2);border-radius:999px;background:${k===cur?'var(--navy-800)':'var(--paper)'};color:${k===cur?'#fff':'var(--ink-2)'}">${k}</button>`).join('');
+  f.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if(!b) return; cur = b.dataset.k; [...f.children].forEach(x=>{const on=x.dataset.k===cur; x.style.background=on?'var(--navy-800)':'var(--paper)'; x.style.color=on?'#fff':'var(--ink-2)';}); render(); });
+  function render(){
+    const rows = items.filter(i=>cur==='전체'||i.kind===cur);
+    document.getElementById('ev-list').innerHTML = rows.map(i => { const d = new Date(i.date); const s = ST[i.status]||ST.plan; return `
+      <div class="ev"><div class="d"><div class="m">${d.toLocaleString('en',{month:'short'})} ${d.getFullYear()}</div><div class="n">${String(d.getDate()).padStart(2,'0')}</div><div class="w">${W[d.getDay()]}요일 ${i.time}</div></div>
+      <div><span class="badge ${s[1]}" style="margin-bottom:8px">${esc(i.kind)}</span><h3>${esc(i.title)}</h3><div class="i">${esc(i.place)} · ${esc(i.desc)}</div></div>
+      <div>${i.status==='open'?'<a class="btn sm" href="/login/">참가 신청</a>':`<span class="badge soon">${s[0]}</span>`}</div></div>`; }).join('');
+  }
+  render();
+})();
+</script>
+</body></html>

@@ -1,0 +1,18 @@
+{
+  "next": [
+    "Cloudflare Pages 프로젝트 생성 및 GitHub 연동, D1 바인딩(DB), snubusiness.com 커스텀 도메인 연결",
+    "배포 후 /api/health 확인 → 자율점검 1차 실행(R-001) → 결과 기록",
+    "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·관계 설명) 자료 요청",
+    "P2 진입: 공지·행사 D1 이관 및 작업대 편집 UI"
+  ],
+  "entries": [
+    { "id": "L-0001", "ts": "2026-09-04 13:30", "kind": "plan", "title": "프로젝트 착수 — 서울대학교 경영대학 총동문회 홈페이지(snubusiness.com)", "detail": "작업대 주인 지시: 기존 상대 홈페이지와 해외 비즈니스스쿨 참고 리서치, 홈/관리자 분리, 관리자 7개 페이지(리서치·개발개요·데이터정의·데이터흐름도·개발자토론·자율점검·개발이력), 우아하고 고급스러운 디자인, GitHub+Cloudflare 배포." },
+    { "id": "L-0002", "ts": "2026-09-04 13:40", "kind": "research", "title": "리서치 완료 — sangdae.com, cba.snu.ac.kr, HBS·Stanford·Wharton·Booth·LBS·INSEAD·MIT Sloan", "detail": "sangdae.com: 6개 메뉴, 비반응형, HTTP, 계좌 노출, 디렉터리 없음. 해외 공통: Directory·Community·Events/Reunion·Career·Giving·Stories·Volunteer·통계. 결과는 리서치 페이지에 정리.", "files": ["content/research.md"] },
+    { "id": "L-0003", "ts": "2026-09-04 13:50", "kind": "decision", "title": "기술 스택 결정 — 정적 HTML/CSS/JS + Cloudflare Pages Functions + D1, 빌드 도구 없음", "detail": "이유: 배포 실패 가능성 최소화, 어느 개발자든 유지보수 가능, 도메인이 이미 Cloudflare NS 사용 중. 회원·결제는 P3/P4에서 Functions로 확장." },
+    { "id": "L-0004", "ts": "2026-09-04 13:55", "kind": "decision", "title": "디자인 시스템 — 딥 네이비 #0B1F3A · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR", "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.", "files": ["assets/css/main.css", "assets/css/admin.css"] },
+    { "id": "L-0005", "ts": "2026-09-04 14:20", "kind": "build", "title": "공개 사이트 v1 — 홈, 소개, 소식, 행사, 동문, 장학·기부, 자료실, 로그인(안내)", "detail": "공통 헤더/푸터는 site.js가 렌더. 콘텐츠는 /data/*.json에서 fetch. 서브내비 앵커 방식.", "files": ["index.html", "about/", "news/", "events/", "members/", "giving/", "media/", "login/", "assets/js/site.js", "data/notices.json", "data/events.json", "data/officers.json", "data/companies.json"] },
+    { "id": "L-0006", "ts": "2026-09-04 14:40", "kind": "build", "title": "작업대(관리자) v1 — 대시보드 + 7개 페이지", "detail": "리서치·개요·데이터·흐름은 /content/*.md를 marked+mermaid로 렌더. 토론은 D1 API. 점검·이력은 JSON.", "files": ["admin/", "assets/js/admin.js", "content/*.md", "data/plan.json", "data/personas.json", "data/inspections.json", "data/history.json"] },
+    { "id": "L-0007", "ts": "2026-09-04 14:50", "kind": "build", "title": "API — /api/health, /api/discussions (GET/POST), /api/discussions/:id (GET/POST/PATCH), 스키마 자동 생성", "detail": "D1 바인딩 이름 DB. 스키마는 요청 시 CREATE IF NOT EXISTS로 부트스트랩. role=agent는 AGENT_KEY 환경변수 설정 시에만 허용, 미설정 시 에이전트 답변은 data/agent-replies.json(git)으로.", "files": ["functions/_lib.js", "functions/api/health.js", "functions/api/discussions/index.js", "functions/api/discussions/[id].js"] },
+    { "id": "L-0008", "ts": "2026-09-04 14:55", "kind": "todo", "title": "TODO-001~006 등록 — 통계 확인, /admin Access 보호, 임원 명단, 회칙·회비·계좌, 사진, 상대동창회 관계 설명", "detail": "데이터정의 문서 6장 참조. 작업대 주인 제공 항목은 토론 스레드로 요청 예정." }
+  ]
+}

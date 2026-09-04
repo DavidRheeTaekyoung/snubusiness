@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Workbench | 경영대 총동문회 개발 작업대</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><h1>대시보드</h1><div class="sub">마스터 개발계획을 늘 상기하며 — 오늘의 상태</div></div>
+      <div class="actions"><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
+    <div class="admin-body">
+      <div class="kpi">
+        <div class="k"><div class="v" id="k-phase">—</div><div class="l">현재 단계</div></div>
+        <div class="k gold"><div class="v" id="k-open">—</div><div class="l">열린 토론</div></div>
+        <div class="k"><div class="v" id="k-find">—</div><div class="l">미해결 점검 항목</div></div>
+        <div class="k"><div class="v" id="k-log">—</div><div class="l">개발이력 건수</div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>마스터 개발계획 — 단계 진행</h2><a class="link-more" href="/admin/overview/">전체 보기</a></div>
+        <table class="table" id="phases"><thead><tr><th style="width:60px">단계</th><th>목표</th><th style="width:120px">상태</th><th style="width:140px">기간</th></tr></thead><tbody></tbody></table></div>
+      <div class="grid c2" style="gap:24px">
+        <div class="panel"><div class="panel-head"><h2>최근 개발이력</h2><a class="link-more" href="/admin/history/">전체</a></div><ul class="log" id="recent-log"></ul></div>
+        <div class="panel"><div class="panel-head"><h2>열린 토론</h2><a class="link-more" href="/admin/discussion/">전체</a></div><div id="recent-threads"></div></div>
+      </div>
+      <div class="panel"><h2>작업대 사용법</h2>
+        <div class="prose" style="font-size:15px;max-width:none">
+          <ol>
+            <li><strong>개발자토론</strong>에 요청·질문·의견을 남깁니다. 에이전트는 세션 시작 시 <code>/api/discussions?status=open</code>을 읽고 답변과 반영 내용을 같은 스레드에 기록합니다.</li>
+            <li><strong>자율점검</strong>은 7개 페르소나가 가상으로 사이트를 사용하며 발견한 문제를 기록합니다. 간단한 문제는 에이전트가 즉시 수정하고 개발이력에 남기며, 판단이 필요한 문제는 토론에 올립니다.</li>
+            <li><strong>개발이력</strong>은 모든 결정·변경·배포의 단일 로그입니다. 에이전트가 길을 잃지 않도록 매 세션의 시작과 끝에 기록합니다.</li>
+            <li><strong>개발개요</strong>의 마스터 개발계획이 최상위 기준입니다. 계획 변경은 토론을 거쳐 개요 문서와 이력에 동시에 반영합니다.</li>
+          </ol>
+        </div></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js"></script><script src="/assets/js/admin.js"></script>
+<script>
+(async () => {
+  const esc = SNU.esc;
+  const plan = await SNU.json('/data/plan.json');
+  document.getElementById('k-phase').textContent = plan.current;
+  document.querySelector('#phases tbody').innerHTML = plan.phases.map(p => `<tr><td><strong>${p.id}</strong></td><td>${esc(p.goal)}<div class="muted" style="font-size:12.5px">${esc(p.scope)}</div></td><td><span class="status ${p.status}">${{done:'완료',wip:'진행중',todo:'예정',hold:'보류'}[p.status]}</span></td><td class="muted">${esc(p.when)}</td></tr>`).join('');
+  const log = await SNU.json('/data/history.json');
+  document.getElementById('k-log').textContent = log.entries.length;
+  document.getElementById('recent-log').innerHTML = log.entries.slice(-5).reverse().map(e => `<li><span class="t">${esc(e.ts)}</span><span class="k">${esc(e.kind)}</span><div class="m"><strong>${esc(e.title)}</strong></div></li>`).join('');
+  const insp = await SNU.json('/data/inspections.json');
+  document.getElementById('k-find').textContent = insp.findings.filter(f => f.status !== 'fixed' && f.status !== 'wontfix').length;
+  try { const d = await WB.api('/discussions?status=open'); document.getElementById('k-open').textContent = d.threads.length;
+    document.getElementById('recent-threads').innerHTML = d.threads.length ? d.threads.slice(0,5).map(t => `<div class="officer" style="padding:12px 0"><div><div class="nm" style="font-size:15px"><a href="/admin/discussion/#t${t.id}">${esc(t.title)}</a></div><div class="cls">${esc(t.author)} · ${WB.fmt(t.created_at)}</div></div></div>`).join('') : '<div class="empty">열린 토론이 없습니다.</div>'; }
+  catch (e) { document.getElementById('k-open').textContent = '—'; document.getElementById('recent-threads').innerHTML = '<div class="empty">API에 연결되지 않았습니다 (로컬 미리보기 또는 D1 미바인딩).</div>'; }
+})();
+</script>
+</body></html>

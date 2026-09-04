@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5. 개발자토론 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Workbench 5</span><h1>개발자토론</h1><div class="sub">여기에 남긴 글을 에이전트가 읽고 개발에 반영합니다. 답변과 반영 내역은 같은 스레드에 기록됩니다.</div></div>
+      <div class="actions"><div class="pill-row" id="filter"><button class="pill on" data-s="open">열림</button><button class="pill" data-s="answered">답변됨</button><button class="pill" data-s="resolved">해결</button><button class="pill" data-s="">전체</button></div></div></div>
+    <div class="admin-body">
+      <div class="composer">
+        <div class="row">
+          <div class="field"><label for="c-title">제목</label><input id="c-title" placeholder="예: 홈 히어로 카피를 더 담백하게"></div>
+          <div class="field"><label for="c-kind">종류</label><select id="c-kind"><option value="request">요청 (이렇게 바꿔라)</option><option value="question">질문</option><option value="idea">아이디어</option><option value="issue">문제 제보</option><option value="decision">결정 사항</option></select></div>
+        </div>
+        <div class="field"><label for="c-body">내용</label><textarea id="c-body" placeholder="구체적일수록 좋습니다. 페이지 · 위치 · 원하는 결과를 적어 주세요."></textarea></div>
+        <div class="foot"><div>작성자: <input id="c-author" value="이태경" style="border:0;border-bottom:1px solid var(--line-2);background:transparent;font:inherit;width:120px;padding:2px 4px"> · 저장소: D1 <code id="db-state">확인 중</code></div><button class="btn" id="c-send">등록</button></div>
+      </div>
+      <div id="threads"><div class="empty">불러오는 중…</div></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js"></script><script src="/assets/js/admin.js"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast, fmt } = WB;
+  let status = 'open', threads = [], extra = { replies: [] };
+  const KIND = { request:'요청', question:'질문', idea:'아이디어', issue:'문제', decision:'결정', inspection:'점검' };
+  const ST = { open:['열림','open'], answered:['답변됨','wip'], resolved:['해결','done'], wontfix:['보류','hold'] };
+  const ROLE = { user:'작업대 주인', agent:'에이전트 Claude', persona:'페르소나', system:'시스템' };
+  try { extra = await SNU.json('/data/agent-replies.json'); } catch {}
+  async function load() {
+    const box = document.getElementById('threads');
+    try { const d = await api('/discussions' + (status ? '?status=' + status : '')); threads = d.threads; document.getElementById('db-state').textContent = '연결됨'; render(); }
+    catch (e) { document.getElementById('db-state').textContent = '미연결'; box.innerHTML = `<div class="empty">토론 저장소(D1)에 연결되지 않았습니다. ${esc(e.message)}<br><span style="font-size:12.5px">로컬 미리보기이거나 Cloudflare Pages에 D1 바인딩(DB)이 아직 없는 상태입니다. 배포 후 자동으로 연결됩니다.</span></div>`; }
+  }
+  function msgs(t) {
+    const fromFile = extra.replies.filter(r => String(r.thread_id) === String(t.id)).map(r => ({ author: '에이전트 Claude', role: 'agent', body: r.body, created_at: r.ts, ref: r.ref }));
+    return [...(t.messages || []), ...fromFile].sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)));
+  }
+  function render() {
+    const box = document.getElementById('threads');
+    if (!threads.length) { box.innerHTML = '<div class="empty">스레드가 없습니다. 위에서 첫 글을 남겨 주세요.</div>'; return; }
+    const openId = location.hash.replace('#t', '');
+    box.innerHTML = threads.map(t => { const s = ST[t.status] || ST.open; const ms = msgs(t); return `
+      <div class="thread ${String(t.id) === openId ? 'open' : ''}" id="t${t.id}">
+        <div class="head" data-toggle><h3><span class="muted" style="font-family:var(--display);margin-right:8px">#${t.id}</span>${esc(t.title)}</h3>
+          <div class="meta"><span class="badge navy">${KIND[t.kind] || t.kind}</span><span class="status ${s[1]}">${s[0]}</span><span>${esc(t.author)}</span><span>${fmt(t.created_at)}</span><span>${ms.length}개 메시지</span></div></div>
+        <div class="body">
+          ${ms.map(m => `<div class="msg ${m.role}"><div class="who">${ROLE[m.role] || m.role} · ${esc(m.author)} <span class="t">${fmt(m.created_at)}</span>${m.ref ? ` <a href="/admin/history/#${m.ref}" class="badge" style="font-size:10px">${m.ref}</a>` : ''}</div><div class="txt">${esc(m.body)}</div></div>`).join('')}
+          <div class="field mt-3"><textarea placeholder="답글…" data-reply="${t.id}" style="min-height:90px"></textarea></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-send="${t.id}">답글 등록</button>
+            ${t.status !== 'resolved' ? `<button class="btn sm ghost" data-status="${t.id}" data-to="resolved">해결로 표시</button>` : `<button class="btn sm ghost" data-status="${t.id}" data-to="open">다시 열기</button>`}
+            ${t.status !== 'wontfix' ? `<button class="btn sm ghost" data-status="${t.id}" data-to="wontfix">보류</button>` : ''}</div>
+        </div></div>`; }).join('');
+  }
+  document.getElementById('threads').addEventListener('click', async e => {
+    const h = e.target.closest('[data-toggle]'); if (h) { h.parentElement.classList.toggle('open'); return; }
+    const s = e.target.closest('[data-send]'); if (s) { const id = s.dataset.send; const ta = document.querySelector(`[data-reply="${id}"]`); if (!ta.value.trim()) return toast('내용을 입력하세요'); s.disabled = true; try { await api('/discussions/' + id, { method: 'POST', body: { author: document.getElementById('c-author').value || '이태경', body: ta.value.trim(), role: 'user' } }); toast('등록되었습니다'); await load(); document.getElementById('t' + id)?.classList.add('open'); } catch (err) { toast('실패: ' + err.message); } s.disabled = false; return; }
+    const st = e.target.closest('[data-status]'); if (st) { try { await api('/discussions/' + st.dataset.status, { method: 'PATCH', body: { status: st.dataset.to } }); toast('상태가 변경되었습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } }
+  });
+  document.getElementById('c-send').addEventListener('click', async () => {
+    const title = document.getElementById('c-title').value.trim(), body = document.getElementById('c-body').value.trim();
+    if (!title || !body) return toast('제목과 내용을 입력하세요');
+    const b = document.getElementById('c-send'); b.disabled = true;
+    try { await api('/discussions', { method: 'POST', body: { title, body, kind: document.getElementById('c-kind').value, author: document.getElementById('c-author').value || '이태경' } }); document.getElementById('c-title').value = ''; document.getElementById('c-body').value = ''; toast('스레드가 생성되었습니다. 에이전트가 다음 세션에서 읽습니다.'); status = 'open'; [...document.querySelectorAll('#filter .pill')].forEach(p => p.classList.toggle('on', p.dataset.s === 'open')); await load(); }
+    catch (err) { toast('실패: ' + err.message); } b.disabled = false;
+  });
+  document.getElementById('filter').addEventListener('click', e => { const p = e.target.closest('.pill'); if (!p) return; status = p.dataset.s; [...p.parentElement.children].forEach(x => x.classList.toggle('on', x === p)); load(); });
+  await load();
+})();
+</script>
+</body></html>
