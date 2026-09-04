@@ -1,5 +1,6 @@
 {
   "next": [
+    "snubusiness.com 전환 시: Pages 프로젝트를 customsshin 계정으로 이전 배포 후 sitemap/robots를 snubusiness.com으로 복원, snu.artus.kr은 리디렉션 유지",
     "[결정 필요] snubusiness.com 도메인 보유 Cloudflare 계정 확인 → 커스텀 도메인 연결 (토론 #2)",
     "Cloudflare Pages ↔ GitHub 자동 배포 연결 (대시보드: Workers 및 Pages > snubusiness > 설정 > 빌드 > 소스 연결). 그 전까지는 `npx wrangler pages deploy public --project-name snubusiness`",
     "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·상대동창회 관계) 자료 요청",
@@ -143,6 +144,17 @@
       "title": "자율점검 R-001 — 배포 직후 10개 표준 시나리오, 페르소나 7인",
       "detail": "통과 8 / 보류 2 (S-03 행사 신청·S-05 동문 찾기는 P3 로그인 전까지 안내만). 발견 6건: 즉시 수정 3, 토론 이관 1, 미해결 2.",
       "ref": "R-001"
+    },
+    {
+      "id": "L-0014",
+      "ts": "2026-09-04 16:05",
+      "kind": "deploy",
+      "title": "검토용 임시 주소 개통 — https://snu.artus.kr (prodigen 계정 artus.kr 존, Pages 커스텀 도메인)",
+      "detail": "작업대 주인 지시: snubusiness.com은 customsshin 계정에 있어 몇 시간 뒤 처리. 선배님들 검토를 위해 artus.kr 서브도메인으로 먼저 공개. Cloudflare가 CNAME snu → snubusiness.pages.dev 자동 생성. sitemap/robots를 임시 주소로 갱신 — 본 도메인 전환 시 되돌릴 것.",
+      "files": [
+        "sitemap.xml",
+        "robots.txt"
+      ]
     }
   ]
 }
