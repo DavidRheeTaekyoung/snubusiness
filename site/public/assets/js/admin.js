@@ -13,6 +13,7 @@
   function side() {
     return `<aside class="admin-side">
       <a class="brand" href="/admin/"><span class="seal" style="color:#DCC392;width:38px;height:38px">${SNU.SEAL}</span><span class="name"><span class="ko">경영대 총동문회 Workbench</span><span class="en">snubusiness.com</span></span></a>
+      <button class="admin-menu-btn" aria-label="메뉴" data-admin-menu><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       <nav>${MENU.map(g => `<div class="group">${g.group}</div>${g.items.map(i => `<a href="/admin/${i[0] ? i[0] + '/' : ''}" class="${seg === i[0] ? 'active' : ''}"><span class="n">${i[2]}</span>${i[1]}</a>`).join('')}`).join('')}
         <div class="group">바로가기</div>
         <a href="/" target="_blank"><span class="n">↗</span>공개 홈페이지</a>
@@ -59,6 +60,7 @@
 
   function mount() {
     const s = document.getElementById('admin-side'); if (s) s.outerHTML = side();
+    document.querySelector('[data-admin-menu]')?.addEventListener('click', () => document.querySelector('.admin-side').classList.toggle('open'));
     document.querySelectorAll('[data-doc]').forEach(el => renderDoc(el, el.dataset.doc));
     health();
   }

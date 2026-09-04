@@ -276,3 +276,11 @@ html{scrollbar-width:thin;scrollbar-color:rgba(11,31,58,.28) transparent}
 .subnav ul::-webkit-scrollbar,.mobile-nav::-webkit-scrollbar,.admin-side::-webkit-scrollbar,.nav .sub::-webkit-scrollbar{display:none}
 .subnav ul{overflow-y:hidden}
 .subnav a{margin-bottom:0}
+@media (max-width:760px){
+  .lock{flex-wrap:wrap;padding:24px}
+  .lock .btn{margin-left:0!important;width:100%;justify-content:center}
+  .acct{padding:20px}
+  .notice-list a{padding:14px 4px}
+  .section-head{margin-bottom:24px}
+  .prose table{display:block;overflow-x:auto;white-space:nowrap}
+}

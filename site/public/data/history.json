@@ -192,6 +192,18 @@
         "assets/js/admin.js",
         "content/data.md"
       ]
+    },
+    {
+      "id": "L-0018",
+      "ts": "2026-09-04 18:00",
+      "kind": "fix",
+      "title": "모바일 대응 보강 — 작업대 사이드바를 접히는 상단 바로, 표·잠금 배너·회의 페이지 레이아웃 정리",
+      "detail": "작업대 주인 확인 요청. 휴대폰에서 작업대 메뉴가 956px을 차지해 내용이 밀리던 문제. 960px 이하에서 햄버거 토글, 패널·문서 표는 가로 스크롤, 동문 찾기 잠금 배너 줄바꿈.",
+      "files": [
+        "assets/css/admin.css",
+        "assets/css/main.css",
+        "assets/js/admin.js"
+      ]
     }
   ]
 }
