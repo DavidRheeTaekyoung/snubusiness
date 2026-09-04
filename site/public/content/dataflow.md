@@ -2,20 +2,20 @@
 
 ```mermaid
 flowchart LR
-  V((방문자 · 동문)) -->|열람| PUB[공개 사이트<br/>/ /about /news /events<br/>/members /giving /media]
-  PUB -->|fetch| JSON[(/data/*.json)]
-  O((작업대 주인)) -->|질문 · 요청| DISC[개발자토론<br/>/admin/discussion]
-  DISC -->|POST /api/discussions| API[Pages Functions]
-  API -->|INSERT/SELECT| D1[(D1 · threads · messages)]
-  AG((에이전트 Claude)) -->|GET /api/discussions?status=open| API
-  AG -->|답변 · 반영 커밋| GH[(GitHub main)]
+  V(("방문자 · 동문")) -->|열람| PUB["공개 사이트<br/>/ /about /news /events<br/>/members /giving /media"]
+  PUB -->|fetch| JSON[("/data/*.json")]
+  O(("작업대 주인")) -->|질문 · 요청| DISC["개발자토론<br/>/admin/discussion"]
+  DISC -->|POST /api/discussions| API["Pages Functions"]
+  API -->|INSERT/SELECT| D1[("D1 · threads · messages")]
+  AG(("에이전트 Claude")) -->|GET /api/discussions?status=open| API
+  AG -->|답변 · 반영 커밋| GH[("GitHub main")]
   GH -->|자동 배포| PUB
   GH -->|자동 배포| API
-  AG -->|점검 결과 기록| INS[(inspections.json)]
-  AG -->|이력 기록| LOG[(history.json)]
+  AG -->|점검 결과 기록| INS[("inspections.json")]
+  AG -->|이력 기록| LOG[("history.json")]
   INS -->|판단 필요| DISC
-  O -->|열람| WB[작업대 문서<br/>리서치 · 개요 · 데이터 · 흐름]
-  WB -->|fetch| MD[(/content/*.md)]
+  O -->|열람| WB["작업대 문서<br/>리서치 · 개요 · 데이터 · 흐름"]
+  WB -->|fetch| MD[("/content/*.md")]
 ```
 
 ## 2. 개발자토론 — 질의 → 반영 시퀀스
@@ -49,17 +49,17 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-  D[배포 완료] --> R[점검 실행<br/>페르소나 7인 × 시나리오]
-  R --> F{발견 항목}
-  F -->|P3 사소 · 즉시 수정 가능| FX[코드 수정]
-  FX --> L[개발이력 기록 fix]
-  FX --> RE[재배포]
-  F -->|P1·P2 또는 판단 필요| ES[개발자토론에 issue 스레드 생성<br/>role: persona]
-  ES --> W[작업대 주인 판단]
+  D["배포 완료"] --> R["점검 실행<br/>페르소나 7인 × 시나리오"]
+  R --> F{"발견 항목"}
+  F -->|P3 사소 · 즉시 수정 가능| FX["코드 수정"]
+  FX --> L["개발이력 기록 fix"]
+  FX --> RE["재배포"]
+  F -->|P1·P2 또는 판단 필요| ES["개발자토론에 issue 스레드 생성<br/>role: persona"]
+  ES --> W["작업대 주인 판단"]
   W -->|승인| FX
-  W -->|보류| H[wontfix · hold 기록]
-  F -->|문제 없음| OK[pass 기록]
-  L --> I[(inspections.json 갱신)]
+  W -->|보류| H["wontfix · hold 기록"]
+  F -->|문제 없음| OK["pass 기록"]
+  L --> I[("inspections.json 갱신")]
   OK --> I
   H --> I
 ```
@@ -68,11 +68,11 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-  subgraph P1 · 파일
-    E1[에이전트가 JSON 편집] --> C1[git commit] --> B1[Pages 배포] --> S1[사이트 fetch /data/*.json]
+  subgraph P1["P1 · 파일"]
+    E1["에이전트가 JSON 편집"] --> C1["git commit"] --> B1["Pages 배포"] --> S1["사이트 fetch /data/*.json"]
   end
-  subgraph P2 · CMS
-    E2[사무국이 작업대 편집 화면 입력] --> A2[POST /api/posts] --> D2[(D1 posts · events)] --> S2[사이트 fetch /api/posts]
+  subgraph P2["P2 · CMS"]
+    E2["사무국이 작업대 편집 화면 입력"] --> A2["POST /api/posts"] --> D2[("D1 posts · events")] --> S2["사이트 fetch /api/posts"]
   end
   P1 -. 이관 스크립트 .-> P2
 ```
@@ -102,12 +102,12 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  L[로컬 작업대<br/>OneDrive/경영대총동문회/site] -->|git push main| G[GitHub]
-  G -->|webhook| CFB[Cloudflare Pages Build<br/>빌드 없음 · /public 그대로]
-  CFB --> PR[프로덕션<br/>snubusiness.com]
-  G -->|PR 브랜치| PV[프리뷰 URL<br/>*.snubusiness.pages.dev]
-  PR --> HC[/api/health 확인/]
-  HC --> INSP[자율점검]
+  L["로컬 작업대<br/>OneDrive/경영대총동문회/site"] -->|git push main| G["GitHub"]
+  G -->|webhook| CFB["Cloudflare Pages Build<br/>빌드 없음 · /public 그대로"]
+  CFB --> PR["프로덕션<br/>snubusiness.com"]
+  G -->|PR 브랜치| PV["프리뷰 URL<br/>*.snubusiness.pages.dev"]
+  PR --> HC["/api/health 확인"]
+  HC --> INSP["자율점검"]
 ```
 
 ## 7. 데이터 보관 · 백업

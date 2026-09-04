@@ -38,18 +38,18 @@
 
 ```mermaid
 flowchart LR
-  U[동문 · 방문자<br/>브라우저] -->|HTTPS| CF[Cloudflare<br/>DNS · CDN · TLS]
-  A[작업대 주인 · 에이전트] -->|HTTPS| CF
-  CF --> P[Cloudflare Pages<br/>정적 파일 /public]
-  CF --> F[Pages Functions<br/>/functions/api/*]
-  F --> D1[(Cloudflare D1<br/>snubusiness-db)]
-  GH[GitHub<br/>DavidRheeTaekyoung/snubusiness] -->|push → 자동 배포| P
+  U["동문 · 방문자<br/>브라우저"] -->|HTTPS| CF["Cloudflare<br/>DNS · CDN · TLS"]
+  A["작업대 주인 · 에이전트"] -->|HTTPS| CF
+  CF --> P["Cloudflare Pages<br/>정적 파일 /public"]
+  CF --> F["Pages Functions<br/>/functions/api/*"]
+  F --> D1[("Cloudflare D1<br/>snubusiness-db")]
+  GH["GitHub<br/>DavidRheeTaekyoung/snubusiness"] -->|push → 자동 배포| P
   GH -->|push| F
-  AG[에이전트 Claude<br/>로컬 작업대] -->|git commit/push| GH
+  AG["에이전트 Claude<br/>로컬 작업대"] -->|git commit/push| GH
   AG -->|GET /api/discussions| F
   subgraph 데이터
     D1
-    J[/data/*.json<br/>공지·행사·임원·계획·이력·점검/]
+    J["/data/*.json<br/>공지·행사·임원·계획·이력·점검"]
   end
   P --> J
 ```
@@ -70,55 +70,55 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-  H[/ 홈/]
-  H --> AB[/about/ 동문회 소개]
-  AB --> AB1[#greeting 회장 인사말]
-  AB --> AB2[#mission 비전 · 사업]
-  AB --> AB3[#history 연혁]
-  AB --> AB4[#bylaws 회칙]
-  AB --> AB5[#officers 임원 · 조직]
-  AB --> AB6[#office 사무국]
-  H --> NW[/news/ 소식]
-  NW --> NW1[#notice 공지사항]
-  NW --> NW2[#news 동문회 소식]
-  NW --> NW3[#family 동문 경조사]
-  NW --> NW4[#press 언론 속 동문]
-  H --> EV[/events/ 행사]
-  EV --> EV1[#calendar 행사 일정]
-  EV --> EV2[#assembly 정기총회]
-  EV --> EV3[#homecoming 홈커밍데이]
-  EV --> EV4[#clubs 산행 · 골프 · 바둑]
-  H --> MB[/members/ 동문]
-  MB --> MB1[#directory 동문 찾기 🔒]
-  MB --> MB2[#classes 기별 동문회]
-  MB --> MB3[#companies 동문 기업]
-  MB --> MB4[#stories 동문 이야기]
-  MB --> MB5[#mentoring 멘토링]
-  H --> GV[/giving/ 장학 · 기부]
-  GV --> GV1[#scholarship 장학사업]
-  GV --> GV2[#dues 회비 납부]
-  GV --> GV3[#donate 기부 안내]
-  GV --> GV4[#honor 기부자 예우]
-  GV --> GV5[#report 재정 보고]
-  H --> MD[/media/ 자료실]
-  MD --> MD1[#newsletter 동문회보]
-  MD --> MD2[#gallery 갤러리]
-  MD --> MD3[#directory 동문 명부]
-  MD --> MD4[#forms 서식]
-  H --> LG[/login/ 로그인 · P3]
-  H --> LEG[/privacy/ · /terms/ · /email-policy/]
+  H["/ 홈"]
+  H --> AB["/about/ 동문회 소개"]
+  AB --> AB1["#greeting 회장 인사말"]
+  AB --> AB2["#mission 비전 · 사업"]
+  AB --> AB3["#history 연혁"]
+  AB --> AB4["#bylaws 회칙"]
+  AB --> AB5["#officers 임원 · 조직"]
+  AB --> AB6["#office 사무국"]
+  H --> NW["/news/ 소식"]
+  NW --> NW1["#notice 공지사항"]
+  NW --> NW2["#news 동문회 소식"]
+  NW --> NW3["#family 동문 경조사"]
+  NW --> NW4["#press 언론 속 동문"]
+  H --> EV["/events/ 행사"]
+  EV --> EV1["#calendar 행사 일정"]
+  EV --> EV2["#assembly 정기총회"]
+  EV --> EV3["#homecoming 홈커밍데이"]
+  EV --> EV4["#clubs 산행 · 골프 · 바둑"]
+  H --> MB["/members/ 동문"]
+  MB --> MB1["#directory 동문 찾기 🔒"]
+  MB --> MB2["#classes 기별 동문회"]
+  MB --> MB3["#companies 동문 기업"]
+  MB --> MB4["#stories 동문 이야기"]
+  MB --> MB5["#mentoring 멘토링"]
+  H --> GV["/giving/ 장학 · 기부"]
+  GV --> GV1["#scholarship 장학사업"]
+  GV --> GV2["#dues 회비 납부"]
+  GV --> GV3["#donate 기부 안내"]
+  GV --> GV4["#honor 기부자 예우"]
+  GV --> GV5["#report 재정 보고"]
+  H --> MD["/media/ 자료실"]
+  MD --> MD1["#newsletter 동문회보"]
+  MD --> MD2["#gallery 갤러리"]
+  MD --> MD3["#directory 동문 명부"]
+  MD --> MD4["#forms 서식"]
+  H --> LG["/login/ 로그인 · P3"]
+  H --> LEG["/privacy/ · /terms/ · /email-policy"]
 ```
 
 ```mermaid
 flowchart TB
-  W[/admin/ 작업대 대시보드]
-  W --> W1[/admin/research/ 1. 리서치]
-  W --> W2[/admin/overview/ 2. 개발개요 · 마스터플랜]
-  W --> W3[/admin/data/ 3. 데이터정의]
-  W --> W4[/admin/dataflow/ 4. 데이터흐름도]
-  W --> W5[/admin/discussion/ 5. 개발자토론 ⇄ D1]
-  W --> W6[/admin/inspection/ 6. 자율점검]
-  W --> W7[/admin/history/ 7. 개발이력]
+  W["/admin/ 작업대 대시보드"]
+  W --> W1["/admin/research/ 1. 리서치"]
+  W --> W2["/admin/overview/ 2. 개발개요 · 마스터플랜"]
+  W --> W3["/admin/data/ 3. 데이터정의"]
+  W --> W4["/admin/dataflow/ 4. 데이터흐름도"]
+  W --> W5["/admin/discussion/ 5. 개발자토론 ⇄ D1"]
+  W --> W6["/admin/inspection/ 6. 자율점검"]
+  W --> W7["/admin/history/ 7. 개발이력"]
   W5 -.->|문제 제기| W6
   W6 -.->|판단 필요 → 토론| W5
   W6 -.->|즉시 수정 → 기록| W7
