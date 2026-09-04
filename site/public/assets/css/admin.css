@@ -120,3 +120,4 @@
   .dec{padding:18px 16px}.opt{padding:10px 12px}
   .composer{padding:16px}
 }
+@media (max-width:960px){ .panel .table{min-width:620px} .panel .table td,.panel .table th{white-space:normal} }
