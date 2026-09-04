@@ -95,3 +95,4 @@
 .toast.show{opacity:1;transform:none}
 .prose pre.mermaid{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:0;padding:24px;text-align:center}
 .prose .mermaid svg{max-width:100%;height:auto;margin:0 auto}
+.mermaid,.prose pre{scrollbar-width:thin}

@@ -195,7 +195,7 @@ p{margin:0 0 1em}
 .page-hero .lede{color:rgba(247,244,238,.72);max-width:640px;margin-top:18px}
 .subnav{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:84px;z-index:40}
 .subnav ul{display:flex;gap:4px;list-style:none;margin:0;padding:0;overflow-x:auto}
-.subnav a{display:block;padding:18px 18px;font-size:14px;color:var(--ink-3);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+.subnav a{display:block;padding:18px 18px 16px;font-size:14px;color:var(--ink-3);white-space:nowrap;border-bottom:2px solid transparent}
 .subnav a.active,.subnav a:hover{color:var(--navy-800);border-color:var(--gold-500)}
 @media (max-width:1024px){.subnav{top:72px}}
 
@@ -265,3 +265,14 @@ html.js .reveal.in{opacity:1;transform:none}
   .brand .name .ko{font-size:14px}
   .hero-foot{gap:18px}
 }
+
+/* Scrollbars — 본문은 가늘고 은은하게, 내부 스크롤 영역은 숨김 */
+html{scrollbar-width:thin;scrollbar-color:rgba(11,31,58,.28) transparent}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(11,31,58,.22);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(11,31,58,.4);background-clip:padding-box}
+.subnav ul,.mobile-nav,.admin-side,.nav .sub{scrollbar-width:none;-ms-overflow-style:none}
+.subnav ul::-webkit-scrollbar,.mobile-nav::-webkit-scrollbar,.admin-side::-webkit-scrollbar,.nav .sub::-webkit-scrollbar{display:none}
+.subnav ul{overflow-y:hidden}
+.subnav a{margin-bottom:0}
