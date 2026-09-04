@@ -1,18 +1,148 @@
 {
   "next": [
-    "Cloudflare Pages 프로젝트 생성 및 GitHub 연동, D1 바인딩(DB), snubusiness.com 커스텀 도메인 연결",
-    "배포 후 /api/health 확인 → 자율점검 1차 실행(R-001) → 결과 기록",
-    "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·관계 설명) 자료 요청",
-    "P2 진입: 공지·행사 D1 이관 및 작업대 편집 UI"
+    "[결정 필요] snubusiness.com 도메인 보유 Cloudflare 계정 확인 → 커스텀 도메인 연결 (토론 #2)",
+    "Cloudflare Pages ↔ GitHub 자동 배포 연결 (대시보드: Workers 및 Pages > snubusiness > 설정 > 빌드 > 소스 연결). 그 전까지는 `npx wrangler pages deploy public --project-name snubusiness`",
+    "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·상대동창회 관계) 자료 요청",
+    "P2 진입: 공지·행사 D1 이관 및 작업대 편집 UI, /admin Cloudflare Access 보호"
   ],
   "entries": [
-    { "id": "L-0001", "ts": "2026-09-04 13:30", "kind": "plan", "title": "프로젝트 착수 — 서울대학교 경영대학 총동문회 홈페이지(snubusiness.com)", "detail": "작업대 주인 지시: 기존 상대 홈페이지와 해외 비즈니스스쿨 참고 리서치, 홈/관리자 분리, 관리자 7개 페이지(리서치·개발개요·데이터정의·데이터흐름도·개발자토론·자율점검·개발이력), 우아하고 고급스러운 디자인, GitHub+Cloudflare 배포." },
-    { "id": "L-0002", "ts": "2026-09-04 13:40", "kind": "research", "title": "리서치 완료 — sangdae.com, cba.snu.ac.kr, HBS·Stanford·Wharton·Booth·LBS·INSEAD·MIT Sloan", "detail": "sangdae.com: 6개 메뉴, 비반응형, HTTP, 계좌 노출, 디렉터리 없음. 해외 공통: Directory·Community·Events/Reunion·Career·Giving·Stories·Volunteer·통계. 결과는 리서치 페이지에 정리.", "files": ["content/research.md"] },
-    { "id": "L-0003", "ts": "2026-09-04 13:50", "kind": "decision", "title": "기술 스택 결정 — 정적 HTML/CSS/JS + Cloudflare Pages Functions + D1, 빌드 도구 없음", "detail": "이유: 배포 실패 가능성 최소화, 어느 개발자든 유지보수 가능, 도메인이 이미 Cloudflare NS 사용 중. 회원·결제는 P3/P4에서 Functions로 확장." },
-    { "id": "L-0004", "ts": "2026-09-04 13:55", "kind": "decision", "title": "디자인 시스템 — 딥 네이비 #0B1F3A · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR", "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.", "files": ["assets/css/main.css", "assets/css/admin.css"] },
-    { "id": "L-0005", "ts": "2026-09-04 14:20", "kind": "build", "title": "공개 사이트 v1 — 홈, 소개, 소식, 행사, 동문, 장학·기부, 자료실, 로그인(안내)", "detail": "공통 헤더/푸터는 site.js가 렌더. 콘텐츠는 /data/*.json에서 fetch. 서브내비 앵커 방식.", "files": ["index.html", "about/", "news/", "events/", "members/", "giving/", "media/", "login/", "assets/js/site.js", "data/notices.json", "data/events.json", "data/officers.json", "data/companies.json"] },
-    { "id": "L-0006", "ts": "2026-09-04 14:40", "kind": "build", "title": "작업대(관리자) v1 — 대시보드 + 7개 페이지", "detail": "리서치·개요·데이터·흐름은 /content/*.md를 marked+mermaid로 렌더. 토론은 D1 API. 점검·이력은 JSON.", "files": ["admin/", "assets/js/admin.js", "content/*.md", "data/plan.json", "data/personas.json", "data/inspections.json", "data/history.json"] },
-    { "id": "L-0007", "ts": "2026-09-04 14:50", "kind": "build", "title": "API — /api/health, /api/discussions (GET/POST), /api/discussions/:id (GET/POST/PATCH), 스키마 자동 생성", "detail": "D1 바인딩 이름 DB. 스키마는 요청 시 CREATE IF NOT EXISTS로 부트스트랩. role=agent는 AGENT_KEY 환경변수 설정 시에만 허용, 미설정 시 에이전트 답변은 data/agent-replies.json(git)으로.", "files": ["functions/_lib.js", "functions/api/health.js", "functions/api/discussions/index.js", "functions/api/discussions/[id].js"] },
-    { "id": "L-0008", "ts": "2026-09-04 14:55", "kind": "todo", "title": "TODO-001~006 등록 — 통계 확인, /admin Access 보호, 임원 명단, 회칙·회비·계좌, 사진, 상대동창회 관계 설명", "detail": "데이터정의 문서 6장 참조. 작업대 주인 제공 항목은 토론 스레드로 요청 예정." }
+    {
+      "id": "L-0001",
+      "ts": "2026-09-04 13:30",
+      "kind": "plan",
+      "title": "프로젝트 착수 — 서울대학교 경영대학 총동문회 홈페이지(snubusiness.com)",
+      "detail": "작업대 주인 지시: 기존 상대 홈페이지와 해외 비즈니스스쿨 참고 리서치, 홈/관리자 분리, 관리자 7개 페이지(리서치·개발개요·데이터정의·데이터흐름도·개발자토론·자율점검·개발이력), 우아하고 고급스러운 디자인, GitHub+Cloudflare 배포."
+    },
+    {
+      "id": "L-0002",
+      "ts": "2026-09-04 13:40",
+      "kind": "research",
+      "title": "리서치 완료 — sangdae.com, cba.snu.ac.kr, HBS·Stanford·Wharton·Booth·LBS·INSEAD·MIT Sloan",
+      "detail": "sangdae.com: 6개 메뉴, 비반응형, HTTP, 계좌 노출, 디렉터리 없음. 해외 공통: Directory·Community·Events/Reunion·Career·Giving·Stories·Volunteer·통계. 결과는 리서치 페이지에 정리.",
+      "files": [
+        "content/research.md"
+      ]
+    },
+    {
+      "id": "L-0003",
+      "ts": "2026-09-04 13:50",
+      "kind": "decision",
+      "title": "기술 스택 결정 — 정적 HTML/CSS/JS + Cloudflare Pages Functions + D1, 빌드 도구 없음",
+      "detail": "이유: 배포 실패 가능성 최소화, 어느 개발자든 유지보수 가능, 도메인이 이미 Cloudflare NS 사용 중. 회원·결제는 P3/P4에서 Functions로 확장."
+    },
+    {
+      "id": "L-0004",
+      "ts": "2026-09-04 13:55",
+      "kind": "decision",
+      "title": "디자인 시스템 — 딥 네이비 #0B1F3A · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR",
+      "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.",
+      "files": [
+        "assets/css/main.css",
+        "assets/css/admin.css"
+      ]
+    },
+    {
+      "id": "L-0005",
+      "ts": "2026-09-04 14:20",
+      "kind": "build",
+      "title": "공개 사이트 v1 — 홈, 소개, 소식, 행사, 동문, 장학·기부, 자료실, 로그인(안내)",
+      "detail": "공통 헤더/푸터는 site.js가 렌더. 콘텐츠는 /data/*.json에서 fetch. 서브내비 앵커 방식.",
+      "files": [
+        "index.html",
+        "about/",
+        "news/",
+        "events/",
+        "members/",
+        "giving/",
+        "media/",
+        "login/",
+        "assets/js/site.js",
+        "data/notices.json",
+        "data/events.json",
+        "data/officers.json",
+        "data/companies.json"
+      ]
+    },
+    {
+      "id": "L-0006",
+      "ts": "2026-09-04 14:40",
+      "kind": "build",
+      "title": "작업대(관리자) v1 — 대시보드 + 7개 페이지",
+      "detail": "리서치·개요·데이터·흐름은 /content/*.md를 marked+mermaid로 렌더. 토론은 D1 API. 점검·이력은 JSON.",
+      "files": [
+        "admin/",
+        "assets/js/admin.js",
+        "content/*.md",
+        "data/plan.json",
+        "data/personas.json",
+        "data/inspections.json",
+        "data/history.json"
+      ]
+    },
+    {
+      "id": "L-0007",
+      "ts": "2026-09-04 14:50",
+      "kind": "build",
+      "title": "API — /api/health, /api/discussions (GET/POST), /api/discussions/:id (GET/POST/PATCH), 스키마 자동 생성",
+      "detail": "D1 바인딩 이름 DB. 스키마는 요청 시 CREATE IF NOT EXISTS로 부트스트랩. role=agent는 AGENT_KEY 환경변수 설정 시에만 허용, 미설정 시 에이전트 답변은 data/agent-replies.json(git)으로.",
+      "files": [
+        "functions/_lib.js",
+        "functions/api/health.js",
+        "functions/api/discussions/index.js",
+        "functions/api/discussions/[id].js"
+      ]
+    },
+    {
+      "id": "L-0008",
+      "ts": "2026-09-04 14:55",
+      "kind": "todo",
+      "title": "TODO-001~006 등록 — 통계 확인, /admin Access 보호, 임원 명단, 회칙·회비·계좌, 사진, 상대동창회 관계 설명",
+      "detail": "데이터정의 문서 6장 참조. 작업대 주인 제공 항목은 토론 스레드로 요청 예정."
+    },
+    {
+      "id": "L-0009",
+      "ts": "2026-09-04 15:20",
+      "kind": "fix",
+      "title": "로컬 점검 수정 — mermaid 라벨 인용, 다이어그램 배경, reveal 지연 단축, 모바일 헤더 줄바꿈",
+      "detail": "mermaid에서 [/…/] 평행사변형 문법 충돌 → 모든 라벨을 따옴표로. .prose pre 스타일이 mermaid 블록에 적용되던 문제 분리. 모바일에서 브랜드 영문명 숨김, CTA 버튼 480px 이하 숨김.",
+      "files": [
+        "content/*.md",
+        "assets/css/main.css",
+        "assets/css/admin.css"
+      ]
+    },
+    {
+      "id": "L-0010",
+      "ts": "2026-09-04 15:25",
+      "kind": "deploy",
+      "title": "GitHub 저장소 생성 · 푸시 — DavidRheeTaekyoung/snubusiness (main)",
+      "detail": "gh CLI의 repo create가 권한 정책으로 차단되어 브라우저(github.com/new)로 생성 후 git push. Cloudflare GitHub 앱은 snubusiness 저장소에 설치됨(팝업 state 유실로 Pages 자동 빌드 연동은 미완 — 대시보드에서 1클릭으로 연결 가능)."
+    },
+    {
+      "id": "L-0011",
+      "ts": "2026-09-04 15:32",
+      "kind": "deploy",
+      "title": "Cloudflare Pages 첫 배포 — https://snubusiness.pages.dev, D1 snubusiness-db 바인딩(DB) 연결 확인",
+      "detail": "wrangler OAuth 로그인(prodigen@gmail.com 계정) → d1 create → pages project create → pages deploy. wrangler.toml에 D1 바인딩 기록. /api/health db:true, 첫 스레드(#1) 저장 확인. 주의: 이 PC의 wrangler 기본 로그인(~/.wrangler)이 customsshin@gmail.com에서 prodigen@gmail.com으로 교체됨 — 다른 프로젝트에서 wrangler 사용 시 재로그인 필요.",
+      "files": [
+        "wrangler.toml"
+      ]
+    },
+    {
+      "id": "L-0012",
+      "ts": "2026-09-04 15:40",
+      "kind": "decision",
+      "title": "커스텀 도메인 보류 — snubusiness.com 존(zone)이 prodigen 계정에 없음",
+      "detail": "whois: 2026-09-04 05:38Z Cloudflare Registrar로 등록, NS carla/malcolm.ns.cloudflare.com. prodigen 계정 도메인 8개 중 snubusiness.com 없음 → 다른 Cloudflare 계정(추정: customsshin@gmail.com)에서 구매. 해결안 A) 도메인 보유 계정에 prodigen@gmail.com을 구성원으로 초대 후 그 계정에 Pages 재배포, B) 도메인 보유 계정에서 CNAME snubusiness.com → snubusiness.pages.dev + Pages 커스텀 도메인 추가. 작업대 주인 결정 필요 → 토론 #2.",
+      "ref": "#2"
+    },
+    {
+      "id": "L-0013",
+      "ts": "2026-09-04 15:45",
+      "kind": "inspect",
+      "title": "자율점검 R-001 — 배포 직후 10개 표준 시나리오, 페르소나 7인",
+      "detail": "통과 8 / 보류 2 (S-03 행사 신청·S-05 동문 찾기는 P3 로그인 전까지 안내만). 발견 6건: 즉시 수정 3, 토론 이관 1, 미해결 2.",
+      "ref": "R-001"
+    }
   ]
 }

@@ -1,4 +1,84 @@
 {
-  "runs": [],
-  "findings": []
+  "runs": [
+    {
+      "id": "R-001",
+      "ts": "2026-09-04 15:45",
+      "build": "7b31304f",
+      "scenarios": 10,
+      "pass": 8,
+      "summary": "첫 배포 점검. 레이아웃·API·D1 정상. 로그인 의존 시나리오 2건은 P3까지 안내 화면으로 대체."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "run": "R-001",
+      "persona": "p7",
+      "sev": "P2",
+      "page": "/admin/overview/",
+      "title": "mermaid 다이어그램이 파싱 오류로 렌더되지 않음",
+      "detail": "라벨의 슬래시(/about/)가 평행사변형 문법으로 해석됨. 모든 노드 라벨을 따옴표로 감싸 해결.",
+      "action": "fixed",
+      "status": "fixed",
+      "ref": "L-0009"
+    },
+    {
+      "id": "F-002",
+      "run": "R-001",
+      "persona": "p2",
+      "sev": "P2",
+      "page": "/ (모바일)",
+      "title": "모바일 헤더에서 영문 브랜드명이 한 글자씩 줄바꿈되어 헤더가 늘어남",
+      "detail": "letter-spacing + overflow-wrap:anywhere 조합. 1024px 이하 영문명 숨김, 480px 이하 CTA 숨김으로 해결.",
+      "action": "fixed",
+      "status": "fixed",
+      "ref": "L-0009"
+    },
+    {
+      "id": "F-003",
+      "run": "R-001",
+      "persona": "p1",
+      "sev": "P3",
+      "page": "전체",
+      "title": "스크롤 시 콘텐츠가 0.9초 동안 비어 보임 (reveal 애니메이션)",
+      "detail": "고령 동문에게는 '안 뜬다'로 느껴질 수 있음. 0.55초로 단축. JS 실패 시에도 보이도록 P2에서 no-js 폴백 검토.",
+      "action": "fixed",
+      "status": "fixed",
+      "ref": "L-0009"
+    },
+    {
+      "id": "F-004",
+      "run": "R-001",
+      "persona": "p4",
+      "sev": "P2",
+      "page": "/giving/#dues",
+      "title": "회비 금액·계좌가 '안(案)'과 '개설 후 공지' 상태",
+      "detail": "기부 의사가 있는 동문이 행동으로 옮길 수 없음. 이사회 의결값과 계좌 확보 필요 (TODO-004).",
+      "action": "escalated",
+      "status": "escalated",
+      "ref": "#2"
+    },
+    {
+      "id": "F-005",
+      "run": "R-001",
+      "persona": "p6",
+      "sev": "P3",
+      "page": "카카오톡 공유",
+      "title": "OG 이미지 없음 — 링크 공유 시 미리보기 이미지가 비어 있음",
+      "detail": "og:image 1200×630 제작 필요. 인장 + 네이비 배경으로 P2에서 제작.",
+      "action": "open",
+      "status": "open"
+    },
+    {
+      "id": "F-006",
+      "run": "R-001",
+      "persona": "p7",
+      "sev": "P3",
+      "page": "전체",
+      "title": "영문 병기 부족 — 해외 동문용 영문 요약 없음",
+      "detail": "각 페이지 히어로에 영문 아이브로만 존재. P5에서 영문 요약 섹션 또는 /en/ 검토.",
+      "action": "open",
+      "status": "open"
+    }
+  ]
 }

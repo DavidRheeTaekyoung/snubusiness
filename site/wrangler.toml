@@ -1,0 +1,8 @@
+name = "snubusiness"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "snubusiness-db"
+database_id = "576c7401-5af2-4d1e-9119-94e3693fc946"
