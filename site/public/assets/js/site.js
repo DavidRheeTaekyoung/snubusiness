@@ -53,13 +53,14 @@
       <nav aria-label="주 메뉴"><ul class="nav">${items}</ul></nav>
       <div class="header-actions">
         <a class="btn gold sm" href="/giving/#dues">동문회비 납부</a>
-        <button class="lang-toggle mobile" data-lang-toggle aria-label="Language"><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button>
+        <button class="lang-toggle mobile" data-lang-toggle aria-label="Language"><span class="on">${L==='ko'?'EN':'KO'}</span></button>
         <button class="icon-btn burger" aria-label="메뉴 열기" data-open-nav><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       </div>
     </div></header>
     <div class="mobile-nav" id="mobileNav" aria-hidden="true">
       <button class="icon-btn close" aria-label="메뉴 닫기" data-close-nav><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
       <ul>${NAV.map(n => `<li><a href="${n.href}">${n.label}</a><ul class="sub">${n.sub.map(s => `<li><a href="${s[1]}">${s[0]}</a></li>`).join('')}</ul></li>`).join('')}</ul>
+      <div class="lang-row"><span>Language</span><button class="lang-toggle" data-lang-toggle><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
     </div>`;
   }
 

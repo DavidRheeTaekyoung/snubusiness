@@ -307,3 +307,31 @@ html[lang="en"] .brand .name .ko{font-size:15.5px;font-family:var(--display);fon
 html[lang="en"] .brand .name .en{display:none}
 html[lang="en"] .header-actions .btn{font-size:13px;padding:12px 18px}
 @media (max-width:1180px){html[lang="en"] .nav>li>a{padding:30px 9px;font-size:13.5px}}
+
+/* Mobile hardening (2026-09-09): 가로 넘침 원천 차단 + 헤더 압축 */
+html,body{overflow-x:hidden;max-width:100%}
+.header .container{min-width:0}
+.brand{min-width:0;flex:1 1 auto}
+.brand .name{min-width:0;display:flex}
+.brand .name .ko{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.header-actions{flex:none}
+.mobile-nav{left:0;right:0;width:100%;max-width:100vw;box-sizing:border-box}
+.mobile-nav ul{padding:0 2px}
+.mobile-nav .lang-row{display:flex;gap:10px;align-items:center;margin-top:8px;color:rgba(247,244,238,.6);font-size:13px}
+.mobile-nav .lang-row .lang-toggle{border-color:rgba(255,255,255,.35);color:var(--paper);padding:6px 14px;font-size:13px}
+@media (max-width:1024px){
+  .lang-toggle.mobile{padding:0;width:36px;height:36px;justify-content:center;border-radius:50%;font-size:11.5px;letter-spacing:.06em}
+  .lang-toggle.mobile i,.lang-toggle.mobile span:not(.on){display:none}
+  .lang-toggle.mobile span.on{color:var(--navy-800)}
+  html[lang="en"] .brand .name .ko{font-size:14px}
+}
+@media (max-width:480px){
+  .header .container{gap:10px;padding:0 14px}
+  .brand{gap:9px}
+  .brand .seal{width:34px;height:34px}
+  .brand .name .ko{font-size:13.5px}
+  .header-actions{gap:8px}
+  .hero-foot{grid-template-columns:repeat(2,1fr);gap:14px}
+  .stat .num{font-size:26px}
+}
+@media (max-width:360px){.brand .name .ko{font-size:12.5px}}
