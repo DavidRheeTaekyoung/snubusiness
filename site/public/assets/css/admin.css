@@ -38,7 +38,7 @@
 .status.done{background:#E3F1EA;color:var(--success)}
 .status.wip{background:#FFF1DD;color:var(--warn)}
 .status.todo{background:var(--ivory-2);color:var(--ink-3)}
-.status.open{background:#E4ECF7;color:var(--info)}
+.status.open{background:#F3E2E7;color:var(--info)}
 .status.fail{background:#F8E3E0;color:var(--danger)}
 .status.hold{background:#F1E9F7;color:#6B3FA0}
 .mermaid{background:var(--paper);border:1px solid var(--line);padding:24px;overflow:auto;margin:16px 0;text-align:center}

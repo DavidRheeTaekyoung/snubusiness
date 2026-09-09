@@ -39,7 +39,7 @@
       // TOC
       const toc = document.getElementById('toc');
       if (toc) { const hs = el.querySelectorAll('h2'); toc.innerHTML = [...hs].map((h, i) => { h.id = h.id || 'sec-' + i; return `<a href="#${h.id}">${h.textContent}</a>`; }).join(''); }
-      if (window.mermaid) { mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#F3EAD3', primaryBorderColor: '#B8952E', primaryTextColor: '#0B1F3A', lineColor: '#6B7280', secondaryColor: '#E4ECF7', tertiaryColor: '#F7F4EE', fontFamily: 'Noto Sans KR, sans-serif', fontSize: '13px' }, flowchart: { curve: 'basis', htmlLabels: true } }); await mermaid.run({ nodes: el.querySelectorAll('.mermaid') }); }
+      if (window.mermaid) { mermaid.initialize({ startOnLoad: false, theme: 'base', themeVariables: { primaryColor: '#F3EAD3', primaryBorderColor: '#B8952E', primaryTextColor: '#5C1424', lineColor: '#6B7280', secondaryColor: '#F3E2E7', tertiaryColor: '#F7F4EE', fontFamily: 'Noto Sans KR, sans-serif', fontSize: '13px' }, flowchart: { curve: 'basis', htmlLabels: true } }); await mermaid.run({ nodes: el.querySelectorAll('.mermaid') }); }
     } catch (e) { el.innerHTML = `<div class="empty">문서를 불러오지 못했습니다: ${url} (${e.message})</div>`; }
   }
 

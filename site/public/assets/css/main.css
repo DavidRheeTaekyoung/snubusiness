@@ -1,21 +1,21 @@
 /* ==========================================================================
    SNU Business Alumni — Design System  v0.1
-   Palette: Deep Navy / Champagne Gold / Ivory / Graphite
+   Palette: Burgundy / Champagne Gold / Ivory / Graphite (2026-09-09 네이비 → 버건디 전환)
    ========================================================================== */
 :root{
-  --navy-900:#071429; --navy-800:#0B1F3A; --navy-700:#12294D; --navy-600:#1B3868;
+  --navy-900:#3A0A14; --navy-800:#5C1424; --navy-700:#731A2E; --navy-600:#8C2438;
   --gold-500:#B8952E; --gold-400:#C9A961; --gold-300:#DCC392; --gold-100:#F3EAD3;
   --ivory:#F7F4EE; --ivory-2:#EFEAE0; --paper:#FFFFFF;
   --ink:#1A1A1A; --ink-2:#3B3F47; --ink-3:#6B7280; --line:#E4DFD3; --line-2:#D2CBBB;
-  --success:#2E7D5B; --warn:#B26A00; --danger:#A93226; --info:#2F5F98;
+  --success:#2E7D5B; --warn:#B26A00; --danger:#A93226; --info:#7A2E45;
   --serif:"Noto Serif KR","Cormorant Garamond",Georgia,"Times New Roman",serif;
   --display:"Cormorant Garamond","Noto Serif KR",Georgia,serif;
   --sans:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
   --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
   --max:1240px; --gutter:clamp(20px,4vw,48px);
   --r:2px; --r-lg:6px;
-  --shadow-1:0 1px 2px rgba(7,20,41,.06),0 8px 24px -12px rgba(7,20,41,.18);
-  --shadow-2:0 2px 4px rgba(7,20,41,.08),0 24px 48px -20px rgba(7,20,41,.28);
+  --shadow-1:0 1px 2px rgba(58,10,20,.06),0 8px 24px -12px rgba(58,10,20,.18);
+  --shadow-2:0 2px 4px rgba(58,10,20,.08),0 24px 48px -20px rgba(58,10,20,.28);
   --ease:cubic-bezier(.2,.7,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -106,8 +106,8 @@ p{margin:0 0 1em}
 .hero{position:relative;min-height:min(86vh,820px);display:flex;align-items:flex-end;background:var(--navy-900);color:var(--paper);overflow:hidden;isolation:isolate}
 .hero .bg{position:absolute;inset:0;z-index:-2;background:
   radial-gradient(1200px 600px at 80% 20%,rgba(201,169,97,.16),transparent 60%),
-  radial-gradient(800px 500px at 10% 90%,rgba(27,56,104,.7),transparent 60%),
-  linear-gradient(180deg,#0B1F3A 0%,#071429 100%)}
+  radial-gradient(800px 500px at 10% 90%,rgba(140,36,56,.7),transparent 60%),
+  linear-gradient(180deg,#5C1424 0%,#3A0A14 100%)}
 .hero .grid-lines{position:absolute;inset:0;z-index:-1;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:96px 96px;-webkit-mask-image:radial-gradient(ellipse at 70% 40%,#000 30%,transparent 75%);mask-image:radial-gradient(ellipse at 70% 40%,#000 30%,transparent 75%)}
 .hero .seal-watermark{position:absolute;right:-4%;top:50%;transform:translateY(-50%);width:min(52vw,720px);opacity:.07;z-index:-1}
 .hero .container{position:relative;padding-top:120px;padding-bottom:clamp(64px,8vw,110px);width:100%}
@@ -237,7 +237,7 @@ p{margin:0 0 1em}
 .field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
 .field label{font-size:13px;letter-spacing:.06em;color:var(--ink-2);font-weight:500}
 .field input,.field textarea,.field select{font:inherit;padding:12px 14px;border:1px solid var(--line-2);background:var(--paper);border-radius:var(--r);font-size:15px;color:var(--ink);transition:border .3s}
-.field input:focus,.field textarea:focus,.field select:focus{outline:0;border-color:var(--navy-800);box-shadow:0 0 0 3px rgba(11,31,58,.08)}
+.field input:focus,.field textarea:focus,.field select:focus{outline:0;border-color:var(--navy-800);box-shadow:0 0 0 3px rgba(92,20,36,.08)}
 .field textarea{min-height:140px;resize:vertical;line-height:1.7}
 
 /* Utilities */
@@ -267,11 +267,11 @@ html.js .reveal.in{opacity:1;transform:none}
 }
 
 /* Scrollbars — 본문은 가늘고 은은하게, 내부 스크롤 영역은 숨김 */
-html{scrollbar-width:thin;scrollbar-color:rgba(11,31,58,.28) transparent}
+html{scrollbar-width:thin;scrollbar-color:rgba(92,20,36,.28) transparent}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(11,31,58,.22);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
-::-webkit-scrollbar-thumb:hover{background:rgba(11,31,58,.4);background-clip:padding-box}
+::-webkit-scrollbar-thumb{background:rgba(92,20,36,.22);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(92,20,36,.4);background-clip:padding-box}
 .subnav ul,.mobile-nav,.admin-side,.nav .sub{scrollbar-width:none;-ms-overflow-style:none}
 .subnav ul::-webkit-scrollbar,.mobile-nav::-webkit-scrollbar,.admin-side::-webkit-scrollbar,.nav .sub::-webkit-scrollbar{display:none}
 .subnav ul{overflow-y:hidden}

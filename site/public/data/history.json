@@ -34,7 +34,7 @@
       "id": "L-0004",
       "ts": "2026-09-04 13:55",
       "kind": "decision",
-      "title": "디자인 시스템 — 딥 네이비 #0B1F3A · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR",
+      "title": "디자인 시스템 — 딥 네이비 #5C1424 · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR",
       "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.",
       "files": [
         "assets/css/main.css",
@@ -213,6 +213,22 @@
         "functions/_middleware.js",
         "sitemap.xml",
         "robots.txt"
+      ]
+    },
+    {
+      "id": "L-0020",
+      "ts": "2026-09-09 10:00",
+      "kind": "decision",
+      "title": "전체 색감 네이비 → 버건디 전환 (작업대 주인 지시)",
+      "detail": "팔레트 900 #3A0A14 · 800 #5C1424 · 700 #731A2E · 600 #8C2438, 골드·아이보리 유지. CSS 변수명(--navy-*)은 호환을 위해 그대로 두고 값만 교체. 파비콘·인장·히어로 그라데이션·다이어그램 테마·상태 배지 색 동시 교체. 회의 페이지 결정 4(디자인 톤) 선택지를 현재 버건디/이전 네이비로 갱신.",
+      "files": [
+        "assets/css/main.css",
+        "assets/css/admin.css",
+        "assets/js/site.js",
+        "assets/js/admin.js",
+        "assets/img/favicon.svg",
+        "*.html",
+        "data/meeting.json"
       ]
     }
   ]

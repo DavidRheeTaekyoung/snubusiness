@@ -32,7 +32,7 @@
 
   function brand(light) {
     return `<a class="brand" href="/" aria-label="서울대학교 경영대학 총동문회 홈">
-      <span class="seal" style="color:${light ? '#DCC392' : '#0B1F3A'}">${SEAL}</span>
+      <span class="seal" style="color:${light ? '#DCC392' : '#5C1424'}">${SEAL}</span>
       <span class="name"><span class="ko">서울대학교 경영대학 총동문회</span><span class="en">SNU Business Alumni</span></span>
     </a>`;
   }
