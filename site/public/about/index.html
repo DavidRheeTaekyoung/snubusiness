@@ -1,11 +1,25 @@
 <!doctype html>
 <html lang="ko">
 <head>
+<script src="/assets/js/i18n.js?v=20260909c"></script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>동문회 소개 | 서울대학교 경영대학 총동문회</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260909b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260909c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.bylaws{background:var(--paper);border:1px solid var(--line);padding:clamp(28px,4vw,56px)}
+.bylaws .draft{display:flex;gap:14px;align-items:center;background:var(--gold-100);border:1px solid var(--gold-300);padding:14px 18px;font-size:14px;color:var(--ink-2);margin-bottom:28px}
+.bylaws .draft b{color:var(--navy-800)}
+.bylaws h3{font-size:19px;margin:34px 0 10px;color:var(--navy-800)}
+.bylaws h3:first-of-type{margin-top:0}
+.bylaws h4{font-size:15.5px;margin:18px 0 6px;color:var(--navy-800);font-family:var(--sans);font-weight:600}
+.bylaws p,.bylaws li{font-size:15px;color:var(--ink-2);line-height:1.85}
+.bylaws ol{padding-left:22px;margin:0}
+.bylaws .addendum{border-top:1px solid var(--line);margin-top:32px;padding-top:20px;font-size:14px;color:var(--ink-3)}
+.sig{font-family:var(--serif);color:var(--navy-800);font-size:18px;margin-top:32px}
+.sig small{display:block;font-family:var(--sans);font-size:13px;color:var(--ink-3);margin-top:4px;letter-spacing:.04em}
+</style>
 </head>
 <body>
 <div id="site-header"></div>
@@ -22,11 +36,12 @@
   <div class="frame reveal" style="aspect-ratio:4/5;max-width:440px"><div class="seal-big" data-seal style="color:#DCC392"></div><div class="caption"><small>President</small>총동문회장</div></div>
   <div class="prose reveal">
     <span class="eyebrow">Greeting</span>
-    <h2 class="mt-0">동문 여러분께 드리는 인사</h2>
-    <p>존경하는 서울대학교 경영대학 동문 여러분, 안녕하십니까.</p>
-    <p>관악의 강의실에서 함께 배우고 토론하던 시간은 우리 각자의 삶에서 가장 빛나는 출발점이었습니다. 그 인연을 졸업 이후에도 평생의 동행으로 이어가고자, 경영대학 총동문회는 동문 상호 간의 친목을 도모하고 후배를 돕고 모교의 발전에 기여하는 일에 힘쓰고 있습니다.</p>
-    <p>새롭게 문을 연 홈페이지는 동문 찾기와 행사 신청, 회비 납부, 멘토링을 한 곳에서 이용하실 수 있는 디지털 사랑방입니다. 동문 여러분의 많은 참여와 관심을 부탁드립니다.</p>
-    <p style="font-family:var(--serif);color:var(--navy-800);font-size:18px;margin-top:32px">서울대학교 경영대학 총동문회장</p>
+    <h2 class="mt-0">관악에서 시작된 인연은 평생 계속됩니다</h2>
+    <p>존경하는 서울대학교 경영대학 동문 여러분, 그리고 세계 곳곳에서 이 페이지를 열어 보고 계신 선후배 여러분께 인사드립니다.</p>
+    <p>우리는 같은 강의실에서 같은 질문을 붙들고 밤을 새웠던 사람들입니다. 졸업장은 그 시간의 끝이 아니라, 평생 이어질 관계의 시작이었습니다. 서울, 뉴욕, 싱가포르, 런던 어디에 있든 관악에서 배운 방식으로 세상을 읽고 결정을 내리는 동문이 있다는 사실이 우리를 하나의 공동체로 묶습니다.</p>
+    <p>서울대학교 경영대학 총동문회는 그 공동체에 이름과 집을 주기 위해 출발합니다. 세대와 업종을 넘어 서로의 성취를 기뻐하고, 후배의 첫걸음을 장학과 멘토링으로 받쳐 주며, 모교가 세계 어느 경영대학과도 어깨를 나란히 하도록 돕는 것. 그것이 우리가 함께 하려는 일입니다.</p>
+    <p>이 홈페이지는 그 출발점입니다. 동문을 찾고, 소식을 나누고, 다시 만날 자리를 여기서 약속합시다. 총동문회는 여러분이 어디에 계시든, 언제까지나 여러분 곁에 있겠습니다.</p>
+    <div class="sig">서울대학교 경영대학 총동문회장<small>2027년 4월 창립총회에서 선임 예정 · 준비위원회 드림</small></div>
   </div>
 </div></div></section>
 
@@ -52,7 +67,9 @@
       <li><div class="year">1991</div><div class="body">재단법인 향상장학회 설립</div></li>
       <li><div class="year">2000</div><div class="body">서울대학교 상과대학 총동창회로 명칭 변경</div></li>
       <li><div class="year">2016</div><div class="body">모교 개교 70주년 기념 행사</div></li>
-      <li><div class="year">2026</div><div class="body">서울대학교 경영대학 총동문회 홈페이지(snubusiness.com) 개설</div></li>
+      <li><div class="year">2026. 9</div><div class="body">서울대학교 경영대학 총동문회 준비모임 구성, 홈페이지(snubusiness.com) 개설</div></li>
+      <li><div class="year">2026. 11</div><div class="body">송년회 — 준비모임 회원에게 총동문회 공개</div></li>
+      <li><div class="year">2027. 4. 16</div><div class="body">창립총회, 서울대학교 경영대학 총동문회 정식 출범</div></li>
     </ul>
   </div>
   <aside class="aside"><div class="box"><h4>Related</h4><ul>
@@ -63,22 +80,56 @@
 </div></div></section>
 
 <section class="section paper" id="bylaws"><div class="container">
-  <span class="eyebrow">Bylaws</span><h2>회칙</h2>
-  <div class="prose mt-3 reveal">
+  <div class="section-head"><div><span class="eyebrow">Bylaws</span><h2>회칙</h2><p class="lede">서울대학교 경영대학 총동문회 회칙 (검토용 초안)</p></div></div>
+  <div class="bylaws prose reveal" style="max-width:none">
+    <div class="draft"><span class="badge" style="flex:none">검토용 초안</span><span>이 회칙은 서울대학교 상과대학 총동창회 회칙(1963년 제정, 2024년 개정)과 국내외 주요 대학 동문회 정관을 참고하여 준비위원회 검토용으로 작성한 초안입니다. <b>2027년 4월 16일 창립총회에서 확정</b>됩니다.</span></div>
+
     <h3>제1장 총칙</h3>
-    <p><strong>제1조 (명칭)</strong> 본회는 서울대학교 경영대학 총동문회라 한다.</p>
-    <p><strong>제2조 (목적)</strong> 본회는 회원 상호 간의 친목을 도모하고 후배를 지원하며 모교의 발전에 기여함을 목적으로 한다.</p>
-    <p><strong>제3조 (소재지)</strong> 본회는 본부를 서울특별시에 두고, 지역·직장·기별 동문회를 둘 수 있다.</p>
+    <h4>제1조 (명칭)</h4><p>본회는 「서울대학교 경영대학 총동문회」(영문: SNU Business School Alumni Association)라 한다.</p>
+    <h4>제2조 (목적)</h4><p>본회는 회원 상호 간의 친목과 유대를 도모하고, 후배의 성장을 지원하며, 모교 서울대학교 경영대학의 발전에 기여함을 목적으로 한다.</p>
+    <h4>제3조 (소재지)</h4><p>본회는 사무소를 서울특별시에 두고, 필요에 따라 국내외 지역, 직장, 기별, 과정별 동문회를 둘 수 있다.</p>
+    <h4>제4조 (사업)</h4><p>본회는 목적을 달성하기 위하여 다음 사업을 한다.</p>
+    <ol><li>동문 상호 간의 친목 및 정보 교류를 위한 행사와 커뮤니티 운영</li><li>재학생 및 젊은 동문을 위한 장학, 멘토링, 진로 지원 사업</li><li>모교의 교육·연구 환경 개선을 위한 발전기금 조성과 자문</li><li>동문회보·홈페이지 등 소식지 발간과 동문 명부 관리</li><li>기타 본회의 목적 달성에 필요한 사업</li></ol>
+
     <h3>제2장 회원</h3>
-    <p><strong>제4조 (회원의 자격)</strong> 서울대학교 경영대학(학부·대학원·MBA·EMBA·최고경영자과정)을 졸업 또는 수료한 자를 회원으로 한다. 경영대학 전·현직 교수는 명예회원으로 한다.</p>
-    <p><strong>제5조 (권리와 의무)</strong> 회원은 결의권과 임원 선거권·피선거권을 가지며, 회비 납부와 회칙 준수의 의무를 진다.</p>
+    <h4>제5조 (회원의 자격)</h4>
+    <ol><li>서울대학교 경영대학 학부 및 대학원(석사·박사)을 졸업한 자는 정회원이 된다.</li><li>경영대학이 운영하는 MBA, EMBA, 최고경영자과정 등 전문·특별 과정을 수료한 자는 창립총회 또는 이사회의 의결로 정하는 바에 따라 회원이 될 수 있다.</li><li>서울대학교 경영대학의 전·현직 교수는 명예회원으로 한다.</li><li>확인된 중퇴자는 기별 동문회장의 추천을 받아 이사회 의결로 회원이 될 수 있다.</li></ol>
+    <h4>제6조 (회원의 권리와 의무)</h4>
+    <ol><li>정회원은 총회에서의 결의권과 임원의 선거권·피선거권을 가진다.</li><li>회원은 회비를 납부하고 본 회칙과 총회·이사회의 결의를 준수할 의무를 진다.</li><li>명예회원은 총회에 참석하여 발언할 수 있으나 결의권은 갖지 않는다.</li></ol>
+    <h4>제7조 (개인정보)</h4><p>본회는 회원의 개인정보를 개인정보보호법 등 관계 법령에 따라 보호하며, 회원이 정한 공개 범위 안에서만 동문 명부와 온라인 서비스에 활용한다.</p>
+
     <h3>제3장 임원</h3>
-    <p><strong>제6조 (임원)</strong> 회장 1인, 수석부회장 약간 명, 부회장 30인 내외, 감사 2인, 이사 100인 이상, 사무국장 약간 명을 둔다. 임기는 2년으로 하며 회장은 1회에 한하여 중임할 수 있다.</p>
+    <h4>제8조 (임원의 구성)</h4><p>본회에 다음의 임원을 둔다.</p>
+    <ol><li>회장 1인</li><li>수석부회장 약간 명</li><li>부회장 30인 내외 (기별 동문회장은 당연직 부회장이 된다)</li><li>감사 2인</li><li>이사 50인 이상</li><li>사무총장 1인</li></ol>
+    <h4>제9조 (임원의 선임)</h4>
+    <ol><li>회장은 회장후보추천위원회의 추천을 거쳐 총회에서 선출한다.</li><li>수석부회장과 부회장은 회장이 이사회의 동의를 얻어 위촉하며, 감사는 총회에서 선출한다.</li><li>이사는 기별·과정별 동문회의 추천을 받은 회원 중에서 기수를 안배하여 회장이 위촉한다.</li><li>사무총장은 회장이 임명한다.</li><li>본회는 전임 회장을 명예회장으로, 전임 부회장을 명예부회장으로 추대할 수 있으며, 약간 명의 고문을 둘 수 있다.</li></ol>
+    <h4>제10조 (임원의 임기)</h4>
+    <ol><li>임원의 임기는 2년으로 하며, 회장은 1회에 한하여 연임할 수 있다.</li><li>보궐 임원의 임기는 전임자의 잔여 기간으로 한다.</li><li>임기가 만료된 임원은 후임자가 선임될 때까지 그 직무를 수행한다.</li></ol>
+    <h4>제11조 (임원의 직무)</h4>
+    <ol><li>회장은 본회를 대표하고 회무를 총괄한다.</li><li>수석부회장은 회장을 보좌하며 회장 유고 시 회장이 지명한 순서에 따라 그 직무를 대행한다.</li><li>부회장은 회장을 보좌하고 위임받은 회무를 관장한다.</li><li>감사는 본회의 회계와 업무를 감사하여 총회에 보고하며, 이사회에 출석하여 의견을 진술할 수 있다.</li><li>사무총장은 회장의 명을 받아 사무국을 운영한다.</li></ol>
+
     <h3>제4장 회의</h3>
-    <p><strong>제9조 (총회)</strong> 정기총회는 매년 1월 중에 소집한다. <strong>제10조 (회장단 회의)</strong> 임원 선임, 예산 승인, 사업계획을 의결한다. <strong>제11조 (이사회)</strong> 회칙 개정, 회비 결정, 결산 승인을 의결한다.</p>
+    <h4>제12조 (총회)</h4>
+    <ol><li>총회는 정회원으로 구성하며 정기총회와 임시총회로 나눈다.</li><li>정기총회는 매년 1회 회장이 소집하고, 임시총회는 회장이 필요하다고 인정하거나 이사 3분의 1 이상 또는 정회원 100인 이상의 요구가 있을 때 소집한다.</li><li>총회는 다음 사항을 의결한다. ① 회칙의 제정과 개정 ② 회장과 감사의 선출 ③ 사업계획과 예산·결산의 승인 ④ 기타 이사회가 부의하는 사항</li><li>총회는 출석 회원 과반수의 찬성으로 의결하되, 회칙 개정은 출석 회원 3분의 2 이상의 찬성을 요한다.</li><li>총회는 이사회의 결의로 온라인 또는 서면 의결을 병행할 수 있다.</li></ol>
+    <h4>제13조 (이사회)</h4>
+    <ol><li>이사회는 회장, 수석부회장, 부회장, 이사로 구성하며 회장이 의장이 된다.</li><li>이사회는 다음 사항을 의결한다. ① 총회에 부의할 안건 ② 회비와 입회비의 결정 ③ 사업의 집행과 예산의 운용 ④ 위원회의 설치와 운영 ⑤ 회원 자격에 관한 사항 ⑥ 기타 회장이 부의하는 사항</li><li>이사회는 재적 이사 과반수의 출석과 출석 이사 과반수의 찬성으로 의결한다.</li></ol>
+    <h4>제14조 (회장단 회의)</h4><p>회장단 회의는 회장, 명예회장, 수석부회장, 부회장, 감사, 사무총장으로 구성하며 이사회에 부의할 안건과 긴급한 회무를 협의한다.</p>
+    <h4>제15조 (위원회)</h4><p>본회는 사업의 효율적 추진을 위하여 장학위원회, 행사위원회, 홍보·출판위원회, 회원·조직위원회, 재정위원회를 두며, 이사회의 의결로 위원회를 신설·폐지할 수 있다. 위원장은 부회장 또는 이사 중에서 회장이 위촉한다.</p>
+
     <h3>제5장 재정</h3>
-    <p><strong>제12조 (재원)</strong> 입회비, 연회비, 평생회비, 분담금, 찬조금으로 충당한다. <strong>제13조 (회계연도)</strong> 매년 1월 1일부터 12월 31일까지로 한다.</p>
-    <p class="muted" style="font-size:13.5px;margin-top:28px">※ 본 회칙은 초안이며 창립총회에서 확정됩니다. 전문(PDF)은 자료실에서 제공 예정입니다.</p>
+    <h4>제16조 (재원)</h4><p>본회의 재원은 입회비, 연회비, 평생회비, 분담금, 찬조금, 기부금 및 기타 수입으로 충당한다.</p>
+    <h4>제17조 (회비)</h4>
+    <ol><li>회비의 종류와 금액은 이사회에서 정하고 총회에 보고한다.</li><li>평생회비를 납부한 회원은 연회비를 면제한다.</li><li>회비는 계좌 이체 또는 본회가 정하는 온라인 결제 수단으로 납부할 수 있다.</li></ol>
+    <h4>제18조 (장학기금)</h4><p>본회는 장학사업을 위하여 장학기금을 별도로 관리하며, 기금의 운용과 장학생 선발은 장학위원회가 담당하고 그 결과를 총회에 보고한다. 이사회의 의결로 장학재단을 설립할 수 있다.</p>
+    <h4>제19조 (회계연도)</h4><p>본회의 회계연도는 매년 1월 1일부터 12월 31일까지로 한다.</p>
+    <h4>제20조 (결산과 공개)</h4><p>회장은 회계연도 종료 후 결산서를 작성하여 감사의 감사를 거쳐 정기총회에 보고하고, 그 요지를 홈페이지에 공개한다.</p>
+
+    <h3>제6장 보칙</h3>
+    <h4>제21조 (회칙의 개정)</h4><p>본 회칙은 이사회의 발의 또는 정회원 50인 이상의 발의로 총회에서 개정한다.</p>
+    <h4>제22조 (해산)</h4><p>본회가 해산할 때에는 총회의 의결을 거쳐 잔여 재산을 모교 서울대학교 경영대학의 장학 목적에 기부한다.</p>
+    <h4>제23조 (세칙)</h4><p>본 회칙의 시행에 필요한 세칙은 이사회의 의결로 정한다.</p>
+
+    <div class="addendum"><h4 style="margin-top:0">부칙</h4><ol><li>본 회칙은 창립총회에서 의결한 날부터 시행한다.</li><li>본회 설립 이전의 준비위원회가 행한 행위는 본회가 승계한다.</li><li>최초 임원의 임기는 창립총회일부터 2029년 정기총회일까지로 한다.</li></ol></div>
   </div>
 </div></section>
 
@@ -116,15 +167,15 @@
 </div></div></section>
 
 <div id="site-footer"></div>
-<script src="/assets/js/site.js?v=20260909b"></script>
+<script src="/assets/js/site.js?v=20260909c"></script>
 <script>
 (async () => {
-  const { json, esc } = SNU;
+  const { json, esc, t } = SNU;
   const o = await json('/data/officers.json');
-  document.getElementById('officer-term').textContent = o.term + ' 임원';
+  document.getElementById('officer-term').textContent = SNU.lang==='en' ? ('Officers, ' + t(o,'term')) : (o.term + ' 임원');
   document.getElementById('officer-list').innerHTML = o.groups.map(g => g.people.map(p => `
-    <div class="officer"><div class="avatar">${esc(p.name[0])}</div><div><div class="role">${esc(g.role)}</div><div class="nm">${esc(p.name)}</div><div class="cls">${esc(p.cls)}${p.org?' · '+esc(p.org):''}</div></div></div>`).join('')).join('');
-  document.getElementById('committee-list').innerHTML = o.committees.map(c => `<div class="officer" style="padding:14px 0"><div><div class="nm" style="font-size:15.5px">${esc(c.name)}</div><div class="cls">${esc(c.desc)}</div></div></div>`).join('');
+    <div class="officer"><div class="avatar">${esc(t(p,'name')[0])}</div><div><div class="role">${esc(t(g,'role'))}</div><div class="nm">${esc(t(p,'name'))}</div><div class="cls">${esc(t(p,'cls'))}${p.org?' · '+esc(t(p,'org')):''}</div></div></div>`).join('')).join('');
+  document.getElementById('committee-list').innerHTML = o.committees.map(c => `<div class="officer" style="padding:14px 0"><div><div class="nm" style="font-size:15.5px">${esc(t(c,'name'))}</div><div class="cls">${esc(t(c,'desc'))}</div></div></div>`).join('');
 })();
 </script>
 </body></html>

@@ -1,4 +1,4 @@
-/* SNU Business Alumni — shared shell (header / footer / nav / motion) */
+/* SNU Business School Alumni — shared shell (header / footer / nav / motion) */
 (function () {
   document.documentElement.classList.add("js");
   const NAV = [
@@ -33,10 +33,11 @@
   function brand(light) {
     return `<a class="brand" href="/" aria-label="서울대학교 경영대학 총동문회 홈">
       <span class="seal" style="color:${light ? '#DCC392' : '#5C1424'}">${SEAL}</span>
-      <span class="name"><span class="ko">서울대학교 경영대학 총동문회</span><span class="en">SNU Business Alumni</span></span>
+      <span class="name"><span class="ko">서울대학교 경영대학 총동문회</span><span class="en">SNU Business School Alumni</span></span>
     </a>`;
   }
 
+  const L = window.SNU_LANG || 'ko';
   function header() {
     const items = NAV.map(n => `
       <li class="${isActive(n.href) ? 'active' : ''}"><a href="${n.href}">${n.label}</a>
@@ -45,13 +46,14 @@
     return `
     <div class="topbar"><div class="container">
       <div class="links"><a href="https://cba.snu.ac.kr" target="_blank" rel="noopener">서울대학교 경영대학</a><a href="https://www.snua.or.kr" target="_blank" rel="noopener">서울대학교 총동창회</a><a href="http://www.sangdae.com" target="_blank" rel="noopener">상과대학 총동창회</a></div>
-      <div class="links"><a href="/members/#directory">동문 찾기</a><a href="/admin/" title="개발 작업대">Workbench</a></div>
+      <div class="links"><a href="/members/#directory">동문 찾기</a><a href="/admin/" title="개발 작업대">Workbench</a><button class="lang-toggle" data-lang-toggle aria-label="Language"><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
     </div></div>
     <header class="header"><div class="container">
       ${brand(false)}
       <nav aria-label="주 메뉴"><ul class="nav">${items}</ul></nav>
       <div class="header-actions">
         <a class="btn gold sm" href="/giving/#dues">동문회비 납부</a>
+        <button class="lang-toggle mobile" data-lang-toggle aria-label="Language"><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button>
         <button class="icon-btn burger" aria-label="메뉴 열기" data-open-nav><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h18"/></svg></button>
       </div>
     </div></header>
@@ -71,7 +73,7 @@
         <div><h4>Support</h4><ul><li><a href="/giving/#dues">동문회비 납부</a></li><li><a href="/giving/#scholarship">장학사업</a></li><li><a href="/giving/#donate">기부 안내</a></li><li><a href="/media/#forms">서식 다운로드</a></li><li><a href="/admin/">Workbench</a></li></ul></div>
       </div>
       <div class="legal"><div><a href="/privacy/">개인정보처리방침</a><a href="/terms/">이용약관</a><a href="/email-policy/">이메일무단수집거부</a></div>
-      <div>© ${new Date().getFullYear()} SNU Business Alumni Association. All rights reserved.</div></div>
+      <div>© ${new Date().getFullYear()} SNU Business School Alumni Association. All rights reserved.</div></div>
     </div></footer>`;
   }
 
@@ -81,6 +83,7 @@
     document.querySelectorAll('[data-seal]').forEach(el => { el.innerHTML = SEAL; });
     const mn = document.getElementById('mobileNav');
     document.querySelectorAll('[data-open-nav]').forEach(b => b.addEventListener('click', () => { mn.classList.add('open'); mn.setAttribute('aria-hidden', 'false'); }));
+    document.querySelectorAll('[data-lang-toggle]').forEach(b => b.addEventListener('click', () => window.SNU_I18N ? SNU_I18N.toggle() : null));
     document.querySelectorAll('[data-close-nav]').forEach(b => b.addEventListener('click', () => { mn.classList.remove('open'); mn.setAttribute('aria-hidden', 'true'); }));
     // reveal on scroll
     const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px -5% 0px' });
@@ -91,8 +94,9 @@
     window.addEventListener('hashchange', sync); sync();
   }
 
-  window.SNU = { NAV, SEAL,
-    fmtDate(s) { const d = new Date(s); if (isNaN(d)) return s; return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; },
+  window.SNU = { NAV, SEAL, lang: L,
+    t(obj, field) { return (L === 'en' && obj && obj[field + '_en']) ? obj[field + '_en'] : (obj ? (obj[field] ?? '') : ''); },
+    fmtDate(s) { const d = new Date(s); if (isNaN(d)) return s; if (L === 'en') return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; },
     async json(url) { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); },
     esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); },
   };

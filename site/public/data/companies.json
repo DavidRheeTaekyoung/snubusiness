@@ -1,11 +1,11 @@
 {
-  "_meta": { "note": "동문 기업 샘플. 실제 등재는 기업 동문 신청 후 검수", "updated": "2026-09-04" },
+  "_meta": { "note": "동문 기업 샘플. 실제 등재는 단톡방 논의 후 (회의 1장 메모)", "updated": "2026-09-09" },
   "items": [
-    { "name": "동문기업 A", "industry": "제조", "ceo": "○○○ (경영 78)", "url": "#" },
-    { "name": "동문기업 B", "industry": "금융", "ceo": "○○○ (경영 84)", "url": "#" },
-    { "name": "동문기업 C", "industry": "IT · 플랫폼", "ceo": "○○○ (경영 96)", "url": "#" },
-    { "name": "동문기업 D", "industry": "유통", "ceo": "○○○ (경영 81)", "url": "#" },
-    { "name": "동문기업 E", "industry": "바이오", "ceo": "○○○ (경영 02)", "url": "#" },
-    { "name": "동문기업 F", "industry": "컨설팅", "ceo": "○○○ (경영 90)", "url": "#" }
+    { "name": "동문기업 A", "name_en": "Alumni Company A", "industry": "제조", "industry_en": "Manufacturing", "ceo": "○○○ (경영 78)", "ceo_en": "○○○ (Class of 78)", "url": "#" },
+    { "name": "동문기업 B", "name_en": "Alumni Company B", "industry": "금융", "industry_en": "Finance", "ceo": "○○○ (경영 84)", "ceo_en": "○○○ (Class of 84)", "url": "#" },
+    { "name": "동문기업 C", "name_en": "Alumni Company C", "industry": "IT · 플랫폼", "industry_en": "IT · Platform", "ceo": "○○○ (경영 96)", "ceo_en": "○○○ (Class of 96)", "url": "#" },
+    { "name": "동문기업 D", "name_en": "Alumni Company D", "industry": "유통", "industry_en": "Retail", "ceo": "○○○ (경영 81)", "ceo_en": "○○○ (Class of 81)", "url": "#" },
+    { "name": "동문기업 E", "name_en": "Alumni Company E", "industry": "바이오", "industry_en": "Biotech", "ceo": "○○○ (경영 02)", "ceo_en": "○○○ (Class of 02)", "url": "#" },
+    { "name": "동문기업 F", "name_en": "Alumni Company F", "industry": "컨설팅", "industry_en": "Consulting", "ceo": "○○○ (경영 90)", "ceo_en": "○○○ (Class of 90)", "url": "#" }
   ]
 }

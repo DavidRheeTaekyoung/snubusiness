@@ -1,12 +1,11 @@
 {
   "next": [
     "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
-    "[즉시] 브랜드 영문 표기 교체: SNU Business Alumni → SNU Business School Alumni (헤더·푸터·인장·메타)",
     "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
     "[리서치] 결제수단 — 계좌이체 + 카카오페이·네이버페이·토스·카드 등 다중 결제 PG 비교(수수료·계약요건) → 토론",
     "[결정 필요] 회원 범위에 박사 포함 여부, 커뮤니티 운영 방식 재확인 (작업대 주인)",
-    "[P2] 전체 영문 사이트 /en/ 설계, 통계값·사진·행사 일정은 자료 수령 시 반영",
-    "[일정] 11월 26일 송년회 = 준비모임 200명 공개. 10월 말까지 P2 완료 목표, QR은 docs/snubusiness-qr.png"
+    "[일정] 11월 26일 송년회 = 준비모임 200명 공개. 10월 말까지 P2 완료 목표, QR은 docs/snubusiness-qr.png",
+    "[확인 필요] 명칭: 작업대 주인 메시지에는 \"총동창회\"로 표기 — 사이트는 회의 메모대로 \"총동문회\" 유지 중. 최종 명칭 확정 요청"
   ],
   "entries": [
     {
@@ -279,6 +278,46 @@
       "files": [
         "data/plan.json",
         "content/overview.md"
+      ]
+    },
+    {
+      "id": "L-0025",
+      "ts": "2026-09-09 12:30",
+      "kind": "build",
+      "title": "전체 공개 사이트 한/영 전환 — 우상단 KO·EN 토글, 사전(479개 문구) 기반 런타임 번역, 동적 데이터 _en 필드",
+      "detail": "i18n.js: localStorage에 언어 저장, 텍스트 노드·placeholder·title·meta 치환, MutationObserver로 동적 렌더도 번역, 영문일 때 세리프 헤드라인은 Cormorant. 사전은 data/i18n.json(ko→en). 데이터 JSON은 title_en/body_en/desc_en/place_en/kind_en. 작업대는 국문 전용. 브랜드 영문 표기 SNU Business School Alumni로 교체(회의 결정 3).",
+      "files": [
+        "assets/js/i18n.js",
+        "data/i18n.json",
+        "assets/js/site.js",
+        "assets/css/main.css",
+        "*.html",
+        "data/*.json"
+      ]
+    },
+    {
+      "id": "L-0026",
+      "ts": "2026-09-09 12:40",
+      "kind": "build",
+      "title": "실제 일정 반영 — 9/9 조찬 회의(종료), 10/24 골프(포천 힐마루), 11/10 준비위원회, 11/26 송년회(준비모임 공개), 2027/4/16 창립총회·정식 출범",
+      "detail": "작업대 주인 지시. 송년회까지는 준비모임 기간임을 홈 히어로·공지·연혁에 표기. 샘플 경조사·언론 항목 삭제(실자료 전까지 비움). 임원 섹션은 준비위원회 체제로.",
+      "files": [
+        "data/events.json",
+        "data/notices.json",
+        "data/officers.json",
+        "index.html",
+        "about/index.html"
+      ]
+    },
+    {
+      "id": "L-0027",
+      "ts": "2026-09-09 12:50",
+      "kind": "build",
+      "title": "회장 인사말 새로 작성(글로벌 톤, 국·영문) · 회칙 검토용 초안 6장 23조 + 부칙(국·영문)",
+      "detail": "인사말은 HBS(here for you — for life)·LBS(continue your journey) 톤을 참고해 세계 각지의 동문을 향한 메시지로. 회칙은 상대 총동창회 회칙(1963/2024)과 국내외 동문회 정관을 참고, 온라인 의결·개인정보·장학기금·결제수단 조항 추가. 서명은 창립총회 선임 예정·준비위원회 드림.",
+      "files": [
+        "about/index.html",
+        "data/i18n.json"
       ]
     }
   ]

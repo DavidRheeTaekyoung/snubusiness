@@ -284,3 +284,20 @@ html{scrollbar-width:thin;scrollbar-color:rgba(92,20,36,.28) transparent}
   .section-head{margin-bottom:24px}
   .prose table{display:block;overflow-x:auto;white-space:nowrap}
 }
+
+/* Language toggle */
+.lang-toggle{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 10px;color:rgba(247,244,238,.75);font-family:var(--display);font-size:12px;letter-spacing:.14em;font-weight:600;cursor:pointer;line-height:1.4}
+.lang-toggle i{font-style:normal;opacity:.4}
+.lang-toggle span.on{color:var(--gold-300)}
+.lang-toggle:hover{border-color:var(--gold-300)}
+.lang-toggle.mobile{display:none;border-color:var(--line-2);color:var(--ink-3)}
+.lang-toggle.mobile span.on{color:var(--navy-800)}
+@media (max-width:1024px){.lang-toggle.mobile{display:inline-flex}}
+html.i18n-loading body{visibility:hidden}
+html[lang="en"] body{word-break:normal}
+html[lang="en"] h1,html[lang="en"] h2,html[lang="en"] .hero h1{font-family:var(--display);font-weight:500;letter-spacing:.005em}
+html[lang="en"] h1{font-size:clamp(40px,5.2vw,66px)}
+html[lang="en"] h2{font-size:clamp(30px,3.4vw,44px)}
+html[lang="en"] .page-hero h1{font-size:clamp(36px,4.2vw,54px)}
+html[lang="en"] .quote{font-family:var(--display);font-size:clamp(24px,2.6vw,34px);font-style:italic}
+html[lang="en"] .notice-list .cat,html[lang="en"] .card .tag{letter-spacing:.12em}

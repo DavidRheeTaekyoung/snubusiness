@@ -1,12 +1,10 @@
 {
-  "_meta": { "note": "샘플 데이터. 운영 시 D1 events 테이블로 이관", "updated": "2026-09-04" },
+  "_meta": { "note": "실제 일정 (2026-09-09 작업대 주인 제공). 올해 송년회까지는 '서울대학교 경영대학 총동문회 준비모임' 기간. 정식 출범 2027-04-16.", "updated": "2026-09-09" },
   "items": [
-    { "id": 1, "title": "2026학년도 2학기 장학금 수여식", "date": "2026-09-18", "time": "17:00", "place": "경영대학 SK관 5층", "kind": "장학", "status": "open", "desc": "장학생 동문과 기부자 동문이 함께하는 자리입니다." },
-    { "id": 2, "title": "동문 CEO 조찬 포럼 — 글로벌 공급망과 한국 기업", "date": "2026-09-25", "time": "07:30", "place": "서울클럽", "kind": "포럼", "status": "open", "desc": "동문 기업인들이 모여 최신 경영 이슈를 나눕니다." },
-    { "id": 3, "title": "2026 하반기 동문 골프대회", "date": "2026-10-16", "time": "11:00", "place": "레이크사이드 CC", "kind": "친목", "status": "open", "desc": "기별 대항전으로 진행됩니다." },
-    { "id": 4, "title": "제1기 멘토링 프로그램 발대식", "date": "2026-10-30", "time": "18:30", "place": "경영대학 LG관", "kind": "멘토링", "status": "soon", "desc": "재학생·젊은 동문과 선배 동문의 첫 만남." },
-    { "id": 5, "title": "정기이사회 및 회장단 회의", "date": "2026-12-10", "time": "18:00", "place": "추후 공지", "kind": "총회", "status": "soon", "desc": "2027년 사업계획과 예산을 심의합니다." },
-    { "id": 6, "title": "2027년 정기총회 겸 신년하례회", "date": "2027-01-21", "time": "18:00", "place": "추후 공지", "kind": "총회", "status": "soon", "desc": "한 해를 여는 동문 최대의 모임." },
-    { "id": 7, "title": "홈커밍데이 2027", "date": "2027-05-15", "time": "14:00", "place": "관악캠퍼스 경영대학", "kind": "홈커밍", "status": "plan", "desc": "졸업 10·20·30·40·50주년 동문 초청." }
+    { "id": 1, "title": "총동문회 준비모임 조찬 회의", "title_en": "Preparatory Group Breakfast Meeting", "date": "2026-09-09", "time": "07:30", "place": "서울", "place_en": "Seoul", "kind": "준비모임", "kind_en": "Preparatory", "status": "done", "desc": "홈페이지 방향과 주요 의사결정 항목 논의.", "desc_en": "Reviewed the website and decided key items." },
+    { "id": 2, "title": "준비모임 골프 모임", "title_en": "Preparatory Group Golf Outing", "date": "2026-10-24", "time": "", "place": "포천 힐마루 골프클럽", "place_en": "Hillmaru Golf Club, Pocheon", "kind": "친목", "kind_en": "Social", "status": "open", "desc": "준비모임 회원 친선 라운드. 참가 신청은 사무국으로.", "desc_en": "Friendly round for preparatory members. Register with the office." },
+    { "id": 3, "title": "준비위원회 모임", "title_en": "Preparatory Committee Meeting", "date": "2026-11-10", "time": "", "place": "추후 공지", "place_en": "To be announced", "kind": "준비모임", "kind_en": "Preparatory", "status": "soon", "desc": "송년회 준비와 정식 출범 로드맵 점검.", "desc_en": "Year-end party preparations and the launch roadmap." },
+    { "id": 4, "title": "송년회 — 준비모임 공개", "title_en": "Year-End Party — Preparatory Group Launch", "date": "2026-11-26", "time": "", "place": "추후 공지", "place_en": "To be announced", "kind": "송년회", "kind_en": "Year-end", "status": "soon", "desc": "준비모임 회원 200여 명에게 총동문회와 홈페이지를 공개합니다.", "desc_en": "The association and this website are presented to about 200 preparatory members." },
+    { "id": 5, "title": "서울대학교 경영대학 총동문회 정식 출범 (창립총회)", "title_en": "Official Launch of the SNU Business School Alumni Association", "date": "2027-04-16", "time": "", "place": "추후 공지", "place_en": "To be announced", "kind": "총회", "kind_en": "Assembly", "status": "plan", "desc": "창립총회에서 회칙과 임원을 확정하고 총동문회가 정식 출범합니다.", "desc_en": "The founding assembly adopts the bylaws, confirms officers and formally launches the association." }
   ]
 }

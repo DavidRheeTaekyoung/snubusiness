@@ -1,18 +1,17 @@
 {
-  "_meta": { "note": "임원 명단은 확정 전 자리표시자입니다. 실제 명단 확보 후 교체 (개발이력 TODO-003)", "updated": "2026-09-04" },
-  "term": "제1대 (2026 – 2028)",
+  "_meta": { "note": "임원은 창립총회(2027-04-16)에서 확정. 그 전까지 준비위원회 체제. 명단은 운영위원회 결정 후 반영 (회의 1장 메모).", "updated": "2026-09-09" },
+  "term": "준비위원회 (2026 – 2027.4)",
+  "term_en": "Preparatory Committee (2026 – Apr 2027)",
   "groups": [
-    { "role": "회장", "people": [ { "name": "미정", "cls": "경영 ○○학번", "org": "" } ] },
-    { "role": "수석부회장", "people": [ { "name": "미정", "cls": "경영 ○○학번", "org": "" } ] },
-    { "role": "부회장", "people": [ { "name": "미정", "cls": "" }, { "name": "미정", "cls": "" }, { "name": "미정", "cls": "" }, { "name": "미정", "cls": "" } ] },
-    { "role": "감사", "people": [ { "name": "미정", "cls": "" }, { "name": "미정", "cls": "" } ] },
-    { "role": "사무국장", "people": [ { "name": "미정", "cls": "" } ] }
+    { "role": "준비위원장", "role_en": "Chair, Preparatory Committee", "people": [ { "name": "미정", "name_en": "TBD", "cls": "창립총회에서 확정", "cls_en": "Confirmed at the founding assembly", "org": "" } ] },
+    { "role": "준비위원", "role_en": "Preparatory Member", "people": [ { "name": "미정", "name_en": "TBD", "cls": "운영위원회 결정 후 게시", "cls_en": "Posted after the steering committee decides" } ] },
+    { "role": "사무국", "role_en": "Secretariat", "people": [ { "name": "미정", "name_en": "TBD", "cls": "", "cls_en": "" } ] }
   ],
   "committees": [
-    { "name": "장학위원회", "desc": "장학생 선발, 장학기금 운용" },
-    { "name": "행사위원회", "desc": "정기총회, 홈커밍데이, 친목행사 기획" },
-    { "name": "홍보·출판위원회", "desc": "동문회보, 홈페이지, SNS" },
-    { "name": "회원·조직위원회", "desc": "기별·직장별 동문회 조직, 회원 관리" },
-    { "name": "재정위원회", "desc": "예산, 결산, 회비, 기부금" }
+    { "name": "장학위원회", "name_en": "Scholarship Committee", "desc": "장학생 선발, 장학기금 운용", "desc_en": "Scholar selection, fund management" },
+    { "name": "행사위원회", "name_en": "Events Committee", "desc": "정기총회, 홈커밍데이, 친목행사 기획", "desc_en": "General Assembly, Homecoming, social events" },
+    { "name": "홍보·출판위원회", "name_en": "Communications Committee", "desc": "동문회보, 홈페이지, SNS", "desc_en": "Newsletter, website, social media" },
+    { "name": "회원·조직위원회", "name_en": "Membership Committee", "desc": "기별·직장별 동문회 조직, 회원 관리", "desc_en": "Class and workplace chapters, membership records" },
+    { "name": "재정위원회", "name_en": "Finance Committee", "desc": "예산, 결산, 회비, 기부금", "desc_en": "Budget, accounts, dues, donations" }
   ]
 }
