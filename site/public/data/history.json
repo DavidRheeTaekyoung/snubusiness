@@ -1,9 +1,12 @@
 {
   "next": [
-    "회의 후: GET /api/meeting 결과를 읽어 결정 사항을 마스터플랜·데이터정의에 반영, 1장 자료 수령 상태에 따라 P2 착수",
-    "Cloudflare Pages ↔ GitHub 자동 배포 연결 (대시보드: Workers 및 Pages > snubusiness > 설정 > 빌드 > 소스 연결). 그 전까지는 `npx wrangler pages deploy public --project-name snubusiness`",
-    "작업대 주인에게 TODO-001~006 (통계·임원·회칙·회비·사진·상대동창회 관계) 자료 요청",
-    "P2 진입: 공지·행사 D1 이관 및 작업대 편집 UI, /admin Cloudflare Access 보호"
+    "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
+    "[즉시] 브랜드 영문 표기 교체: SNU Business Alumni → SNU Business School Alumni (헤더·푸터·인장·메타)",
+    "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
+    "[리서치] 결제수단 — 계좌이체 + 카카오페이·네이버페이·토스·카드 등 다중 결제 PG 비교(수수료·계약요건) → 토론",
+    "[결정 필요] 회원 범위에 박사 포함 여부, 커뮤니티 운영 방식 재확인 (작업대 주인)",
+    "[P2] 전체 영문 사이트 /en/ 설계, 통계값·사진·행사 일정은 자료 수령 시 반영",
+    "[일정] 11월 26일 송년회 = 준비모임 200명 공개. 10월 말까지 P2 완료 목표, QR은 docs/snubusiness-qr.png"
   ],
   "entries": [
     {
@@ -244,6 +247,38 @@
         "giving/index.html",
         "_redirects",
         "sitemap.xml"
+      ]
+    },
+    {
+      "id": "L-0022",
+      "ts": "2026-09-09 10:45",
+      "kind": "discuss",
+      "title": "회의 결정 저장 · 반영 — 2장 15건 중 11건 결정, 4건 보류(회비 체계·결제·예우 등급·브랜드 표기는 메모), 1장 12건 전부 운영위원회/단톡방으로 이관",
+      "detail": "결정: 회원 범위=학부+기존 대학원(MBA 제외, 박사 추가 결정 필요) · 상대동창회와 병립 · 브랜드=서울대학교 경영대학 총동문회 + SNU Business School Alumni · 버건디 유지 · 인증=사무국 명부 대조 후 이메일 로그인 · 공개범위 최소(opt-in) · 커뮤니티는 로그인 전용(확실치 않음) · 알림=카카오+이메일 · 영문=전체 /en/ · 작업대=Cloudflare Access(운영진, 오너가 권한 부여) · 오픈=핵심 20명 즉시, 11/26 송년회에서 준비모임 200명 공개(사실상 정식) · 멘토링 보류. 스냅샷 data/meeting-results.json.",
+      "ref": "meeting",
+      "files": [
+        "data/meeting-results.json"
+      ]
+    },
+    {
+      "id": "L-0023",
+      "ts": "2026-09-09 10:50",
+      "kind": "build",
+      "title": "QR 코드 생성 — https://snubusiness.com (SVG 사이트 내 · PNG docs/)",
+      "files": [
+        "assets/img/qr-snubusiness.svg",
+        "docs/snubusiness-qr.png"
+      ]
+    },
+    {
+      "id": "L-0024",
+      "ts": "2026-09-09 10:55",
+      "kind": "plan",
+      "title": "마스터플랜 갱신 — P1 완료, P2 진행(~11/26 송년회), 영문 /en/ P2 편입, 멘토링 보류, 작업대 Access 보호 즉시",
+      "detail": "P2 산출물에 브랜드 영문명 교체(SNU Business School Alumni), 전체 영문 사이트 추가. P3 인증 방식 확정(사무국 승인+이메일). P4 결제는 계좌이체+간편결제 다중 PG 리서치 후 결정.",
+      "files": [
+        "data/plan.json",
+        "content/overview.md"
       ]
     }
   ]
