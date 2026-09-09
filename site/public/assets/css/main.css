@@ -301,3 +301,9 @@ html[lang="en"] h2{font-size:clamp(30px,3.4vw,44px)}
 html[lang="en"] .page-hero h1{font-size:clamp(36px,4.2vw,54px)}
 html[lang="en"] .quote{font-family:var(--display);font-size:clamp(24px,2.6vw,34px);font-style:italic}
 html[lang="en"] .notice-list .cat,html[lang="en"] .card .tag{letter-spacing:.12em}
+.nav>li>a{white-space:nowrap}
+html[lang="en"] .nav>li>a{padding:30px 12px;font-size:14px}
+html[lang="en"] .brand .name .ko{font-size:15.5px;font-family:var(--display);font-weight:600;letter-spacing:.01em}
+html[lang="en"] .brand .name .en{display:none}
+html[lang="en"] .header-actions .btn{font-size:13px;padding:12px 18px}
+@media (max-width:1180px){html[lang="en"] .nav>li>a{padding:30px 9px;font-size:13.5px}}
