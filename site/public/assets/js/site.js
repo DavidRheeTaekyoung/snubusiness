@@ -45,7 +45,7 @@
     return `
     <div class="topbar"><div class="container">
       <div class="links"><a href="https://cba.snu.ac.kr" target="_blank" rel="noopener">서울대학교 경영대학</a><a href="https://www.snua.or.kr" target="_blank" rel="noopener">서울대학교 총동창회</a><a href="http://www.sangdae.com" target="_blank" rel="noopener">상과대학 총동창회</a></div>
-      <div class="links"><a href="/members/#directory">동문 찾기</a><a href="/login/">로그인</a><a href="/admin/" title="개발 작업대">Workbench</a></div>
+      <div class="links"><a href="/members/#directory">동문 찾기</a><a href="/admin/" title="개발 작업대">Workbench</a></div>
     </div></div>
     <header class="header"><div class="container">
       ${brand(false)}
@@ -57,8 +57,7 @@
     </div></header>
     <div class="mobile-nav" id="mobileNav" aria-hidden="true">
       <button class="icon-btn close" aria-label="메뉴 닫기" data-close-nav><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
-      <ul>${NAV.map(n => `<li><a href="${n.href}">${n.label}</a><ul class="sub">${n.sub.map(s => `<li><a href="${s[1]}">${s[0]}</a></li>`).join('')}</ul></li>`).join('')}
-        <li><a href="/login/">로그인</a></li></ul>
+      <ul>${NAV.map(n => `<li><a href="${n.href}">${n.label}</a><ul class="sub">${n.sub.map(s => `<li><a href="${s[1]}">${s[0]}</a></li>`).join('')}</ul></li>`).join('')}</ul>
     </div>`;
   }
 

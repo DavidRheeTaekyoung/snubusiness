@@ -5,7 +5,7 @@
 <title>행사 | 서울대학교 경영대학 총동문회</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260909a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260909b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .ev{display:grid;grid-template-columns:120px 1fr auto;gap:28px;align-items:center;background:var(--paper);border:1px solid var(--line);padding:26px 30px;margin-bottom:14px;transition:all .35s var(--ease)}
 .ev:hover{border-color:var(--gold-300);box-shadow:var(--shadow-1)}
@@ -60,7 +60,7 @@
 </div></section>
 
 <div id="site-footer"></div>
-<script src="/assets/js/site.js?v=20260909a"></script>
+<script src="/assets/js/site.js?v=20260909b"></script>
 <script>
 (async () => {
   const { json, esc } = SNU;
@@ -77,7 +77,7 @@
     document.getElementById('ev-list').innerHTML = rows.map(i => { const d = new Date(i.date); const s = ST[i.status]||ST.plan; return `
       <div class="ev"><div class="d"><div class="m">${d.toLocaleString('en',{month:'short'})} ${d.getFullYear()}</div><div class="n">${String(d.getDate()).padStart(2,'0')}</div><div class="w">${W[d.getDay()]}요일 ${i.time}</div></div>
       <div><span class="badge ${s[1]}" style="margin-bottom:8px">${esc(i.kind)}</span><h3>${esc(i.title)}</h3><div class="i">${esc(i.place)} · ${esc(i.desc)}</div></div>
-      <div>${i.status==='open'?'<a class="btn sm" href="/login/">참가 신청</a>':`<span class="badge soon">${s[0]}</span>`}</div></div>`; }).join('');
+      <div>${i.status==='open'?'<a class="btn sm" href="mailto:alumni@snubusiness.com?subject=행사 참가 신청">참가 신청</a>':`<span class="badge soon">${s[0]}</span>`}</div></div>`; }).join('');
   }
   render();
 })();

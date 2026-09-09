@@ -5,7 +5,7 @@
 <title>동문 | 서울대학교 경영대학 총동문회</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260909a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260909b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .search{background:var(--paper);border:1px solid var(--line);padding:32px 36px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:16px;align-items:end}
 @media (max-width:860px){.search{grid-template-columns:1fr 1fr}}
@@ -31,15 +31,15 @@
 
 <section class="section" id="directory"><div class="container">
   <div class="section-head"><div><span class="eyebrow">Directory</span><h2>동문 찾기</h2></div></div>
-  <form class="search" onsubmit="event.preventDefault();location.href='/login/'">
+  <form class="search" onsubmit="event.preventDefault();alert('동문 찾기는 회원 시스템 오픈 후 제공됩니다.')">
     <div class="field" style="margin:0"><label>이름</label><input placeholder="홍길동"></div>
     <div class="field" style="margin:0"><label>학번 / 기수</label><input placeholder="예: 95 또는 MBA 12기"></div>
     <div class="field" style="margin:0"><label>직장 · 산업</label><input placeholder="예: 삼성전자, 금융"></div>
     <button class="btn">검색</button>
   </form>
   <div class="lock"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="10" width="16" height="11" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
-    <div><div style="font-family:var(--serif);font-size:19px;margin-bottom:6px">동문 찾기는 로그인 동문에게만 제공됩니다</div><div style="font-size:14px;color:rgba(247,244,238,.7)">개인정보 보호를 위해 본인 인증을 거친 동문만 연락처를 열람할 수 있습니다. 공개 범위는 본인이 직접 설정합니다.</div></div>
-    <a class="btn gold" href="/login/" style="margin-left:auto">로그인</a></div>
+    <div><div style="font-family:var(--serif);font-size:19px;margin-bottom:6px">동문 찾기는 본인 인증을 거친 동문에게 제공됩니다</div><div style="font-size:14px;color:rgba(247,244,238,.7)">개인정보 보호를 위해 본인 인증을 거친 동문만 연락처를 열람할 수 있습니다. 공개 범위는 본인이 직접 설정합니다.</div></div>
+    <span class="badge" style="margin-left:auto;border-color:var(--gold-300);color:var(--gold-300)">회원 시스템 준비 중</span></div>
 </div></section>
 
 <section class="section paper" id="classes"><div class="container">
@@ -78,13 +78,13 @@
 </div></div></section>
 
 <div id="site-footer"></div>
-<script src="/assets/js/site.js?v=20260909a"></script>
+<script src="/assets/js/site.js?v=20260909b"></script>
 <script>
 (async () => {
   const { json, esc } = SNU;
   const y = new Date().getFullYear() % 100;
   const yrs = []; for (let i = 60; i <= 99; i++) yrs.push(String(i)); for (let i = 0; i <= y; i++) yrs.push(String(i).padStart(2,'0'));
-  document.getElementById('cls').innerHTML = yrs.map(v => `<a href="/login/" title="${v}학번 동문회">${v}</a>`).join('');
+  document.getElementById('cls').innerHTML = yrs.map(v => `<a href="#classes" title="${v}학번 동문회 (준비 중)">${v}</a>`).join('');
   const c = await json('/data/companies.json');
   document.getElementById('co').innerHTML = c.items.map(i => `<a class="card" href="${i.url}"><span class="tag">${esc(i.industry)}</span><h3>${esc(i.name)}</h3><p>${esc(i.ceo)}</p></a>`).join('');
 })();

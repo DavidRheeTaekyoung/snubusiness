@@ -230,6 +230,21 @@
         "*.html",
         "data/meeting.json"
       ]
+    },
+    {
+      "id": "L-0021",
+      "ts": "2026-09-09 10:30",
+      "kind": "fix",
+      "title": "로그인 요소 제거 — 상단바·모바일 메뉴의 로그인 링크, /login/ 페이지 삭제(홈으로 301)",
+      "detail": "작업대 주인 지시(새 랩탑에서 로그인 화면이 보여 혼란). 회원 시스템(P3) 전까지 로그인 없음. 동문 찾기 잠금 배너는 \"회원 시스템 준비 중\", 행사 참가 신청은 사무국 메일, 온라인 납부는 준비 중 배지로 대체.",
+      "files": [
+        "assets/js/site.js",
+        "members/index.html",
+        "events/index.html",
+        "giving/index.html",
+        "_redirects",
+        "sitemap.xml"
+      ]
     }
   ]
 }
