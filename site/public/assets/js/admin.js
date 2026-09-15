@@ -6,7 +6,7 @@
       ['research', '리서치', '1'], ['overview', '개발개요 · 마스터플랜', '2'], ['data', '데이터정의', '3'], ['dataflow', '데이터흐름도', '4'] ] },
     { group: '협업 · 품질', items: [
       ['discussion', '개발자토론', '5'], ['inspection', '자율점검', '6'], ['history', '개발이력', '7'] ] },
-    { group: '회의', items: [ ['meeting', '9/9 조찬 회의', '8'], ['meeting/?m=committee', '준비위원회 안건', '9'] ] },
+    { group: '회의', items: [ ['meeting', '9/9 조찬 회의', '8'], ['meeting/?m=committee', '9/29 준비위원회 회의', '9'] ] },
   ];
   const seg = location.pathname.replace(/^\/admin\/?/, '').split('/')[0] + (location.search.includes('m=committee') ? '/?m=committee' : '');
 
