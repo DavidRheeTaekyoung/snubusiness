@@ -5,7 +5,7 @@ const enc = new TextEncoder();
 
 function b64u(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
 function b64uStr(s) { return b64u(enc.encode(s)); }
-function fromB64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return atob(s); }
+function fromB64u(s) { s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; return new TextDecoder().decode(Uint8Array.from(atob(s), c => c.charCodeAt(0))); }
 
 export async function sha256(s) { return b64u(await crypto.subtle.digest('SHA-256', enc.encode(s))); }
 async function hmac(secret, data) {
