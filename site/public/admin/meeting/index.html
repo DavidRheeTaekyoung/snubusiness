@@ -5,7 +5,7 @@
 <title>8. 회의자료 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260909b"><link rel="stylesheet" href="/assets/css/admin.css?v=20260909b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260915a"><link rel="stylesheet" href="/assets/css/admin.css?v=20260915a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .chapter{margin:40px 0 18px;display:flex;align-items:baseline;gap:16px}
 .chapter .n{font-family:var(--display);font-size:44px;color:var(--gold-400);line-height:1}
@@ -46,6 +46,24 @@
 .summary .none{color:rgba(247,244,238,.45)}
 .progress{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
 .progress b{color:var(--navy-800)}
+.agenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:8px}
+.agenda .a{background:var(--paper);border:1px solid var(--line);padding:14px 16px}
+.agenda .a .m{font-family:var(--display);font-size:26px;color:var(--gold-500);line-height:1}
+.agenda .a .m small{font-size:12px;letter-spacing:.1em;color:var(--ink-3);margin-left:4px}
+.agenda .a .t{font-weight:600;color:var(--navy-800);font-size:14.5px;margin-top:6px}
+.agenda .a .d{font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.5}
+.rep{background:var(--paper);border:1px solid var(--line);padding:16px 22px;margin-bottom:10px;display:grid;grid-template-columns:1fr 260px;gap:18px;align-items:start}
+@media (max-width:800px){.rep{grid-template-columns:1fr}}
+.rep .q{font-size:13px;color:var(--ink-3)}
+.rep .a{font-size:15px;color:var(--navy-800);font-weight:500;margin-top:2px}
+.rep .memo{font-size:12.5px;color:var(--ink-3);margin-top:4px}
+.rep textarea{font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line-2);min-height:40px;width:100%;resize:vertical;border-radius:2px}
+.sched{width:100%;border-collapse:collapse;font-size:14.5px;background:var(--paper);border:1px solid var(--line)}
+.sched th{font-size:12px;letter-spacing:.08em;color:var(--ink-3);text-align:left;padding:10px 14px;border-bottom:1px solid var(--line-2);background:var(--ivory)}
+.sched td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.sched td:first-child{font-family:var(--display);font-size:16px;color:var(--gold-500);white-space:nowrap}
+.share{background:var(--gold-100);border:1px solid var(--gold-300);padding:12px 18px;font-size:13.5px;color:var(--ink-2);margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.share code{font-family:var(--mono);background:var(--paper);padding:2px 8px;border:1px solid var(--line)}
 @media print{
   .admin-side,.admin-top .actions,.opt input,.dec .memo,.item .side select{display:none!important}
   .admin-shell{display:block}.admin-body{padding:0;max-width:none}
@@ -63,32 +81,58 @@
     <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Workbench 8</span><h1 id="m-title">회의자료</h1><div class="sub" id="m-intro"></div></div>
       <div class="actions"><span style="font-size:13px;color:var(--ink-3);align-self:center">기록자 <input id="by" value="이태경" style="border:0;border-bottom:1px solid var(--line-2);background:transparent;font:inherit;width:90px;padding:2px 4px"></span><button class="btn sm ghost" onclick="window.print()">인쇄 · PDF</button><a class="btn sm" href="#summary">결정 요약으로</a></div></div>
     <div class="admin-body">
-      <div class="panel" style="padding:18px 26px"><div class="progress"><span>1장 입력 항목 <b id="p-in">—</b></span><span>2장 결정 항목 <b id="p-dec">—</b></span><span>저장소 <b id="p-db">확인 중</b></span><span style="margin-left:auto">선택·메모는 즉시 자동 저장됩니다.</span></div></div>
+      <div class="panel" style="padding:18px 26px"><div class="progress"><span>자료 항목 <b id="p-in">—</b></span><span>결정 항목 <b id="p-dec">—</b></span><span>저장소 <b id="p-db">확인 중</b></span><span style="margin-left:auto">선택·메모는 즉시 자동 저장됩니다.</span></div></div>
 
-      <div class="chapter"><span class="n">1</span><h2>사람이 해주셔야 하는 것</h2><span class="d">에이전트가 만들 수 없는, 동문회만 줄 수 있는 자료</span></div>
+      <div id="share-box"></div>
+      <div id="agenda-box"></div>
+      <div id="report-box"></div>
+      <div class="chapter" id="ch-dec"><span class="n">2</span><h2>결정해 주실 것</h2><span class="d">고르기만 하면 개발이 바로 진행됩니다</span></div>
+      <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목의 리서치 요약을 보시고 하나를 고르세요. <span class="rec" style="font-size:10.5px;letter-spacing:.1em;color:var(--gold-500);border:1px solid var(--gold-400);padding:1px 7px;border-radius:999px;font-family:var(--display);font-weight:700">권장</span> 표시는 에이전트의 추천입니다. 다른 의견은 메모에 적어 주세요.</p>
+      <div id="decisions"></div>
+      <div class="chapter" id="ch-in"><span class="n">3</span><h2>사람이 해주셔야 하는 것</h2><span class="d">에이전트가 만들 수 없는, 동문회만 줄 수 있는 자료</span></div>
       <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목 오른쪽에서 담당자와 상태를 정해 주시면 됩니다. 자료는 카톡·이메일·엑셀 무엇이든 괜찮고, 형식은 에이전트가 맞춥니다.</p>
       <div id="inputs"></div>
 
-      <div class="chapter"><span class="n">2</span><h2>결정해 주실 것</h2><span class="d">고르기만 하면 개발이 바로 진행됩니다</span></div>
-      <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목의 리서치 요약을 보시고 하나를 고르세요. <span class="rec" style="font-size:10.5px;letter-spacing:.1em;color:var(--gold-500);border:1px solid var(--gold-400);padding:1px 7px;border-radius:999px;font-family:var(--display);font-weight:700">권장</span> 표시는 에이전트의 추천입니다. 다른 의견은 메모에 적어 주세요.</p>
-      <div id="decisions"></div>
+      <div id="bylaws-box"></div>
+      <div id="schedule-box"></div>
 
       <div class="summary" id="summary"><h2>결정 요약</h2><table id="sum"></table><p style="font-size:12.5px;color:rgba(247,244,238,.55);margin:14px 0 0">이 요약은 저장된 값으로 만들어집니다. 회의 후 에이전트가 이 결정을 읽고 개발이력에 반영합니다.</p></div>
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20260909b"></script><script src="/assets/js/admin.js?v=20260909b"></script>
+<script src="/assets/js/site.js?v=20260915a"></script><script src="/assets/js/admin.js?v=20260915a"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB;
-  const M = await SNU.json('/data/meeting.json');
+  const MID = new URLSearchParams(location.search).get('m') || '';
+  const M = await SNU.json(MID ? '/data/meeting-' + MID + '.json' : '/data/meeting.json');
+  const PFX = M.prefix ? M.prefix + ':' : '';
+  if (!MID) { document.getElementById('ch-in').querySelector('.n').textContent = '1'; document.getElementById('ch-dec').querySelector('.n').textContent = '2'; }
+  // 1장/2장 순서: 조찬 회의(기본)는 자료→결정, 준비위원회는 보고→결정→자료
+  if (!MID) { const decs = document.getElementById('decisions'); const chIn = document.getElementById('ch-in'); const inputsEl = document.getElementById('inputs'); const pIn = chIn.nextElementSibling; const body = decs.parentNode; body.insertBefore(chIn, document.getElementById('ch-dec')); body.insertBefore(pIn, document.getElementById('ch-dec')); body.insertBefore(inputsEl, document.getElementById('ch-dec')); }
+  document.getElementById('share-box').innerHTML = MID ? `<div class="share"><b>이 화면 공유 주소</b><code>https://snubusiness.com/admin/meeting/?m=${esc(MID)}</code><span>참석자가 각자 열어도 같은 저장소에 기록됩니다. 기록자 이름을 바꾸면 누가 적었는지 남습니다.</span></div>` : '';
+  if (M.agenda) document.getElementById('agenda-box').innerHTML = '<div class="chapter"><span class="n">0</span><h2>진행 순서</h2><span class="d">예상 ' + M.agenda.reduce((a,b)=>a+b.min,0) + '분</span></div><div class="agenda">' + M.agenda.map(a => `<div class="a"><div class="m">${a.min}<small>MIN</small></div><div class="t">${esc(a.title)}</div><div class="d">${esc(a.desc)}</div></div>`).join('') + '</div>';
   document.getElementById('m-title').textContent = M.title + ' · ' + M.date;
   document.getElementById('m-intro').textContent = M.intro;
   let D = {};
   try { D = (await api('/meeting')).decisions; document.getElementById('p-db').textContent = 'D1 연결됨'; }
   catch (e) { document.getElementById('p-db').textContent = '미연결 (선택이 저장되지 않습니다)'; }
-  const get = k => D[k] || {};
+  const get = k => D[PFX + k] || {};
   const STATUS = ['미정', '담당자 지정', '자료 요청함', '자료 받음', '반영 완료'];
+  if (M.report && M.report.from === 'meeting') {
+    const M0 = await SNU.json('/data/meeting.json');
+    const rows = M0.decisions.map(q => { const d = D['dec:' + q.key] || {}; const o = q.options.find(x => x.id === d.value); const rv = get('rep:' + q.key); return `<div class="rep"><div><div class="q">${esc(q.title)}</div><div class="a">${o ? esc(o.label) : '<span class="muted">보류 · ' + esc(d.note || '미결정') + '</span>'}</div>${o && d.note ? `<div class="memo">메모: ${esc(d.note)}</div>` : ''}</div><div><textarea data-rep="${q.key}" placeholder="이의 · 보완 의견">${esc(rv.note || '')}</textarea><span class="saved" data-saved="rep:${q.key}"></span></div></div>`; }).join('');
+    document.getElementById('report-box').innerHTML = `<div class="chapter"><span class="n">1</span><h2>${esc(M.report.title)}</h2><span class="d">확인만 하면 됩니다</span></div><p class="muted" style="font-size:14px;margin:-6px 0 14px">${esc(M.report.note)}</p>${rows}`;
+    document.getElementById('report-box').addEventListener('change', e => { const k = e.target.dataset.rep; if (k) save('rep:' + k, 'reviewed', e.target.value); });
+  }
+  if (M.bylaws) {
+    document.getElementById('bylaws-box').innerHTML = '<div class="chapter"><span class="n">4</span><h2>회칙 초안 쟁점</h2><span class="d">초안 전문은 <a href="/about/#bylaws" target="_blank" style="color:var(--gold-500)">소개 › 회칙</a></span></div>' + M.bylaws.map(b => { const d = get('by:' + b.key); return `<div class="dec" id="by-${b.key}"><h3>${esc(b.title)}</h3><div class="ctx">${esc(b.context)}</div>
+      <label class="opt ${d.value==='keep'?'on':''}"><input type="radio" name="by-${b.key}" value="keep" ${d.value==='keep'?'checked':''}><div><div class="l">초안대로</div></div></label>
+      <label class="opt ${d.value==='amend'?'on':''}"><input type="radio" name="by-${b.key}" value="amend" ${d.value==='amend'?'checked':''}><div><div class="l">수정 (메모에 의견)</div></div></label>
+      <div class="memo"><textarea data-by-note="${b.key}" placeholder="수정 의견">${esc(d.note || '')}</textarea><span class="saved" data-saved="by:${b.key}"></span></div></div>`; }).join('');
+    document.getElementById('bylaws-box').addEventListener('change', e => { const q = e.target.closest('.dec'); if (!q) return; const key = q.id.replace('by-', ''); q.querySelectorAll('.opt').forEach(o => o.classList.toggle('on', o.querySelector('input').checked)); save('by:' + key, q.querySelector('input:checked')?.value || '', q.querySelector('[data-by-note]').value); });
+  }
+  if (M.schedule) document.getElementById('schedule-box').innerHTML = '<div class="chapter"><span class="n">5</span><h2>일정 확인</h2></div><table class="sched"><thead><tr><th>날짜</th><th>행사</th><th>장소</th><th>홈페이지에서 할 일</th></tr></thead><tbody>' + M.schedule.map(s => `<tr><td>${esc(s.date)}</td><td><b>${esc(s.title)}</b></td><td>${esc(s.place)}</td><td class="muted">${esc(s.site)}</td></tr>`).join('') + '</tbody></table>';
   async function save(key, value, note) {
     const by = document.getElementById('by').value || '회의';
     try { const r = await api('/meeting', { method: 'POST', body: { key, value, note, by } }); D[key] = r.decision; flash(key); progress(); summary(); }
@@ -122,12 +166,13 @@
   function progress() {
     const inDone = M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).length;
     const decDone = M.decisions.filter(q => get('dec:' + q.key).value).length;
-    document.getElementById('p-in').textContent = `${inDone} / ${M.inputs.length} 확보`;
+    document.getElementById('p-in').textContent = `${inDone} / ${M.inputs.length} 확보`; document.querySelector('.progress span:first-child').firstChild.textContent = '자료 항목 ';
     document.getElementById('p-dec').textContent = `${decDone} / ${M.decisions.length} 결정`;
   }
   function summary() {
     document.getElementById('sum').innerHTML = M.decisions.map(q => { const d = get('dec:' + q.key); const o = q.options.find(x => x.id === d.value); return `<tr><td>${esc(q.title)}</td><td>${o ? esc(o.label) : '<span class="none">미결정</span>'}${d.note ? `<div style="font-size:12.5px;color:rgba(247,244,238,.6)">메모: ${esc(d.note)}</div>` : ''}</td></tr>`; }).join('')
-      + `<tr><td>1장 자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
+      + (M.bylaws ? M.bylaws.map(b => { const d = get('by:' + b.key); return `<tr><td>${esc(b.title)}</td><td>${d.value === 'keep' ? '초안대로' : d.value === 'amend' ? '수정' : '<span class="none">미결정</span>'}${d.note ? `<div style="font-size:12.5px;color:rgba(247,244,238,.6)">메모: ${esc(d.note)}</div>` : ''}</td></tr>`; }).join('') : '')
+      + `<tr><td>자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
   }
   progress(); summary();
 })();

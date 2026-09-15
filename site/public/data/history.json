@@ -330,6 +330,18 @@
         "assets/css/main.css",
         "assets/js/site.js"
       ]
+    },
+    {
+      "id": "L-0029",
+      "ts": "2026-09-15 10:30",
+      "kind": "build",
+      "title": "준비위원회(21인) 온라인 회의 안건판 — /admin/meeting/?m=committee",
+      "detail": "회의 페이지를 회의별 데이터(meeting-<id>.json, 저장 키 prefix)로 확장. 구성: 0 진행 순서(48분) · 1 9/9 결정 11건 보고(이의 메모) · 2 의결 9건(명칭 총동문회/총동창회, 회원 범위 확정, 회비 금액 리서치 비교, 결제 PG, 송년회·골프 신청 폼, 공개 범위·Access, 소위원회, 커뮤니티) · 3 자료 담당자 12건 · 4 회칙 쟁점 5조문 · 5 일정표. 회비 리서치: 서울대 총동창회 1만/5만/50만(65세↑ 30만), 고려대 교우회 5만/50만, 연세대 3만/50만, 서울대 미대 5만/50만.",
+      "files": [
+        "admin/meeting/index.html",
+        "data/meeting-committee.json",
+        "assets/js/admin.js"
+      ]
     }
   ]
 }
