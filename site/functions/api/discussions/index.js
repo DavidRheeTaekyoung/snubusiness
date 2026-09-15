@@ -1,4 +1,5 @@
 import { json, err, getDB, ensureSchema, clean, agentOk } from '../../_lib.js';
+import { identity } from '../me.js';
 
 const KINDS = ['question', 'request', 'idea', 'issue', 'decision', 'inspection'];
 const STATUSES = ['open', 'answered', 'resolved', 'wontfix'];
@@ -24,7 +25,8 @@ export async function onRequestPost({ request, env }) {
   const db = getDB(env); if (!db) return err('D1 binding "DB" is not configured', 503);
   await ensureSchema(db);
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
-  const title = clean(b.title, 200), body = clean(b.body, 8000), author = clean(b.author, 60) || '익명';
+  const id = await identity(request, env);
+  const title = clean(b.title, 200), body = clean(b.body, 8000), author = id.name || clean(b.author, 60) || '익명';
   const kind = KINDS.includes(b.kind) ? b.kind : 'question';
   let role = ['user', 'persona', 'agent', 'system'].includes(b.role) ? b.role : 'user';
   if (role === 'agent' && !agentOk(request, env)) role = 'user';

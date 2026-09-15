@@ -19,7 +19,7 @@
         <a href="/" target="_blank"><span class="n">↗</span>공개 홈페이지</a>
         <a href="https://github.com/DavidRheeTaekyoung/snubusiness" target="_blank" rel="noopener"><span class="n">↗</span>GitHub 저장소</a>
       </nav>
-      <div class="foot">이 작업대는 개발 에이전트(Claude)의 책상입니다. 개발자토론에 남긴 글은 에이전트가 다음 세션에서 읽고 반영합니다.<br><span id="wb-status" style="color:var(--gold-300)">·</span></div>
+      <div class="foot">이 작업대는 개발 에이전트(Claude)의 책상입니다. 개발자토론에 남긴 글은 에이전트가 다음 세션에서 읽고 반영합니다.<br><span id="wb-status" style="color:var(--gold-300)">·</span><br><span data-me hidden style="color:#F7F4EE"></span></div>
     </aside>`;
   }
 

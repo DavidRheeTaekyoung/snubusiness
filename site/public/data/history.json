@@ -1,5 +1,6 @@
 {
   "next": [
+    "송년회(11/26) 전 공개 전환: Pages 환경변수 GATE_MODE=admin 으로 바꾸면 공개 페이지는 열리고 작업대만 코드 입장",
     "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
     "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
     "[리서치] 결제수단 — 계좌이체 + 카카오페이·네이버페이·토스·카드 등 다중 결제 PG 비교(수수료·계약요건) → 토론",
@@ -351,6 +352,22 @@
       "detail": "작업대 주인 지적. sangdae.com/content/3010, snua.or.kr/membership/guide, kuaa.or.kr, snuarta.or.kr 을 브라우저로 직접 읽어 확인. 임원회비(분담금) 선택지를 의결 3번에 추가.",
       "files": [
         "data/meeting-committee.json"
+      ]
+    },
+    {
+      "id": "L-0031",
+      "ts": "2026-09-15 19:00",
+      "kind": "build",
+      "title": "준비위원 21인 전용 입장 — 이름 + 개인 입장코드, 세션 쿠키, 사이트 전체 보호(GATE_MODE=all)",
+      "detail": "작업대 주인 결정: 이메일 수집·Cloudflare Zero Trust(결제수단 화면 우려) 없이 자체 인증. /enter/ 에서 명단(committee.json) 중 이름 선택 + 코드 입력 → /api/login → HMAC 서명 쿠키 90일. functions/_middleware.js 가 /enter, /api/login·logout·health, /assets 외 전부 보호. 토론·회의 API는 세션 이름을 작성자로 강제 기록. 코드 해시는 D1 access_codes(sha256(code|name)), 평문 목록은 docs/access-codes.txt(git 제외)로 작업대 주인에게 전달. 공개 전환 시 GATE_MODE=admin 으로 변경.",
+      "files": [
+        "functions/_auth.js",
+        "functions/_middleware.js",
+        "functions/api/login.js",
+        "functions/api/logout.js",
+        "functions/api/me.js",
+        "public/enter/index.html",
+        "data/committee.json"
       ]
     }
   ]

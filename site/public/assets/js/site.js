@@ -46,7 +46,7 @@
     return `
     <div class="topbar"><div class="container">
       <div class="links"><a href="https://cba.snu.ac.kr" target="_blank" rel="noopener">서울대학교 경영대학</a><a href="https://www.snua.or.kr" target="_blank" rel="noopener">서울대학교 총동창회</a><a href="http://www.sangdae.com" target="_blank" rel="noopener">상과대학 총동창회</a></div>
-      <div class="links"><a href="/members/#directory">동문 찾기</a><a href="/admin/" title="개발 작업대">Workbench</a><button class="lang-toggle" data-lang-toggle aria-label="Language"><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
+      <div class="links"><a href="/members/#directory">동문 찾기</a><span data-me hidden style="color:var(--gold-300)"></span><a href="/admin/" title="개발 작업대">Workbench</a><button class="lang-toggle" data-lang-toggle aria-label="Language"><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
     </div></div>
     <header class="header"><div class="container">
       ${brand(false)}
@@ -60,7 +60,7 @@
     <div class="mobile-nav" id="mobileNav" aria-hidden="true">
       <button class="icon-btn close" aria-label="메뉴 닫기" data-close-nav><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
       <ul>${NAV.map(n => `<li><a href="${n.href}">${n.label}</a><ul class="sub">${n.sub.map(s => `<li><a href="${s[1]}">${s[0]}</a></li>`).join('')}</ul></li>`).join('')}</ul>
-      <div class="lang-row"><span>Language</span><button class="lang-toggle" data-lang-toggle><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
+      <div class="lang-row" style="margin-bottom:6px"><span data-me hidden></span></div><div class="lang-row"><span>Language</span><button class="lang-toggle" data-lang-toggle><span class="${L==='ko'?'on':''}">KO</span><i>|</i><span class="${L==='en'?'on':''}">EN</span></button></div>
     </div>`;
   }
 
@@ -93,9 +93,16 @@
     // subnav active by hash
     const sync = () => { document.querySelectorAll('.subnav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === location.hash || (!location.hash && a.dataset.default !== undefined))); };
     window.addEventListener('hashchange', sync); sync();
+    whoami();
   }
 
-  window.SNU = { NAV, SEAL, lang: L,
+  async function whoami() {
+    try { const r = await fetch('/api/me', { cache: 'no-store' }); if (!r.ok) return; const me = await r.json(); window.SNU_ME = me;
+      if (!me.name) return;
+      document.querySelectorAll('[data-me]').forEach(el => { el.innerHTML = '<b>' + me.name + '</b>님 <a href="/api/logout" style="opacity:.6;margin-left:6px" title="다른 이름으로 입장">나가기</a>'; el.hidden = false; });
+      document.dispatchEvent(new CustomEvent('snu:me', { detail: me })); } catch (e) {}
+  }
+  window.SNU = { NAV, SEAL, lang: L, whoami,
     t(obj, field) { return (L === 'en' && obj && obj[field + '_en']) ? obj[field + '_en'] : (obj ? (obj[field] ?? '') : ''); },
     fmtDate(s) { const d = new Date(s); if (isNaN(d)) return s; if (L === 'en') return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; },
     async json(url) { const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); },

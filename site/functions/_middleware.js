@@ -1,12 +1,15 @@
-// 정식 도메인으로 통일: snu.artus.kr · www.snubusiness.com · *.pages.dev → https://snubusiness.com
-const CANON = 'snubusiness.com';
-export async function onRequest({ request, next }) {
+import { readSession, isOpen } from './_auth.js';
+
+// 사이트 전체 입장 통제 (준비 단계). 공개 전환 시 GATE_MODE=admin 으로 바꾸면 /admin/·/api/ 만 보호.
+export async function onRequest({ request, env, next }) {
   const url = new URL(request.url);
-  if (url.hostname !== CANON && !url.hostname.startsWith('127.') && url.hostname !== 'localhost') {
-    // 프리뷰 배포(해시.snubusiness.pages.dev)는 그대로 두고, 검토용·www만 리디렉션
-    if (url.hostname === 'snu.artus.kr' || url.hostname === 'www.' + CANON || url.hostname === 'snubusiness.pages.dev') {
-      url.hostname = CANON; return Response.redirect(url.toString(), 301);
-    }
-  }
-  return next();
+  const path = url.pathname;
+  const mode = env.GATE_MODE || 'all';
+  if (mode === 'off' || isOpen(path)) return next();
+  if (mode === 'admin' && !path.startsWith('/admin') && !(path.startsWith('/api/') )) return next();
+  const sess = await readSession(request, env);
+  if (sess) return next();
+  if (path.startsWith('/api/')) return new Response(JSON.stringify({ error: 'login required' }), { status: 401, headers: { 'content-type': 'application/json' } });
+  const to = '/enter/?next=' + encodeURIComponent(path + url.search);
+  return Response.redirect(url.origin + to, 302);
 }

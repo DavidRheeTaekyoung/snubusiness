@@ -1,4 +1,5 @@
 import { json, err, getDB, ensureSchema, clean } from '../_lib.js';
+import { identity } from './me.js';
 
 // 회의 결정 · 입력 현황 저장소 — key/value
 async function ensure(db) {
@@ -21,7 +22,8 @@ export async function onRequestPost({ request, env }) {
   await ensure(db);
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
   const key = clean(b.key, 80); if (!key) return err('key required');
-  const value = clean(b.value, 200), note = clean(b.note, 2000), by = clean(b.by, 60) || '회의';
+  const id = await identity(request, env);
+  const value = clean(b.value, 200), note = clean(b.note, 2000), by = id.name || clean(b.by, 60) || '회의';
   const r = await db.prepare(`INSERT INTO decisions (key, value, note, by) VALUES (?,?,?,?)
     ON CONFLICT(key) DO UPDATE SET value = excluded.value, note = excluded.note, by = excluded.by, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') RETURNING *`).bind(key, value, note, by).first();
   return json({ decision: r });

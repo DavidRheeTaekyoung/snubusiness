@@ -35,6 +35,8 @@
   const ST = { open:['열림','open'], answered:['답변됨','wip'], resolved:['해결','done'], wontfix:['보류','hold'] };
   const ROLE = { user:'작업대 주인', agent:'에이전트 Claude', persona:'페르소나', system:'시스템' };
   try { extra = await SNU.json('/data/agent-replies.json'); } catch {}
+  const auEl = document.getElementById('c-author'); const applyMe = me => { if (me && me.name) { auEl.value = me.name; auEl.readOnly = true; } };
+  if (window.SNU_ME) applyMe(window.SNU_ME); document.addEventListener('snu:me', e => applyMe(e.detail));
   async function load() {
     const box = document.getElementById('threads');
     try { const d = await api('/discussions' + (status ? '?status=' + status : '')); threads = d.threads; document.getElementById('db-state').textContent = '연결됨'; render(); }

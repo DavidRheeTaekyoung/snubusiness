@@ -1,4 +1,5 @@
 import { json, err, getDB, ensureSchema, clean, agentOk } from '../../_lib.js';
+import { identity } from '../me.js';
 
 const STATUSES = ['open', 'answered', 'resolved', 'wontfix'];
 
@@ -22,7 +23,8 @@ export async function onRequestPost({ params, request, env }) {
   const id = Number(params.id);
   const t = await db.prepare('SELECT id, status FROM threads WHERE id = ?').bind(id).first(); if (!t) return err('not found', 404);
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
-  const body = clean(b.body, 8000), author = clean(b.author, 60) || '익명';
+  const who = await identity(request, env);
+  const body = clean(b.body, 8000), author = who.name || clean(b.author, 60) || '익명';
   let role = ['user', 'persona', 'agent', 'system'].includes(b.role) ? b.role : 'user';
   if (role === 'agent' && !agentOk(request, env)) return err('agent key required for role=agent', 403);
   if (!body) return err('body is required');
