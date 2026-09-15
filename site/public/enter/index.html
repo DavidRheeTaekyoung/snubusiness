@@ -43,12 +43,15 @@ body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center
   const box = document.getElementById('names'); let picked = '';
   box.innerHTML = roster.map(n => `<button type="button" data-n="${n}">${n}</button>`).join('');
   box.addEventListener('click', e => { const b = e.target.closest('[data-n]'); if (!b) return; picked = b.dataset.n; [...box.children].forEach(x => x.classList.toggle('on', x === b)); document.getElementById('code').focus(); });
-  document.getElementById('gate').addEventListener('submit', async e => {
+  const form = document.getElementById('gate');
+  // Enter 키: 코드 입력칸이든 이름 버튼 위든 어디서나 제출
+  form.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); form.requestSubmit(); } });
+  form.addEventListener('submit', async e => {
     e.preventDefault(); const err = document.getElementById('err'); err.textContent = '';
     if (!picked) { err.textContent = '이름을 먼저 골라 주세요'; return; }
     const r = await fetch('/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: picked, code: document.getElementById('code').value }) });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) { err.textContent = j.error || '입장할 수 없습니다'; return; }
+    if (!r.ok) { err.textContent = j.error || '입장할 수 없습니다'; document.getElementById('code').select(); return; }
     const next = new URLSearchParams(location.search).get('next') || '/';
     location.href = next.startsWith('/') ? next : '/';
   });
