@@ -6,7 +6,7 @@ export async function onRequestPost({ request, env }) {
   await ensureAuthTable(db);
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
   const name = clean(b.name, 40), code = normCode(b.code);
-  if (!name || code.length < 6) return err('이름과 입장코드를 입력해 주세요');
+  if (!name || code.length < 4) return err('이름과 입장코드를 입력해 주세요');
   const row = await db.prepare('SELECT name, hash, role FROM access_codes WHERE name = ?').bind(name).first();
   if (!row) return err('명단에 없는 이름입니다', 401);
   const h = await sha256(code + '|' + name);
