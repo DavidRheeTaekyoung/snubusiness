@@ -1,5 +1,6 @@
 {
   "next": [
+    "서희원 위원 엑셀 결산 파일 수령 → 장부(ledger)로 이관 (열 매핑 후 가져오기), 결산 열람 권한 추가 대상자 명단 반영",
     "송년회(11/26) 전 공개 전환: Pages 환경변수 GATE_MODE=admin 으로 바꾸면 공개 페이지는 열리고 작업대만 코드 입장",
     "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
     "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
@@ -385,6 +386,23 @@
         "functions/api/me.js",
         "public/enter/index.html",
         "public/admin/index.html"
+      ]
+    },
+    {
+      "id": "L-0033",
+      "ts": "2026-09-15 23:30",
+      "kind": "build",
+      "title": "결산 관리 페이지 /admin/finance/ — 권한(finance) 있는 위원만: 거래 입력·수정·삭제, 월별·항목별 집계, 잔액, CSV 내려받기, 엑셀 붙여넣기 가져오기",
+      "detail": "작업대 주인 지시(서희원 위원이 엑셀로 관리 중인 결산을 홈페이지에서). 권한 모델 추가: accounts.perms(콤마 목록), committee.json perms에 서희원=finance 사전 부여(가입 시·로그인 시 자동 동기화), 오너는 대시보드 회원 관리에서 체크박스로 부여/해제. API /api/finance(GET/POST/PUT/DELETE, export=csv), D1 ledger. 메뉴는 권한자에게만 표시되고 API도 403.",
+      "files": [
+        "functions/api/finance.js",
+        "public/admin/finance/index.html",
+        "functions/_auth.js",
+        "functions/api/accounts.js",
+        "functions/api/signup.js",
+        "functions/api/login.js",
+        "assets/js/admin.js",
+        "data/committee.json"
       ]
     }
   ]

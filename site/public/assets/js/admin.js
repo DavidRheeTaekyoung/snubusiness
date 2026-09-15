@@ -58,8 +58,9 @@
     catch (e) { el.textContent = '○ API 오프라인 (정적 미리보기)'; el.style.color = '#E5B96A'; }
   }
 
+  async function financeMenu() { try { const r = await fetch('/api/me', { cache: 'no-store' }); const me = await r.json(); if (me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('finance')) { const nav = document.querySelector('.admin-side nav'); const g = document.createElement('div'); g.className = 'group'; g.textContent = '운영'; const link = document.createElement('a'); link.href = '/admin/finance/'; link.className = seg === 'finance' ? 'active' : ''; link.innerHTML = '<span class="n">₩</span>결산 관리'; const anchor = [...nav.children].find(el => el.textContent === '바로가기'); nav.insertBefore(g, anchor); nav.insertBefore(link, anchor); } } catch (e) {} }
   function mount() {
-    const s = document.getElementById('admin-side'); if (s) s.outerHTML = side();
+    const s = document.getElementById('admin-side'); if (s) s.outerHTML = side(); financeMenu();
     document.querySelector('[data-admin-menu]')?.addEventListener('click', () => document.querySelector('.admin-side').classList.toggle('open'));
     document.querySelectorAll('[data-doc]').forEach(el => renderDoc(el, el.dataset.doc));
     health();

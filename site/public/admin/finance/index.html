@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>결산 관리 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260915f"><link rel="stylesheet" href="/assets/css/admin.css?v=20260915f"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.entry{display:grid;grid-template-columns:130px 96px 140px 1fr 130px 120px 140px;gap:10px;align-items:end}
+@media (max-width:1100px){.entry{grid-template-columns:1fr 1fr 1fr}}
+@media (max-width:600px){.entry{grid-template-columns:1fr 1fr}}
+.entry .field{margin:0}
+.entry .field input,.entry .field select{padding:10px 11px;font-size:14px}
+.entry .full{grid-column:1/-1;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.entry .full .field{flex:1;min-width:200px}
+.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.inc{color:var(--success)}.exp{color:var(--danger)}
+.ledger td{font-size:13.5px;vertical-align:middle}
+.ledger .act button{font:inherit;font-size:12px;padding:3px 8px;border:1px solid var(--line-2);background:var(--paper);cursor:pointer;border-radius:999px;margin-left:4px;color:var(--ink-2)}
+.ledger .act button:hover{border-color:var(--navy-800);color:var(--navy-800)}
+.ledger tr.editing td{background:#FBF4E6}
+.ledger input,.ledger select{font:inherit;font-size:13px;padding:5px 7px;border:1px solid var(--line-2);width:100%;border-radius:2px}
+.summ{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:900px){.summ{grid-template-columns:1fr}}
+.month td:first-child{font-family:var(--display);font-size:15px;color:var(--gold-500)}
+.bal{font-family:var(--display);font-size:38px;line-height:1;font-weight:600}
+.import{background:var(--ivory);border:1px dashed var(--line-2);padding:16px 18px;font-size:13.5px;color:var(--ink-2);margin-top:14px}
+.import textarea{width:100%;min-height:90px;font:12.5px var(--mono);margin-top:8px;padding:8px;border:1px solid var(--line-2)}
+.noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}
+@media print{.admin-side,.admin-top .actions,#entry-panel,.import,.ledger .act,.pill-row{display:none!important}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance</span><h1>결산 관리</h1><div class="sub">준비위원회 수입·지출 장부. 입력 즉시 저장되고, 월별·항목별 집계와 잔액이 자동으로 계산됩니다.</div></div>
+      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm ghost" id="csv" href="/api/finance?export=csv">CSV(엑셀) 내려받기</a><button class="btn sm ghost" onclick="window.print()">인쇄</button></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi"><div class="k"><div class="v inc" id="k-in">—</div><div class="l">수입 합계</div></div><div class="k"><div class="v exp" id="k-out">—</div><div class="l">지출 합계</div></div><div class="k gold"><div class="v" id="k-bal">—</div><div class="l">잔액 (수입 − 지출)</div></div><div class="k"><div class="v" id="k-n">—</div><div class="l">거래 건수</div></div></div>
+
+      <div class="panel" id="entry-panel"><div class="panel-head"><h2>거래 입력</h2><span class="muted" style="font-size:13px">입력자: <b id="me-name">—</b></span></div>
+        <form class="entry" id="entry" autocomplete="off">
+          <div class="field"><label>날짜</label><input type="date" id="e-date" required></div>
+          <div class="field"><label>구분</label><select id="e-type"><option value="income">수입</option><option value="expense">지출</option></select></div>
+          <div class="field"><label>항목</label><input id="e-cat" list="cats" placeholder="회비 / 행사비 …"></div>
+          <div class="field"><label>내용</label><input id="e-item" placeholder="예: 9월 조찬 회의 식대" required></div>
+          <div class="field"><label>금액 (원)</label><input id="e-amt" inputmode="numeric" placeholder="0" required></div>
+          <div class="field"><label>결제수단</label><input id="e-method" list="methods" placeholder="계좌이체 / 카드 …"></div>
+          <div class="field"><button class="btn" type="submit" style="width:100%;justify-content:center">저장</button></div>
+          <div class="full"><div class="field"><label>거래처 · 납부자</label><input id="e-cp" placeholder="예: 김○○ 위원, ○○식당"></div><div class="field"><label>비고</label><input id="e-memo" placeholder="영수증 번호, 참고 사항"></div></div>
+        </form>
+        <datalist id="cats"><option value="회비"><option value="찬조금"><option value="기부금"><option value="행사 참가비"><option value="이자"><option value="기타 수입"><option value="행사비"><option value="식대"><option value="장소 대관"><option value="인쇄·홍보"><option value="사무비"><option value="경조사"><option value="장학금"><option value="교통비"><option value="기타 지출"></datalist>
+        <datalist id="methods"><option value="계좌이체"><option value="현금"><option value="카드"><option value="간편결제"></datalist>
+        <div class="import"><b>엑셀에서 가져오기</b> — 엑셀에서 <code>날짜, 구분(수입/지출), 항목, 내용, 금액, 결제수단, 거래처, 비고</code> 순서로 열을 맞춘 뒤 셀 범위를 복사해 아래에 붙여넣고 "가져오기"를 누르세요. 날짜는 2026-09-15 또는 2026.9.15 형식.<textarea id="paste" placeholder="2026-09-09	지출	식대	조찬 회의 식대	180000	카드	○○호텔	21명"></textarea><div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="btn sm" type="button" id="do-import">가져오기</button><span class="muted" id="import-msg"></span></div></div>
+      </div>
+
+      <div class="summ">
+        <div class="panel"><div class="panel-head"><h2>월별 집계</h2></div><table class="table month" id="by-month"><thead><tr><th>월</th><th class="amt">수입</th><th class="amt">지출</th><th class="amt">잔액</th></tr></thead><tbody></tbody></table></div>
+        <div class="panel"><div class="panel-head"><h2>항목별 집계</h2></div><table class="table" id="by-cat"><thead><tr><th>항목</th><th>구분</th><th class="amt">합계</th><th class="amt">건수</th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="panel"><div class="panel-head"><h2>전체 내역</h2><div class="pill-row" id="tf"><button class="pill on" data-t="">전체</button><button class="pill" data-t="income">수입</button><button class="pill" data-t="expense">지출</button></div></div>
+        <table class="table ledger" id="ledger"><thead><tr><th>날짜</th><th>구분</th><th>항목</th><th>내용</th><th class="amt">금액</th><th>결제</th><th>거래처</th><th>비고</th><th>입력</th><th class="act"></th></tr></thead><tbody></tbody></table></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20260915f"></script><script src="/assets/js/admin.js?v=20260915f"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원';
+  let year = String(new Date().getFullYear()), all = [], tfilter = '';
+  const me = await api('/me').catch(() => ({}));
+  if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('finance'))) { document.getElementById('body').innerHTML = '<div class="noperm">결산 관리 권한이 없습니다. 권한은 이태경 위원이 부여합니다.</div>'; return; }
+  document.getElementById('me-name').textContent = me.name; document.getElementById('e-date').value = new Date().toISOString().slice(0, 10);
+  async function load() { const d = await api('/finance'); all = d.entries; render(); }
+  function render() {
+    const yrs = [...new Set(all.map(e => e.date.slice(0, 4)))].sort(); if (!yrs.includes(year)) yrs.push(year); yrs.sort();
+    document.getElementById('years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
+    document.getElementById('csv').href = '/api/finance?export=csv&year=' + year;
+    const rows = all.filter(e => e.date.startsWith(year));
+    const inc = rows.filter(e => e.type === 'income').reduce((a, e) => a + e.amount, 0), out = rows.filter(e => e.type === 'expense').reduce((a, e) => a + e.amount, 0);
+    document.getElementById('k-in').textContent = won(inc); document.getElementById('k-out').textContent = won(out); document.getElementById('k-bal').textContent = won(inc - out); document.getElementById('k-n').textContent = rows.length + '건';
+    const m = {}; rows.forEach(e => { const k = e.date.slice(0, 7); m[k] ||= { i: 0, o: 0 }; m[k][e.type === 'income' ? 'i' : 'o'] += e.amount; });
+    let run = 0; document.querySelector('#by-month tbody').innerHTML = Object.keys(m).sort().map(k => { run += m[k].i - m[k].o; return `<tr><td>${k.slice(0, 4)}.${k.slice(5)}</td><td class="amt inc">${won(m[k].i)}</td><td class="amt exp">${won(m[k].o)}</td><td class="amt"><b>${won(run)}</b></td></tr>`; }).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
+    const c = {}; rows.forEach(e => { const k = (e.category || '(항목 없음)') + '|' + e.type; c[k] ||= { s: 0, n: 0, t: e.type, cat: e.category || '(항목 없음)' }; c[k].s += e.amount; c[k].n++; });
+    document.querySelector('#by-cat tbody').innerHTML = Object.values(c).sort((a, b) => a.t.localeCompare(b.t) || b.s - a.s).map(x => `<tr><td>${esc(x.cat)}</td><td><span class="status ${x.t === 'income' ? 'done' : 'fail'}">${x.t === 'income' ? '수입' : '지출'}</span></td><td class="amt">${won(x.s)}</td><td class="amt">${x.n}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
+    const lr = rows.filter(e => !tfilter || e.type === tfilter).slice().reverse();
+    document.querySelector('#ledger tbody').innerHTML = lr.map(e => `<tr data-id="${e.id}"><td>${e.date}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc(e.category)}</td><td>${esc(e.item)}</td><td class="amt ${e.type === 'income' ? 'inc' : 'exp'}">${won(e.amount)}</td><td>${esc(e.method)}</td><td>${esc(e.counterparty)}</td><td class="muted">${esc(e.memo)}</td><td class="muted">${esc(e.created_by || '')}</td><td class="act"><button data-edit="${e.id}">수정</button><button data-del="${e.id}">삭제</button></td></tr>`).join('') || '<tr><td colspan="10" class="muted">아직 내역이 없습니다. 위에서 첫 거래를 입력하세요.</td></tr>';
+  }
+  document.getElementById('years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
+  document.getElementById('tf').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; tfilter = b.dataset.t; [...b.parentElement.children].forEach(x => x.classList.toggle('on', x === b)); render(); });
+  document.getElementById('entry').addEventListener('submit', async e => { e.preventDefault(); const g = id => document.getElementById(id).value;
+    try { await api('/finance', { method: 'POST', body: { date: g('e-date'), type: g('e-type'), category: g('e-cat'), item: g('e-item'), amount: g('e-amt'), method: g('e-method'), counterparty: g('e-cp'), memo: g('e-memo') } }); toast('저장되었습니다'); ['e-item', 'e-amt', 'e-cp', 'e-memo'].forEach(id => document.getElementById(id).value = ''); document.getElementById('e-item').focus(); await load(); } catch (err) { toast('실패: ' + err.message); } });
+  document.getElementById('ledger').addEventListener('click', async e => {
+    const del = e.target.closest('[data-del]'); if (del) { if (!confirm('이 거래를 삭제할까요?')) return; try { await api('/finance?id=' + del.dataset.del, { method: 'DELETE' }); toast('삭제되었습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
+    const ed = e.target.closest('[data-edit]'); if (ed) { const id = Number(ed.dataset.edit), x = all.find(r => r.id === id), tr = ed.closest('tr'); tr.classList.add('editing');
+      tr.innerHTML = `<td><input type="date" value="${x.date}" data-f="date"></td><td><select data-f="type"><option value="income" ${x.type === 'income' ? 'selected' : ''}>수입</option><option value="expense" ${x.type === 'expense' ? 'selected' : ''}>지출</option></select></td><td><input value="${esc(x.category)}" data-f="category" list="cats"></td><td><input value="${esc(x.item)}" data-f="item"></td><td><input value="${x.amount}" data-f="amount" inputmode="numeric"></td><td><input value="${esc(x.method)}" data-f="method" list="methods"></td><td><input value="${esc(x.counterparty)}" data-f="counterparty"></td><td><input value="${esc(x.memo)}" data-f="memo"></td><td class="muted">${esc(x.created_by || '')}</td><td class="act"><button data-save="${id}">저장</button><button data-cancel="1">취소</button></td>`; return; }
+    const sv = e.target.closest('[data-save]'); if (sv) { const tr = sv.closest('tr'); const body = { id: Number(sv.dataset.save) }; tr.querySelectorAll('[data-f]').forEach(i => body[i.dataset.f] = i.value); try { await api('/finance', { method: 'PUT', body }); toast('수정되었습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
+    if (e.target.closest('[data-cancel]')) render();
+  });
+  document.getElementById('do-import').addEventListener('click', async () => {
+    const txt = document.getElementById('paste').value.trim(); if (!txt) return;
+    const norm = d => { const m = String(d).trim().match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : ''; };
+    const rows = txt.split(/\r?\n/).map(l => l.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim())).filter(c => c.length >= 5 && norm(c[0]))
+      .map(c => ({ date: norm(c[0]), type: /수입|입금|income/i.test(c[1]) ? 'income' : 'expense', category: c[2] || '', item: c[3] || '', amount: c[4], method: c[5] || '', counterparty: c[6] || '', memo: c[7] || '' }));
+    if (!rows.length) { document.getElementById('import-msg').textContent = '읽을 수 있는 행이 없습니다. 열 순서와 날짜 형식을 확인해 주세요.'; return; }
+    if (!confirm(rows.length + '건을 가져올까요?')) return;
+    try { const r = await api('/finance', { method: 'POST', body: { rows } }); document.getElementById('import-msg').textContent = r.inserted + '건 저장되었습니다.'; document.getElementById('paste').value = ''; await load(); } catch (err) { document.getElementById('import-msg').textContent = '실패: ' + err.message; }
+  });
+  await load();
+})();
+</script>
+</body></html>

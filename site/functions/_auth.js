@@ -26,7 +26,9 @@ export async function ensureAccounts(db) {
     email TEXT PRIMARY KEY, name TEXT NOT NULL, pass_hash TEXT NOT NULL, salt TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'member', status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')), last_login TEXT, note TEXT)`).run();
+  try { await db.prepare("ALTER TABLE accounts ADD COLUMN perms TEXT NOT NULL DEFAULT ''").run(); } catch (e) {}
 }
+export const hasPerm = (s, p) => !!s && (s.role === 'owner' || s.role === 'agent' || (s.perms || []).includes(p));
 
 export async function issueSession(env, email, name, role) {
   const exp = Date.now() + DAYS * 864e5;
@@ -46,7 +48,7 @@ export async function readSession(request, env) {
 // 세션이 있어도 계정이 차단됐으면 무효
 export async function liveSession(request, env, db) {
   const s = await readSession(request, env); if (!s) return null;
-  if (db && s.email) { try { await ensureAccounts(db); const a = await db.prepare('SELECT status, role, name FROM accounts WHERE email = ?').bind(s.email).first(); if (!a || a.status !== 'active') return null; s.role = a.role; s.name = a.name; } catch (e) {} }
+  if (db && s.email) { try { await ensureAccounts(db); const a = await db.prepare('SELECT status, role, name, perms FROM accounts WHERE email = ?').bind(s.email).first(); if (!a || a.status !== 'active') return null; s.role = a.role; s.name = a.name; s.perms = (a.perms || '').split(',').filter(Boolean); } catch (e) {} }
   return s;
 }
 export function cookieHeader(value, exp) { return `${COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=${new Date(exp).toUTCString()}`; }

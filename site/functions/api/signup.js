@@ -1,7 +1,7 @@
 import { json, err, getDB, clean } from '../_lib.js';
 import { ensureAccounts, hashPassword, issueSession, cookieHeader, isEmail } from '../_auth.js';
 
-// 회원가입: 명단(committee.json)의 이름과 일치해야 하고, 이름당 1계정
+// 회원가입: 명단(committee.json)의 이름과 일치해야 하고, 이름당 1계정. 명단의 perms 는 가입 시 자동 부여.
 export async function onRequestPost({ request, env }) {
   const db = getDB(env); if (!db) return err('D1 binding "DB" is not configured', 503);
   await ensureAccounts(db);
@@ -18,7 +18,8 @@ export async function onRequestPost({ request, env }) {
   if (byName) return err('이 이름으로 이미 가입된 계정이 있습니다. 본인이 맞다면 이태경 위원에게 알려 주세요', 409);
   const { hash, salt } = await hashPassword(password);
   const role = name === '이태경' ? 'owner' : 'member';
-  await db.prepare('INSERT INTO accounts (email, name, pass_hash, salt, role, last_login) VALUES (?,?,?,?,?, strftime(\'%Y-%m-%dT%H:%M:%fZ\',\'now\'))').bind(email, name, hash, salt, role).run();
+  const perms = ((roster.perms || {})[name] || []).join(',');
+  await db.prepare("INSERT INTO accounts (email, name, pass_hash, salt, role, perms, last_login) VALUES (?,?,?,?,?,?, strftime('%Y-%m-%dT%H:%M:%fZ','now'))").bind(email, name, hash, salt, role, perms).run();
   const s = await issueSession(env, email, name, role);
   return json({ ok: true, name, email, role }, 201, { 'set-cookie': cookieHeader(s.value, s.exp) });
 }

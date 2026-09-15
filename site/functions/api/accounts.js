@@ -8,7 +8,7 @@ function tempPassword() { const a = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvw
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensureAccounts(db);
   if (!(await owner(request, env, db))) return err('owner only', 403);
-  const { results } = await db.prepare('SELECT email, name, role, status, created_at, last_login, note FROM accounts ORDER BY created_at').all();
+  const { results } = await db.prepare('SELECT email, name, role, status, created_at, last_login, note, perms FROM accounts ORDER BY created_at').all();
   const roster = await fetch(new URL('/data/committee.json', request.url)).then(r => r.json()).catch(() => ({ members: [] }));
   const joined = new Set(results.map(r => r.name));
   return json({ accounts: results, not_joined: roster.members.filter(n => !joined.has(n)) });
@@ -24,6 +24,7 @@ export async function onRequestPost({ request, env }) {
   if (action === 'block' || action === 'unblock') { await db.prepare('UPDATE accounts SET status = ? WHERE email = ?').bind(action === 'block' ? 'blocked' : 'active', email).run(); return json({ ok: true }); }
   if (action === 'delete') { await db.prepare('DELETE FROM accounts WHERE email = ?').bind(email).run(); return json({ ok: true }); }
   if (action === 'reset') { const pw = tempPassword(); const { hash, salt } = await hashPassword(pw); await db.prepare('UPDATE accounts SET pass_hash = ?, salt = ? WHERE email = ?').bind(hash, salt, email).run(); return json({ ok: true, temp_password: pw }); }
+  if (action === 'perm') { const p = clean(b.perm, 20); const a = await db.prepare('SELECT perms FROM accounts WHERE email = ?').bind(email).first(); if (!a) return err('not found', 404); const set = new Set((a.perms || '').split(',').filter(Boolean)); b.on ? set.add(p) : set.delete(p); await db.prepare('UPDATE accounts SET perms = ? WHERE email = ?').bind([...set].join(','), email).run(); return json({ ok: true, perms: [...set] }); }
   if (action === 'note') { await db.prepare('UPDATE accounts SET note = ? WHERE email = ?').bind(clean(b.note, 200), email).run(); return json({ ok: true }); }
   return err('unknown action');
 }
