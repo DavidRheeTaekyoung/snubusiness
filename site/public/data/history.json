@@ -342,6 +342,16 @@
         "data/meeting-committee.json",
         "assets/js/admin.js"
       ]
+    },
+    {
+      "id": "L-0030",
+      "ts": "2026-09-15 17:40",
+      "kind": "fix",
+      "title": "회비 비교 리서치 정정 — 상대 총동창회(입회비 없음, 5만/50만, 임원회비) 직접 확인 추가, 연세대는 미확인 표시",
+      "detail": "작업대 주인 지적. sangdae.com/content/3010, snua.or.kr/membership/guide, kuaa.or.kr, snuarta.or.kr 을 브라우저로 직접 읽어 확인. 임원회비(분담금) 선택지를 의결 3번에 추가.",
+      "files": [
+        "data/meeting-committee.json"
+      ]
     }
   ]
 }
