@@ -5,56 +5,78 @@
 <title>입장 | 서울대학교 경영대학 총동문회</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260915c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260915e"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center;padding:20px}
-.gate{width:100%;max-width:520px;background:var(--paper);padding:clamp(28px,5vw,48px);border-top:3px solid var(--gold-400);box-shadow:var(--shadow-2);position:relative;overflow:hidden}
-.gate .seal{width:64px;height:64px;color:var(--navy-800);margin:0 auto 18px}
-.gate h1{font-size:22px;text-align:center;font-weight:600}
-.gate .sub{text-align:center;font-size:13.5px;color:var(--ink-3);margin:8px 0 26px}
-.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-bottom:18px}
-.names button{font:inherit;font-size:15px;padding:11px 4px;border:1px solid var(--line-2);background:var(--ivory);color:var(--navy-800);cursor:pointer;border-radius:2px;transition:all .2s}
+.gate{width:100%;max-width:520px;background:var(--paper);padding:clamp(28px,5vw,44px);border-top:3px solid var(--gold-400);box-shadow:var(--shadow-2);position:relative;overflow:hidden}
+.gate .seal{width:60px;height:60px;color:var(--navy-800);margin:0 auto 16px}
+.gate h1{font-size:21px;text-align:center;font-weight:600}
+.gate .sub{text-align:center;font-size:13.5px;color:var(--ink-3);margin:8px 0 22px}
+.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:22px}
+.tabs button{flex:1;font:inherit;font-size:15px;padding:12px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px}
+.tabs button.on{color:var(--navy-800);border-color:var(--gold-500);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.names{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:7px;margin:6px 0 16px}
+.names button{font:inherit;font-size:14.5px;padding:10px 4px;border:1px solid var(--line-2);background:var(--ivory);color:var(--navy-800);cursor:pointer;border-radius:2px;transition:all .2s}
 .names button:hover{border-color:var(--gold-400)}
 .names button.on{background:var(--navy-800);color:var(--paper);border-color:var(--navy-800)}
-.code input{font-family:var(--mono);font-size:22px;letter-spacing:.2em;text-align:center;text-transform:uppercase;padding:14px;width:100%;border:1px solid var(--line-2);border-radius:2px}
-.code input:focus{outline:0;border-color:var(--navy-800);box-shadow:0 0 0 3px rgba(92,20,36,.1)}
-.gate .btn{width:100%;justify-content:center;margin-top:14px;padding:15px}
+.field{margin-bottom:12px}
+.field input{padding:13px 14px;font-size:15.5px}
+.gate .btn{width:100%;justify-content:center;margin-top:6px;padding:15px}
 .err{color:var(--danger);font-size:13.5px;text-align:center;margin-top:12px;min-height:20px}
-.help{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:18px;line-height:1.7}
+.help{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:16px;line-height:1.7}
 .wm{position:absolute;right:-60px;bottom:-60px;width:220px;opacity:.06;color:var(--navy-800)}
+.hint{font-size:12.5px;color:var(--ink-3);margin:-4px 0 12px}
 </style>
 </head>
 <body>
-<form class="gate" id="gate" autocomplete="off">
+<div class="gate">
   <div class="seal" data-seal></div>
   <h1>서울대학교 경영대학 총동문회</h1>
-  <div class="sub">준비위원회 전용 공간입니다. 본인 이름을 고르고 받으신 입장코드를 입력해 주세요.</div>
-  <div class="names" id="names"></div>
-  <div class="code"><input id="code" placeholder="입장코드" inputmode="latin" maxlength="12" aria-label="입장코드"></div>
-  <button class="btn gold" type="submit">입장</button>
-  <div class="err" id="err"></div>
-  <div class="help">입장코드는 준비위원회 단톡방 공지에 있습니다. · 한 번 입장하면 이 기기에서 90일간 유지됩니다.</div>
+  <div class="sub">준비위원회 전용 공간입니다.</div>
+  <div class="tabs"><button type="button" class="on" data-tab="login">로그인</button><button type="button" data-tab="signup">회원가입 (처음 오신 분)</button></div>
+
+  <form class="pane on" id="login" autocomplete="on">
+    <div class="field"><label for="l-email">이메일 아이디</label><input id="l-email" type="email" autocomplete="username" placeholder="name@example.com" required></div>
+    <div class="field"><label for="l-pw">비밀번호</label><input id="l-pw" type="password" autocomplete="current-password" required></div>
+    <button class="btn gold" type="submit">로그인</button>
+    <div class="err" id="l-err"></div>
+    <div class="help">비밀번호를 잊으셨으면 이태경 위원에게 임시 비밀번호를 요청해 주세요.<br>한 번 로그인하면 이 기기에서 90일간 유지됩니다.</div>
+  </form>
+
+  <form class="pane" id="signup" autocomplete="on">
+    <label>본인 이름 선택</label>
+    <div class="hint">준비위원 명단에 있는 이름만 가입할 수 있습니다.</div>
+    <div class="names" id="names"></div>
+    <div class="field"><label for="s-email">이메일 아이디</label><input id="s-email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+    <div class="field"><label for="s-pw">비밀번호 (8자 이상)</label><input id="s-pw" type="password" autocomplete="new-password" minlength="8" required></div>
+    <div class="field"><label for="s-pw2">비밀번호 확인</label><input id="s-pw2" type="password" autocomplete="new-password" minlength="8" required></div>
+    <button class="btn" type="submit">가입하고 입장</button>
+    <div class="err" id="s-err"></div>
+    <div class="help">비밀번호는 본인만 알며, 서버에는 암호화(해시)된 형태로만 저장됩니다.</div>
+  </form>
   <div class="wm" data-seal></div>
-</form>
-<script src="/assets/js/site.js?v=20260915c"></script>
+</div>
+<script src="/assets/js/site.js?v=20260915e"></script>
 <script>
 (async () => {
+  const q = s => document.querySelector(s);
+  const next = (() => { const n = new URLSearchParams(location.search).get('next') || '/'; return n.startsWith('/') ? n : '/'; })();
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.tab)); }));
+  if (new URLSearchParams(location.search).get('tab') === 'signup') q('[data-tab="signup"]').click();
   const roster = (await fetch('/data/committee.json').then(r => r.json())).members;
-  const box = document.getElementById('names'); let picked = '';
+  let picked = ''; const box = q('#names');
   box.innerHTML = roster.map(n => `<button type="button" data-n="${n}">${n}</button>`).join('');
-  box.addEventListener('click', e => { const b = e.target.closest('[data-n]'); if (!b) return; picked = b.dataset.n; [...box.children].forEach(x => x.classList.toggle('on', x === b)); document.getElementById('code').focus(); });
-  const form = document.getElementById('gate');
-  // Enter 키: 코드 입력칸이든 이름 버튼 위든 어디서나 제출
-  form.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); form.requestSubmit(); } });
-  form.addEventListener('submit', async e => {
-    e.preventDefault(); const err = document.getElementById('err'); err.textContent = '';
-    if (!picked) { err.textContent = '이름을 먼저 골라 주세요'; return; }
-    const r = await fetch('/api/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ name: picked, code: document.getElementById('code').value }) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok) { err.textContent = j.error || '입장할 수 없습니다'; document.getElementById('code').select(); return; }
-    const next = new URLSearchParams(location.search).get('next') || '/';
-    location.href = next.startsWith('/') ? next : '/';
-  });
+  box.addEventListener('click', e => { const b = e.target.closest('[data-n]'); if (!b) return; picked = b.dataset.n; [...box.children].forEach(x => x.classList.toggle('on', x === b)); q('#s-email').focus(); });
+  async function post(url, body) { const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); const j = await r.json().catch(() => ({})); return { ok: r.ok, j }; }
+  q('#login').addEventListener('submit', async e => { e.preventDefault(); const err = q('#l-err'); err.textContent = '';
+    const { ok, j } = await post('/api/login', { email: q('#l-email').value.trim(), password: q('#l-pw').value });
+    if (!ok) { err.textContent = j.error || '로그인할 수 없습니다'; q('#l-pw').select(); return; } location.href = next; });
+  q('#signup').addEventListener('submit', async e => { e.preventDefault(); const err = q('#s-err'); err.textContent = '';
+    if (!picked) { err.textContent = '본인 이름을 먼저 골라 주세요'; return; }
+    if (q('#s-pw').value !== q('#s-pw2').value) { err.textContent = '비밀번호 확인이 일치하지 않습니다'; q('#s-pw2').select(); return; }
+    const { ok, j } = await post('/api/signup', { name: picked, email: q('#s-email').value.trim(), password: q('#s-pw').value });
+    if (!ok) { err.textContent = j.error || '가입할 수 없습니다'; return; } location.href = next; });
 })();
 </script>
 </body></html>

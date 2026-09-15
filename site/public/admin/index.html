@@ -27,6 +27,10 @@
         <div class="panel"><div class="panel-head"><h2>최근 개발이력</h2><a class="link-more" href="/admin/history/">전체</a></div><ul class="log" id="recent-log"></ul></div>
         <div class="panel"><div class="panel-head"><h2>열린 토론</h2><a class="link-more" href="/admin/discussion/">전체</a></div><div id="recent-threads"></div></div>
       </div>
+      <div class="panel" id="acct-panel" hidden><div class="panel-head"><h2>회원 관리 <span class="badge">Owner</span></h2><span class="muted" id="acct-sum"></span></div>
+        <p class="muted" style="font-size:13.5px;margin:-6px 0 14px">준비위원 명단의 이름으로만 가입됩니다. 동명이인·오가입은 여기서 차단하거나 삭제하세요. 비밀번호를 잊은 위원에게는 임시 비밀번호를 발급해 개인 메시지로 전달합니다.</p>
+        <table class="table" id="acct-table"><thead><tr><th>이름</th><th>이메일 아이디</th><th>권한</th><th>가입</th><th>최근 접속</th><th>상태</th><th>조치</th></tr></thead><tbody></tbody></table>
+        <div id="acct-missing" class="muted" style="font-size:13px;margin-top:12px"></div></div>
       <div class="panel"><h2>작업대 사용법</h2>
         <div class="prose" style="font-size:15px;max-width:none">
           <ol>
@@ -39,11 +43,19 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20260909b"></script><script src="/assets/js/admin.js?v=20260915d"></script>
+<script src="/assets/js/site.js?v=20260909b"></script><script src="/assets/js/admin.js?v=20260915e"></script>
 <script>
 (async () => {
   const esc = SNU.esc;
   const plan = await SNU.json('/data/plan.json');
+  (async () => { try { const me = await WB.api('/me'); if (me.role !== 'owner') return; const p = document.getElementById('acct-panel'); p.hidden = false;
+    async function load() { const d = await WB.api('/accounts'); document.getElementById('acct-sum').textContent = d.accounts.length + '명 가입 · ' + d.not_joined.length + '명 미가입';
+      document.querySelector('#acct-table tbody').innerHTML = d.accounts.map(a => `<tr><td><strong>${esc(a.name)}</strong></td><td>${esc(a.email)}</td><td>${a.role}</td><td class="muted">${(a.created_at||'').slice(0,10)}</td><td class="muted">${(a.last_login||'').replace('T',' ').slice(0,16)}</td><td><span class="status ${a.status==='active'?'done':'fail'}">${a.status==='active'?'활성':'차단'}</span></td><td style="white-space:nowrap">${a.role==='owner'?'':`<button class="pill" data-act="${a.status==='active'?'block':'unblock'}" data-email="${esc(a.email)}">${a.status==='active'?'차단':'해제'}</button> <button class="pill" data-act="reset" data-email="${esc(a.email)}">임시 비밀번호</button> <button class="pill" data-act="delete" data-email="${esc(a.email)}">삭제</button>`}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">아직 가입자가 없습니다.</td></tr>';
+      document.getElementById('acct-missing').textContent = d.not_joined.length ? '미가입: ' + d.not_joined.join(', ') : '21인 전원 가입 완료'; }
+    document.getElementById('acct-table').addEventListener('click', async e => { const b = e.target.closest('[data-act]'); if (!b) return; const act = b.dataset.act, email = b.dataset.email;
+      if (act === 'delete' && !confirm(email + ' 계정을 삭제할까요? 다시 가입해야 합니다.')) return;
+      try { const r = await WB.api('/accounts', { method: 'POST', body: { action: act, email } }); if (r.temp_password) prompt(email + ' 임시 비밀번호 (복사해서 본인에게만 전달하세요)', r.temp_password); WB.toast('처리되었습니다'); load(); } catch (err) { WB.toast('실패: ' + err.message); } });
+    load(); } catch (e) {} })();
   document.getElementById('k-phase').textContent = plan.current;
   document.querySelector('#phases tbody').innerHTML = plan.phases.map(p => `<tr><td><strong>${p.id}</strong></td><td>${esc(p.goal)}<div class="muted" style="font-size:12.5px">${esc(p.scope)}</div></td><td><span class="status ${p.status}">${{done:'완료',wip:'진행중',todo:'예정',hold:'보류'}[p.status]}</span></td><td class="muted">${esc(p.when)}</td></tr>`).join('');
   const log = await SNU.json('/data/history.json');

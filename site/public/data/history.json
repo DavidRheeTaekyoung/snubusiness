@@ -369,6 +369,23 @@
         "public/enter/index.html",
         "data/committee.json"
       ]
+    },
+    {
+      "id": "L-0032",
+      "ts": "2026-09-15 21:30",
+      "kind": "build",
+      "title": "입장 방식 확정 — 회원가입(명단 이름 검증) + 이메일 아이디/비밀번호 로그인, 오너용 회원 관리 패널",
+      "detail": "작업대 주인 결정: 사이트를 준비위원 21인만 접근 가능하게 하되, 첫 화면에서 회원가입 시 명단(committee.json)의 이름과 대조. 비밀번호는 가입 시 본인이 정하고 D1 accounts 에 PBKDF2-SHA256(10만회)+솔트 해시로만 저장, 평문 보관 없음. 이름당 1계정(동명이인·오가입은 오너가 대시보드 회원 관리에서 차단/삭제/임시 비밀번호). 초대코드 방식(access_codes)은 폐기. 에이전트 계정 agent@snubusiness.com(role=agent, 자격은 .cf/agent-login.json).",
+      "files": [
+        "functions/_auth.js",
+        "functions/_middleware.js",
+        "functions/api/signup.js",
+        "functions/api/login.js",
+        "functions/api/accounts.js",
+        "functions/api/me.js",
+        "public/enter/index.html",
+        "public/admin/index.html"
+      ]
     }
   ]
 }

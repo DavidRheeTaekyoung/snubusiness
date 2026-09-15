@@ -1,10 +1,10 @@
 import { json } from '../_lib.js';
-import { readSession } from '../_auth.js';
+import { liveSession } from '../_auth.js';
 
-// 접속자 신원: 이름+입장코드 세션 (없으면 null)
+// 접속자 신원 (세션 쿠키 → 계정)
 export async function identity(request, env) {
-  const s = await readSession(request, env);
-  return s ? { name: s.name, role: s.role } : { name: null, role: null };
+  const s = await liveSession(request, env, env.DB);
+  return s ? { name: s.name, email: s.email, role: s.role } : { name: null, email: null, role: null };
 }
 export async function onRequestGet({ request, env }) {
   const id = await identity(request, env);
