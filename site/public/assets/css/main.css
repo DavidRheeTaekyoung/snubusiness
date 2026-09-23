@@ -85,6 +85,11 @@ p{margin:0 0 1em}
 .nav .sub a{display:block;padding:9px 22px;font-size:14px;color:var(--ink-2)}
 .nav .sub a:hover{color:var(--navy-800);background:var(--ivory)}
 .header-actions{display:flex;align-items:center;gap:14px}
+.wb-link{display:none}html.snu-in .wb-link{display:inline-flex}
+.topbar .wb-top{color:var(--gold-300);opacity:1;font-weight:600;letter-spacing:.06em}
+.wb-mobile{display:none;align-items:center;justify-content:space-between;margin:20px 0 4px;padding:14px 16px;border:1px solid var(--gold-400);color:var(--gold-300);font-family:var(--serif);font-size:17px;font-weight:600;background:rgba(255,255,255,.04)}
+.wb-mobile small{font-family:var(--display);font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-left:6px}
+html.snu-in .wb-mobile{display:flex}
 .icon-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line-2);border-radius:50%;background:transparent;color:var(--navy-800);transition:all .3s}
 .icon-btn:hover{border-color:var(--navy-800)}
 .burger{display:none}
