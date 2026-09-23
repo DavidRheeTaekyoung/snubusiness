@@ -1,409 +1,417 @@
 {
-  "next": [
-    "서희원 위원 엑셀 결산 파일 수령 → 장부(ledger)로 이관 (열 매핑 후 가져오기), 결산 열람 권한 추가 대상자 명단 반영",
-    "송년회(11/26) 전 공개 전환: Pages 환경변수 GATE_MODE=admin 으로 바꾸면 공개 페이지는 열리고 작업대만 코드 입장",
-    "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
-    "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
-    "[리서치] 결제수단 — 계좌이체 + 카카오페이·네이버페이·토스·카드 등 다중 결제 PG 비교(수수료·계약요건) → 토론",
-    "[결정 필요] 회원 범위에 박사 포함 여부, 커뮤니티 운영 방식 재확인 (작업대 주인)",
-    "[일정] 11월 26일 송년회 = 준비모임 200명 공개. 10월 말까지 P2 완료 목표, QR은 docs/snubusiness-qr.png",
-    "[확인 필요] 명칭: 작업대 주인 메시지에는 \"총동창회\"로 표기 — 사이트는 회의 메모대로 \"총동문회\" 유지 중. 최종 명칭 확정 요청"
-  ],
-  "entries": [
-    {
-      "id": "L-0001",
-      "ts": "2026-09-04 13:30",
-      "kind": "plan",
-      "title": "프로젝트 착수 — 서울대학교 경영대학 총동문회 홈페이지(snubusiness.com)",
-      "detail": "작업대 주인 지시: 기존 상대 홈페이지와 해외 비즈니스스쿨 참고 리서치, 홈/관리자 분리, 관리자 7개 페이지(리서치·개발개요·데이터정의·데이터흐름도·개발자토론·자율점검·개발이력), 우아하고 고급스러운 디자인, GitHub+Cloudflare 배포."
-    },
-    {
-      "id": "L-0002",
-      "ts": "2026-09-04 13:40",
-      "kind": "research",
-      "title": "리서치 완료 — sangdae.com, cba.snu.ac.kr, HBS·Stanford·Wharton·Booth·LBS·INSEAD·MIT Sloan",
-      "detail": "sangdae.com: 6개 메뉴, 비반응형, HTTP, 계좌 노출, 디렉터리 없음. 해외 공통: Directory·Community·Events/Reunion·Career·Giving·Stories·Volunteer·통계. 결과는 리서치 페이지에 정리.",
-      "files": [
-        "content/research.md"
-      ]
-    },
-    {
-      "id": "L-0003",
-      "ts": "2026-09-04 13:50",
-      "kind": "decision",
-      "title": "기술 스택 결정 — 정적 HTML/CSS/JS + Cloudflare Pages Functions + D1, 빌드 도구 없음",
-      "detail": "이유: 배포 실패 가능성 최소화, 어느 개발자든 유지보수 가능, 도메인이 이미 Cloudflare NS 사용 중. 회원·결제는 P3/P4에서 Functions로 확장."
-    },
-    {
-      "id": "L-0004",
-      "ts": "2026-09-04 13:55",
-      "kind": "decision",
-      "title": "디자인 시스템 — 딥 네이비 #5C1424 · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR",
-      "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.",
-      "files": [
-        "assets/css/main.css",
-        "assets/css/admin.css"
-      ]
-    },
-    {
-      "id": "L-0005",
-      "ts": "2026-09-04 14:20",
-      "kind": "build",
-      "title": "공개 사이트 v1 — 홈, 소개, 소식, 행사, 동문, 장학·기부, 자료실, 로그인(안내)",
-      "detail": "공통 헤더/푸터는 site.js가 렌더. 콘텐츠는 /data/*.json에서 fetch. 서브내비 앵커 방식.",
-      "files": [
-        "index.html",
-        "about/",
-        "news/",
-        "events/",
-        "members/",
-        "giving/",
-        "media/",
-        "login/",
-        "assets/js/site.js",
-        "data/notices.json",
-        "data/events.json",
-        "data/officers.json",
-        "data/companies.json"
-      ]
-    },
-    {
-      "id": "L-0006",
-      "ts": "2026-09-04 14:40",
-      "kind": "build",
-      "title": "작업대(관리자) v1 — 대시보드 + 7개 페이지",
-      "detail": "리서치·개요·데이터·흐름은 /content/*.md를 marked+mermaid로 렌더. 토론은 D1 API. 점검·이력은 JSON.",
-      "files": [
-        "admin/",
-        "assets/js/admin.js",
-        "content/*.md",
-        "data/plan.json",
-        "data/personas.json",
-        "data/inspections.json",
-        "data/history.json"
-      ]
-    },
-    {
-      "id": "L-0007",
-      "ts": "2026-09-04 14:50",
-      "kind": "build",
-      "title": "API — /api/health, /api/discussions (GET/POST), /api/discussions/:id (GET/POST/PATCH), 스키마 자동 생성",
-      "detail": "D1 바인딩 이름 DB. 스키마는 요청 시 CREATE IF NOT EXISTS로 부트스트랩. role=agent는 AGENT_KEY 환경변수 설정 시에만 허용, 미설정 시 에이전트 답변은 data/agent-replies.json(git)으로.",
-      "files": [
-        "functions/_lib.js",
-        "functions/api/health.js",
-        "functions/api/discussions/index.js",
-        "functions/api/discussions/[id].js"
-      ]
-    },
-    {
-      "id": "L-0008",
-      "ts": "2026-09-04 14:55",
-      "kind": "todo",
-      "title": "TODO-001~006 등록 — 통계 확인, /admin Access 보호, 임원 명단, 회칙·회비·계좌, 사진, 상대동창회 관계 설명",
-      "detail": "데이터정의 문서 6장 참조. 작업대 주인 제공 항목은 토론 스레드로 요청 예정."
-    },
-    {
-      "id": "L-0009",
-      "ts": "2026-09-04 15:20",
-      "kind": "fix",
-      "title": "로컬 점검 수정 — mermaid 라벨 인용, 다이어그램 배경, reveal 지연 단축, 모바일 헤더 줄바꿈",
-      "detail": "mermaid에서 [/…/] 평행사변형 문법 충돌 → 모든 라벨을 따옴표로. .prose pre 스타일이 mermaid 블록에 적용되던 문제 분리. 모바일에서 브랜드 영문명 숨김, CTA 버튼 480px 이하 숨김.",
-      "files": [
-        "content/*.md",
-        "assets/css/main.css",
-        "assets/css/admin.css"
-      ]
-    },
-    {
-      "id": "L-0010",
-      "ts": "2026-09-04 15:25",
-      "kind": "deploy",
-      "title": "GitHub 저장소 생성 · 푸시 — DavidRheeTaekyoung/snubusiness (main)",
-      "detail": "gh CLI의 repo create가 권한 정책으로 차단되어 브라우저(github.com/new)로 생성 후 git push. Cloudflare GitHub 앱은 snubusiness 저장소에 설치됨(팝업 state 유실로 Pages 자동 빌드 연동은 미완 — 대시보드에서 1클릭으로 연결 가능)."
-    },
-    {
-      "id": "L-0011",
-      "ts": "2026-09-04 15:32",
-      "kind": "deploy",
-      "title": "Cloudflare Pages 첫 배포 — https://snubusiness.pages.dev, D1 snubusiness-db 바인딩(DB) 연결 확인",
-      "detail": "wrangler OAuth 로그인(prodigen@gmail.com 계정) → d1 create → pages project create → pages deploy. wrangler.toml에 D1 바인딩 기록. /api/health db:true, 첫 스레드(#1) 저장 확인. 주의: 이 PC의 wrangler 기본 로그인(~/.wrangler)이 customsshin@gmail.com에서 prodigen@gmail.com으로 교체됨 — 다른 프로젝트에서 wrangler 사용 시 재로그인 필요.",
-      "files": [
-        "wrangler.toml"
-      ]
-    },
-    {
-      "id": "L-0012",
-      "ts": "2026-09-04 15:40",
-      "kind": "decision",
-      "title": "커스텀 도메인 보류 — snubusiness.com 존(zone)이 prodigen 계정에 없음",
-      "detail": "whois: 2026-09-04 05:38Z Cloudflare Registrar로 등록, NS carla/malcolm.ns.cloudflare.com. prodigen 계정 도메인 8개 중 snubusiness.com 없음 → 다른 Cloudflare 계정(추정: customsshin@gmail.com)에서 구매. 해결안 A) 도메인 보유 계정에 prodigen@gmail.com을 구성원으로 초대 후 그 계정에 Pages 재배포, B) 도메인 보유 계정에서 CNAME snubusiness.com → snubusiness.pages.dev + Pages 커스텀 도메인 추가. 작업대 주인 결정 필요 → 토론 #2.",
-      "ref": "#2"
-    },
-    {
-      "id": "L-0013",
-      "ts": "2026-09-04 15:45",
-      "kind": "inspect",
-      "title": "자율점검 R-001 — 배포 직후 10개 표준 시나리오, 페르소나 7인",
-      "detail": "통과 8 / 보류 2 (S-03 행사 신청·S-05 동문 찾기는 P3 로그인 전까지 안내만). 발견 6건: 즉시 수정 3, 토론 이관 1, 미해결 2.",
-      "ref": "R-001"
-    },
-    {
-      "id": "L-0014",
-      "ts": "2026-09-04 16:05",
-      "kind": "deploy",
-      "title": "검토용 임시 주소 개통 — https://snu.artus.kr (prodigen 계정 artus.kr 존, Pages 커스텀 도메인)",
-      "detail": "작업대 주인 지시: snubusiness.com은 customsshin 계정에 있어 몇 시간 뒤 처리. 선배님들 검토를 위해 artus.kr 서브도메인으로 먼저 공개. Cloudflare가 CNAME snu → snubusiness.pages.dev 자동 생성. sitemap/robots를 임시 주소로 갱신 — 본 도메인 전환 시 되돌릴 것.",
-      "files": [
-        "sitemap.xml",
-        "robots.txt"
-      ]
-    },
-    {
-      "id": "L-0015",
-      "ts": "2026-09-04 16:40",
-      "kind": "fix",
-      "title": "홈 하단 섹션이 빈 채로 보이던 버그 수정 — reveal CSS 우선순위",
-      "detail": "L-0014 직후 작업대 주인이 발견. html.js .reveal(0,2,1)이 .reveal.in(0,2,0)보다 우선해 .in이 적용돼도 opacity 0 유지. 선택자를 html.js .reveal.in으로 맞춤. 교훈: 자율점검에 \"스크롤 후 섹션 가시성(computed opacity=1)\" DOM 검사를 표준 시나리오로 추가(S-11).",
-      "files": [
-        "assets/css/main.css"
-      ]
-    },
-    {
-      "id": "L-0016",
-      "ts": "2026-09-04 17:05",
-      "kind": "fix",
-      "title": "흉한 스크롤바 제거 — 서브내비 내부 스크롤바 숨김, 본문 스크롤바는 가늘게",
-      "detail": "작업대 주인 제보(Windows 기본 스크롤바가 서브내비 안에 노출). 서브내비·모바일메뉴·작업대 사이드바·드롭다운은 스크롤바 숨김, 문서 스크롤바는 8px 반투명 네이비. 자산 버전 v=20260904c.",
-      "files": [
-        "assets/css/main.css",
-        "assets/css/admin.css",
-        "*.html"
-      ]
-    },
-    {
-      "id": "L-0017",
-      "ts": "2026-09-04 17:40",
-      "kind": "build",
-      "title": "작업대 8. 회의자료 페이지 — 1장 사람이 줄 자료 13건, 2장 객관식 결정 16건(리서치 요약·권장안), D1 자동 저장, 인쇄용 요약",
-      "detail": "작업대 주인 지시: 조찬 후 짧은 회의에서 중요한 결정을 끝내기 위한 페이지. /api/meeting(key/value upsert). 세션 시작 루틴에 GET /api/meeting 읽기를 추가.",
-      "files": [
-        "admin/meeting/index.html",
-        "data/meeting.json",
-        "functions/api/meeting.js",
-        "assets/js/admin.js",
-        "content/data.md"
-      ]
-    },
-    {
-      "id": "L-0018",
-      "ts": "2026-09-04 18:00",
-      "kind": "fix",
-      "title": "모바일 대응 보강 — 작업대 사이드바를 접히는 상단 바로, 표·잠금 배너·회의 페이지 레이아웃 정리",
-      "detail": "작업대 주인 확인 요청. 휴대폰에서 작업대 메뉴가 956px을 차지해 내용이 밀리던 문제. 960px 이하에서 햄버거 토글, 패널·문서 표는 가로 스크롤, 동문 찾기 잠금 배너 줄바꿈.",
-      "files": [
-        "assets/css/admin.css",
-        "assets/css/main.css",
-        "assets/js/admin.js"
-      ]
-    },
-    {
-      "id": "L-0019",
-      "ts": "2026-09-04 18:40",
-      "kind": "deploy",
-      "title": "정식 도메인 개통 — https://snubusiness.com (www 포함), snu.artus.kr·pages.dev는 301 리디렉션",
-      "detail": "customsshin 계정이 prodigen을 Domain Administrator로 초대 → 초대 메일 링크로 수락 → shin 계정 DNS에 CNAME @/www → snubusiness.pages.dev(프록시) → prodigen 계정 Pages 프로젝트에 커스텀 도메인 등록·인증서 활성. 사이트·D1은 prodigen 계정에 그대로. sitemap/robots를 정식 도메인으로 복원, _middleware.js로 호스트 통일.",
-      "files": [
-        "functions/_middleware.js",
-        "sitemap.xml",
-        "robots.txt"
-      ]
-    },
-    {
-      "id": "L-0020",
-      "ts": "2026-09-09 10:00",
-      "kind": "decision",
-      "title": "전체 색감 네이비 → 버건디 전환 (작업대 주인 지시)",
-      "detail": "팔레트 900 #3A0A14 · 800 #5C1424 · 700 #731A2E · 600 #8C2438, 골드·아이보리 유지. CSS 변수명(--navy-*)은 호환을 위해 그대로 두고 값만 교체. 파비콘·인장·히어로 그라데이션·다이어그램 테마·상태 배지 색 동시 교체. 회의 페이지 결정 4(디자인 톤) 선택지를 현재 버건디/이전 네이비로 갱신.",
-      "files": [
-        "assets/css/main.css",
-        "assets/css/admin.css",
-        "assets/js/site.js",
-        "assets/js/admin.js",
-        "assets/img/favicon.svg",
-        "*.html",
-        "data/meeting.json"
-      ]
-    },
-    {
-      "id": "L-0021",
-      "ts": "2026-09-09 10:30",
-      "kind": "fix",
-      "title": "로그인 요소 제거 — 상단바·모바일 메뉴의 로그인 링크, /login/ 페이지 삭제(홈으로 301)",
-      "detail": "작업대 주인 지시(새 랩탑에서 로그인 화면이 보여 혼란). 회원 시스템(P3) 전까지 로그인 없음. 동문 찾기 잠금 배너는 \"회원 시스템 준비 중\", 행사 참가 신청은 사무국 메일, 온라인 납부는 준비 중 배지로 대체.",
-      "files": [
-        "assets/js/site.js",
-        "members/index.html",
-        "events/index.html",
-        "giving/index.html",
-        "_redirects",
-        "sitemap.xml"
-      ]
-    },
-    {
-      "id": "L-0022",
-      "ts": "2026-09-09 10:45",
-      "kind": "discuss",
-      "title": "회의 결정 저장 · 반영 — 2장 15건 중 11건 결정, 4건 보류(회비 체계·결제·예우 등급·브랜드 표기는 메모), 1장 12건 전부 운영위원회/단톡방으로 이관",
-      "detail": "결정: 회원 범위=학부+기존 대학원(MBA 제외, 박사 추가 결정 필요) · 상대동창회와 병립 · 브랜드=서울대학교 경영대학 총동문회 + SNU Business School Alumni · 버건디 유지 · 인증=사무국 명부 대조 후 이메일 로그인 · 공개범위 최소(opt-in) · 커뮤니티는 로그인 전용(확실치 않음) · 알림=카카오+이메일 · 영문=전체 /en/ · 작업대=Cloudflare Access(운영진, 오너가 권한 부여) · 오픈=핵심 20명 즉시, 11/26 송년회에서 준비모임 200명 공개(사실상 정식) · 멘토링 보류. 스냅샷 data/meeting-results.json.",
-      "ref": "meeting",
-      "files": [
-        "data/meeting-results.json"
-      ]
-    },
-    {
-      "id": "L-0023",
-      "ts": "2026-09-09 10:50",
-      "kind": "build",
-      "title": "QR 코드 생성 — https://snubusiness.com (SVG 사이트 내 · PNG docs/)",
-      "files": [
-        "assets/img/qr-snubusiness.svg",
-        "docs/snubusiness-qr.png"
-      ]
-    },
-    {
-      "id": "L-0024",
-      "ts": "2026-09-09 10:55",
-      "kind": "plan",
-      "title": "마스터플랜 갱신 — P1 완료, P2 진행(~11/26 송년회), 영문 /en/ P2 편입, 멘토링 보류, 작업대 Access 보호 즉시",
-      "detail": "P2 산출물에 브랜드 영문명 교체(SNU Business School Alumni), 전체 영문 사이트 추가. P3 인증 방식 확정(사무국 승인+이메일). P4 결제는 계좌이체+간편결제 다중 PG 리서치 후 결정.",
-      "files": [
-        "data/plan.json",
-        "content/overview.md"
-      ]
-    },
-    {
-      "id": "L-0025",
-      "ts": "2026-09-09 12:30",
-      "kind": "build",
-      "title": "전체 공개 사이트 한/영 전환 — 우상단 KO·EN 토글, 사전(479개 문구) 기반 런타임 번역, 동적 데이터 _en 필드",
-      "detail": "i18n.js: localStorage에 언어 저장, 텍스트 노드·placeholder·title·meta 치환, MutationObserver로 동적 렌더도 번역, 영문일 때 세리프 헤드라인은 Cormorant. 사전은 data/i18n.json(ko→en). 데이터 JSON은 title_en/body_en/desc_en/place_en/kind_en. 작업대는 국문 전용. 브랜드 영문 표기 SNU Business School Alumni로 교체(회의 결정 3).",
-      "files": [
-        "assets/js/i18n.js",
-        "data/i18n.json",
-        "assets/js/site.js",
-        "assets/css/main.css",
-        "*.html",
-        "data/*.json"
-      ]
-    },
-    {
-      "id": "L-0026",
-      "ts": "2026-09-09 12:40",
-      "kind": "build",
-      "title": "실제 일정 반영 — 9/9 조찬 회의(종료), 10/24 골프(포천 힐마루), 11/10 준비위원회, 11/26 송년회(준비모임 공개), 2027/4/16 창립총회·정식 출범",
-      "detail": "작업대 주인 지시. 송년회까지는 준비모임 기간임을 홈 히어로·공지·연혁에 표기. 샘플 경조사·언론 항목 삭제(실자료 전까지 비움). 임원 섹션은 준비위원회 체제로.",
-      "files": [
-        "data/events.json",
-        "data/notices.json",
-        "data/officers.json",
-        "index.html",
-        "about/index.html"
-      ]
-    },
-    {
-      "id": "L-0027",
-      "ts": "2026-09-09 12:50",
-      "kind": "build",
-      "title": "회장 인사말 새로 작성(글로벌 톤, 국·영문) · 회칙 검토용 초안 6장 23조 + 부칙(국·영문)",
-      "detail": "인사말은 HBS(here for you — for life)·LBS(continue your journey) 톤을 참고해 세계 각지의 동문을 향한 메시지로. 회칙은 상대 총동창회 회칙(1963/2024)과 국내외 동문회 정관을 참고, 온라인 의결·개인정보·장학기금·결제수단 조항 추가. 서명은 창립총회 선임 예정·준비위원회 드림.",
-      "files": [
-        "about/index.html",
-        "data/i18n.json"
-      ]
-    },
-    {
-      "id": "L-0028",
-      "ts": "2026-09-09 21:50",
-      "kind": "fix",
-      "title": "모바일 좌우 밀림 수정 — 헤더에 추가된 언어 토글로 헤더 폭이 화면을 넘어 가로 스크롤 발생, 고정 메뉴 오버레이가 어긋나 보임",
-      "detail": "작업대 주인 카카오톡 브라우저 스크린샷 제보. 조치: html/body overflow-x hidden, 브랜드명 말줄임, 모바일 토글을 36px 원형 단일 표시(EN/KO)로 축소, 480px 이하 헤더 간격·인장 축소, 오버레이 안에 언어 전환 행 추가. 자율점검 S-12(360px 폭 가로 넘침 검사) 추가 대상.",
-      "files": [
-        "assets/css/main.css",
-        "assets/js/site.js"
-      ]
-    },
-    {
-      "id": "L-0029",
-      "ts": "2026-09-15 10:30",
-      "kind": "build",
-      "title": "준비위원회(21인) 온라인 회의 안건판 — /admin/meeting/?m=committee",
-      "detail": "회의 페이지를 회의별 데이터(meeting-<id>.json, 저장 키 prefix)로 확장. 구성: 0 진행 순서(48분) · 1 9/9 결정 11건 보고(이의 메모) · 2 의결 9건(명칭 총동문회/총동창회, 회원 범위 확정, 회비 금액 리서치 비교, 결제 PG, 송년회·골프 신청 폼, 공개 범위·Access, 소위원회, 커뮤니티) · 3 자료 담당자 12건 · 4 회칙 쟁점 5조문 · 5 일정표. 회비 리서치: 서울대 총동창회 1만/5만/50만(65세↑ 30만), 고려대 교우회 5만/50만, 연세대 3만/50만, 서울대 미대 5만/50만.",
-      "files": [
-        "admin/meeting/index.html",
-        "data/meeting-committee.json",
-        "assets/js/admin.js"
-      ]
-    },
-    {
-      "id": "L-0030",
-      "ts": "2026-09-15 17:40",
-      "kind": "fix",
-      "title": "회비 비교 리서치 정정 — 상대 총동창회(입회비 없음, 5만/50만, 임원회비) 직접 확인 추가, 연세대는 미확인 표시",
-      "detail": "작업대 주인 지적. sangdae.com/content/3010, snua.or.kr/membership/guide, kuaa.or.kr, snuarta.or.kr 을 브라우저로 직접 읽어 확인. 임원회비(분담금) 선택지를 의결 3번에 추가.",
-      "files": [
-        "data/meeting-committee.json"
-      ]
-    },
-    {
-      "id": "L-0031",
-      "ts": "2026-09-15 19:00",
-      "kind": "build",
-      "title": "준비위원 21인 전용 입장 — 이름 + 개인 입장코드, 세션 쿠키, 사이트 전체 보호(GATE_MODE=all)",
-      "detail": "작업대 주인 결정: 이메일 수집·Cloudflare Zero Trust(결제수단 화면 우려) 없이 자체 인증. /enter/ 에서 명단(committee.json) 중 이름 선택 + 코드 입력 → /api/login → HMAC 서명 쿠키 90일. functions/_middleware.js 가 /enter, /api/login·logout·health, /assets 외 전부 보호. 토론·회의 API는 세션 이름을 작성자로 강제 기록. 코드 해시는 D1 access_codes(sha256(code|name)), 평문 목록은 docs/access-codes.txt(git 제외)로 작업대 주인에게 전달. 공개 전환 시 GATE_MODE=admin 으로 변경.",
-      "files": [
-        "functions/_auth.js",
-        "functions/_middleware.js",
-        "functions/api/login.js",
-        "functions/api/logout.js",
-        "functions/api/me.js",
-        "public/enter/index.html",
-        "data/committee.json"
-      ]
-    },
-    {
-      "id": "L-0032",
-      "ts": "2026-09-15 21:30",
-      "kind": "build",
-      "title": "입장 방식 확정 — 회원가입(명단 이름 검증) + 이메일 아이디/비밀번호 로그인, 오너용 회원 관리 패널",
-      "detail": "작업대 주인 결정: 사이트를 준비위원 21인만 접근 가능하게 하되, 첫 화면에서 회원가입 시 명단(committee.json)의 이름과 대조. 비밀번호는 가입 시 본인이 정하고 D1 accounts 에 PBKDF2-SHA256(10만회)+솔트 해시로만 저장, 평문 보관 없음. 이름당 1계정(동명이인·오가입은 오너가 대시보드 회원 관리에서 차단/삭제/임시 비밀번호). 초대코드 방식(access_codes)은 폐기. 에이전트 계정 agent@snubusiness.com(role=agent, 자격은 .cf/agent-login.json).",
-      "files": [
-        "functions/_auth.js",
-        "functions/_middleware.js",
-        "functions/api/signup.js",
-        "functions/api/login.js",
-        "functions/api/accounts.js",
-        "functions/api/me.js",
-        "public/enter/index.html",
-        "public/admin/index.html"
-      ]
-    },
-    {
-      "id": "L-0033",
-      "ts": "2026-09-15 23:30",
-      "kind": "build",
-      "title": "결산 관리 페이지 /admin/finance/ — 권한(finance) 있는 위원만: 거래 입력·수정·삭제, 월별·항목별 집계, 잔액, CSV 내려받기, 엑셀 붙여넣기 가져오기",
-      "detail": "작업대 주인 지시(서희원 위원이 엑셀로 관리 중인 결산을 홈페이지에서). 권한 모델 추가: accounts.perms(콤마 목록), committee.json perms에 서희원=finance 사전 부여(가입 시·로그인 시 자동 동기화), 오너는 대시보드 회원 관리에서 체크박스로 부여/해제. API /api/finance(GET/POST/PUT/DELETE, export=csv), D1 ledger. 메뉴는 권한자에게만 표시되고 API도 403.",
-      "files": [
-        "functions/api/finance.js",
-        "public/admin/finance/index.html",
-        "functions/_auth.js",
-        "functions/api/accounts.js",
-        "functions/api/signup.js",
-        "functions/api/login.js",
-        "assets/js/admin.js",
-        "data/committee.json"
-      ]
-    }
-  ]
+ "next": [
+  "서희원 위원 엑셀 결산 파일 수령 → 장부(ledger)로 이관 (열 매핑 후 가져오기), 결산 열람 권한 추가 대상자 명단 반영",
+  "송년회(11/26) 전 공개 전환: Pages 환경변수 GATE_MODE=admin 으로 바꾸면 공개 페이지는 열리고 작업대만 코드 입장",
+  "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
+  "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
+  "[리서치] 결제수단 — 계좌이체 + 카카오페이·네이버페이·토스·카드 등 다중 결제 PG 비교(수수료·계약요건) → 토론",
+  "[결정 필요] 회원 범위에 박사 포함 여부, 커뮤니티 운영 방식 재확인 (작업대 주인)",
+  "[일정] 11월 26일 송년회 = 준비모임 200명 공개. 10월 말까지 P2 완료 목표, QR은 docs/snubusiness-qr.png",
+  "[확인 필요] 명칭: 작업대 주인 메시지에는 \"총동창회\"로 표기 — 사이트는 회의 메모대로 \"총동문회\" 유지 중. 최종 명칭 확정 요청"
+ ],
+ "entries": [
+  {
+   "id": "L-0002",
+   "date": "2026-09-23",
+   "type": "ux",
+   "title": "작업대·회의자료 접근성 개선",
+   "body": "메인 헤더 작업대 버튼 + 모바일 메뉴 최상단 항목 추가(로그인 시 표시). 대시보드 상단에 회의 자료 카드(9/29 준비위원회 강조, 9/9 조찬) 및 회의 자료 버튼. 명단 22인(이준용 정정, 김광일 추가). admin.css 캐시 태그 누락 수정.",
+   "by": "agent"
+  },
+  {
+   "id": "L-0001",
+   "ts": "2026-09-04 13:30",
+   "kind": "plan",
+   "title": "프로젝트 착수 — 서울대학교 경영대학 총동문회 홈페이지(snubusiness.com)",
+   "detail": "작업대 주인 지시: 기존 상대 홈페이지와 해외 비즈니스스쿨 참고 리서치, 홈/관리자 분리, 관리자 7개 페이지(리서치·개발개요·데이터정의·데이터흐름도·개발자토론·자율점검·개발이력), 우아하고 고급스러운 디자인, GitHub+Cloudflare 배포."
+  },
+  {
+   "id": "L-0002",
+   "ts": "2026-09-04 13:40",
+   "kind": "research",
+   "title": "리서치 완료 — sangdae.com, cba.snu.ac.kr, HBS·Stanford·Wharton·Booth·LBS·INSEAD·MIT Sloan",
+   "detail": "sangdae.com: 6개 메뉴, 비반응형, HTTP, 계좌 노출, 디렉터리 없음. 해외 공통: Directory·Community·Events/Reunion·Career·Giving·Stories·Volunteer·통계. 결과는 리서치 페이지에 정리.",
+   "files": [
+    "content/research.md"
+   ]
+  },
+  {
+   "id": "L-0003",
+   "ts": "2026-09-04 13:50",
+   "kind": "decision",
+   "title": "기술 스택 결정 — 정적 HTML/CSS/JS + Cloudflare Pages Functions + D1, 빌드 도구 없음",
+   "detail": "이유: 배포 실패 가능성 최소화, 어느 개발자든 유지보수 가능, 도메인이 이미 Cloudflare NS 사용 중. 회원·결제는 P3/P4에서 Functions로 확장."
+  },
+  {
+   "id": "L-0004",
+   "ts": "2026-09-04 13:55",
+   "kind": "decision",
+   "title": "디자인 시스템 — 딥 네이비 #5C1424 · 샴페인 골드 #B8952E · 아이보리 #F7F4EE, Noto Serif KR + Cormorant Garamond + Noto Sans KR",
+   "detail": "해외 스쿨의 절제된 화이트스페이스·세리프 헤드라인 패턴 채택. 사진 확보 전까지 그라데이션 프레임 + 인장 워터마크로 품격 유지.",
+   "files": [
+    "assets/css/main.css",
+    "assets/css/admin.css"
+   ]
+  },
+  {
+   "id": "L-0005",
+   "ts": "2026-09-04 14:20",
+   "kind": "build",
+   "title": "공개 사이트 v1 — 홈, 소개, 소식, 행사, 동문, 장학·기부, 자료실, 로그인(안내)",
+   "detail": "공통 헤더/푸터는 site.js가 렌더. 콘텐츠는 /data/*.json에서 fetch. 서브내비 앵커 방식.",
+   "files": [
+    "index.html",
+    "about/",
+    "news/",
+    "events/",
+    "members/",
+    "giving/",
+    "media/",
+    "login/",
+    "assets/js/site.js",
+    "data/notices.json",
+    "data/events.json",
+    "data/officers.json",
+    "data/companies.json"
+   ]
+  },
+  {
+   "id": "L-0006",
+   "ts": "2026-09-04 14:40",
+   "kind": "build",
+   "title": "작업대(관리자) v1 — 대시보드 + 7개 페이지",
+   "detail": "리서치·개요·데이터·흐름은 /content/*.md를 marked+mermaid로 렌더. 토론은 D1 API. 점검·이력은 JSON.",
+   "files": [
+    "admin/",
+    "assets/js/admin.js",
+    "content/*.md",
+    "data/plan.json",
+    "data/personas.json",
+    "data/inspections.json",
+    "data/history.json"
+   ]
+  },
+  {
+   "id": "L-0007",
+   "ts": "2026-09-04 14:50",
+   "kind": "build",
+   "title": "API — /api/health, /api/discussions (GET/POST), /api/discussions/:id (GET/POST/PATCH), 스키마 자동 생성",
+   "detail": "D1 바인딩 이름 DB. 스키마는 요청 시 CREATE IF NOT EXISTS로 부트스트랩. role=agent는 AGENT_KEY 환경변수 설정 시에만 허용, 미설정 시 에이전트 답변은 data/agent-replies.json(git)으로.",
+   "files": [
+    "functions/_lib.js",
+    "functions/api/health.js",
+    "functions/api/discussions/index.js",
+    "functions/api/discussions/[id].js"
+   ]
+  },
+  {
+   "id": "L-0008",
+   "ts": "2026-09-04 14:55",
+   "kind": "todo",
+   "title": "TODO-001~006 등록 — 통계 확인, /admin Access 보호, 임원 명단, 회칙·회비·계좌, 사진, 상대동창회 관계 설명",
+   "detail": "데이터정의 문서 6장 참조. 작업대 주인 제공 항목은 토론 스레드로 요청 예정."
+  },
+  {
+   "id": "L-0009",
+   "ts": "2026-09-04 15:20",
+   "kind": "fix",
+   "title": "로컬 점검 수정 — mermaid 라벨 인용, 다이어그램 배경, reveal 지연 단축, 모바일 헤더 줄바꿈",
+   "detail": "mermaid에서 [/…/] 평행사변형 문법 충돌 → 모든 라벨을 따옴표로. .prose pre 스타일이 mermaid 블록에 적용되던 문제 분리. 모바일에서 브랜드 영문명 숨김, CTA 버튼 480px 이하 숨김.",
+   "files": [
+    "content/*.md",
+    "assets/css/main.css",
+    "assets/css/admin.css"
+   ]
+  },
+  {
+   "id": "L-0010",
+   "ts": "2026-09-04 15:25",
+   "kind": "deploy",
+   "title": "GitHub 저장소 생성 · 푸시 — DavidRheeTaekyoung/snubusiness (main)",
+   "detail": "gh CLI의 repo create가 권한 정책으로 차단되어 브라우저(github.com/new)로 생성 후 git push. Cloudflare GitHub 앱은 snubusiness 저장소에 설치됨(팝업 state 유실로 Pages 자동 빌드 연동은 미완 — 대시보드에서 1클릭으로 연결 가능)."
+  },
+  {
+   "id": "L-0011",
+   "ts": "2026-09-04 15:32",
+   "kind": "deploy",
+   "title": "Cloudflare Pages 첫 배포 — https://snubusiness.pages.dev, D1 snubusiness-db 바인딩(DB) 연결 확인",
+   "detail": "wrangler OAuth 로그인(prodigen@gmail.com 계정) → d1 create → pages project create → pages deploy. wrangler.toml에 D1 바인딩 기록. /api/health db:true, 첫 스레드(#1) 저장 확인. 주의: 이 PC의 wrangler 기본 로그인(~/.wrangler)이 customsshin@gmail.com에서 prodigen@gmail.com으로 교체됨 — 다른 프로젝트에서 wrangler 사용 시 재로그인 필요.",
+   "files": [
+    "wrangler.toml"
+   ]
+  },
+  {
+   "id": "L-0012",
+   "ts": "2026-09-04 15:40",
+   "kind": "decision",
+   "title": "커스텀 도메인 보류 — snubusiness.com 존(zone)이 prodigen 계정에 없음",
+   "detail": "whois: 2026-09-04 05:38Z Cloudflare Registrar로 등록, NS carla/malcolm.ns.cloudflare.com. prodigen 계정 도메인 8개 중 snubusiness.com 없음 → 다른 Cloudflare 계정(추정: customsshin@gmail.com)에서 구매. 해결안 A) 도메인 보유 계정에 prodigen@gmail.com을 구성원으로 초대 후 그 계정에 Pages 재배포, B) 도메인 보유 계정에서 CNAME snubusiness.com → snubusiness.pages.dev + Pages 커스텀 도메인 추가. 작업대 주인 결정 필요 → 토론 #2.",
+   "ref": "#2"
+  },
+  {
+   "id": "L-0013",
+   "ts": "2026-09-04 15:45",
+   "kind": "inspect",
+   "title": "자율점검 R-001 — 배포 직후 10개 표준 시나리오, 페르소나 7인",
+   "detail": "통과 8 / 보류 2 (S-03 행사 신청·S-05 동문 찾기는 P3 로그인 전까지 안내만). 발견 6건: 즉시 수정 3, 토론 이관 1, 미해결 2.",
+   "ref": "R-001"
+  },
+  {
+   "id": "L-0014",
+   "ts": "2026-09-04 16:05",
+   "kind": "deploy",
+   "title": "검토용 임시 주소 개통 — https://snu.artus.kr (prodigen 계정 artus.kr 존, Pages 커스텀 도메인)",
+   "detail": "작업대 주인 지시: snubusiness.com은 customsshin 계정에 있어 몇 시간 뒤 처리. 선배님들 검토를 위해 artus.kr 서브도메인으로 먼저 공개. Cloudflare가 CNAME snu → snubusiness.pages.dev 자동 생성. sitemap/robots를 임시 주소로 갱신 — 본 도메인 전환 시 되돌릴 것.",
+   "files": [
+    "sitemap.xml",
+    "robots.txt"
+   ]
+  },
+  {
+   "id": "L-0015",
+   "ts": "2026-09-04 16:40",
+   "kind": "fix",
+   "title": "홈 하단 섹션이 빈 채로 보이던 버그 수정 — reveal CSS 우선순위",
+   "detail": "L-0014 직후 작업대 주인이 발견. html.js .reveal(0,2,1)이 .reveal.in(0,2,0)보다 우선해 .in이 적용돼도 opacity 0 유지. 선택자를 html.js .reveal.in으로 맞춤. 교훈: 자율점검에 \"스크롤 후 섹션 가시성(computed opacity=1)\" DOM 검사를 표준 시나리오로 추가(S-11).",
+   "files": [
+    "assets/css/main.css"
+   ]
+  },
+  {
+   "id": "L-0016",
+   "ts": "2026-09-04 17:05",
+   "kind": "fix",
+   "title": "흉한 스크롤바 제거 — 서브내비 내부 스크롤바 숨김, 본문 스크롤바는 가늘게",
+   "detail": "작업대 주인 제보(Windows 기본 스크롤바가 서브내비 안에 노출). 서브내비·모바일메뉴·작업대 사이드바·드롭다운은 스크롤바 숨김, 문서 스크롤바는 8px 반투명 네이비. 자산 버전 v=20260904c.",
+   "files": [
+    "assets/css/main.css",
+    "assets/css/admin.css",
+    "*.html"
+   ]
+  },
+  {
+   "id": "L-0017",
+   "ts": "2026-09-04 17:40",
+   "kind": "build",
+   "title": "작업대 8. 회의자료 페이지 — 1장 사람이 줄 자료 13건, 2장 객관식 결정 16건(리서치 요약·권장안), D1 자동 저장, 인쇄용 요약",
+   "detail": "작업대 주인 지시: 조찬 후 짧은 회의에서 중요한 결정을 끝내기 위한 페이지. /api/meeting(key/value upsert). 세션 시작 루틴에 GET /api/meeting 읽기를 추가.",
+   "files": [
+    "admin/meeting/index.html",
+    "data/meeting.json",
+    "functions/api/meeting.js",
+    "assets/js/admin.js",
+    "content/data.md"
+   ]
+  },
+  {
+   "id": "L-0018",
+   "ts": "2026-09-04 18:00",
+   "kind": "fix",
+   "title": "모바일 대응 보강 — 작업대 사이드바를 접히는 상단 바로, 표·잠금 배너·회의 페이지 레이아웃 정리",
+   "detail": "작업대 주인 확인 요청. 휴대폰에서 작업대 메뉴가 956px을 차지해 내용이 밀리던 문제. 960px 이하에서 햄버거 토글, 패널·문서 표는 가로 스크롤, 동문 찾기 잠금 배너 줄바꿈.",
+   "files": [
+    "assets/css/admin.css",
+    "assets/css/main.css",
+    "assets/js/admin.js"
+   ]
+  },
+  {
+   "id": "L-0019",
+   "ts": "2026-09-04 18:40",
+   "kind": "deploy",
+   "title": "정식 도메인 개통 — https://snubusiness.com (www 포함), snu.artus.kr·pages.dev는 301 리디렉션",
+   "detail": "customsshin 계정이 prodigen을 Domain Administrator로 초대 → 초대 메일 링크로 수락 → shin 계정 DNS에 CNAME @/www → snubusiness.pages.dev(프록시) → prodigen 계정 Pages 프로젝트에 커스텀 도메인 등록·인증서 활성. 사이트·D1은 prodigen 계정에 그대로. sitemap/robots를 정식 도메인으로 복원, _middleware.js로 호스트 통일.",
+   "files": [
+    "functions/_middleware.js",
+    "sitemap.xml",
+    "robots.txt"
+   ]
+  },
+  {
+   "id": "L-0020",
+   "ts": "2026-09-09 10:00",
+   "kind": "decision",
+   "title": "전체 색감 네이비 → 버건디 전환 (작업대 주인 지시)",
+   "detail": "팔레트 900 #3A0A14 · 800 #5C1424 · 700 #731A2E · 600 #8C2438, 골드·아이보리 유지. CSS 변수명(--navy-*)은 호환을 위해 그대로 두고 값만 교체. 파비콘·인장·히어로 그라데이션·다이어그램 테마·상태 배지 색 동시 교체. 회의 페이지 결정 4(디자인 톤) 선택지를 현재 버건디/이전 네이비로 갱신.",
+   "files": [
+    "assets/css/main.css",
+    "assets/css/admin.css",
+    "assets/js/site.js",
+    "assets/js/admin.js",
+    "assets/img/favicon.svg",
+    "*.html",
+    "data/meeting.json"
+   ]
+  },
+  {
+   "id": "L-0021",
+   "ts": "2026-09-09 10:30",
+   "kind": "fix",
+   "title": "로그인 요소 제거 — 상단바·모바일 메뉴의 로그인 링크, /login/ 페이지 삭제(홈으로 301)",
+   "detail": "작업대 주인 지시(새 랩탑에서 로그인 화면이 보여 혼란). 회원 시스템(P3) 전까지 로그인 없음. 동문 찾기 잠금 배너는 \"회원 시스템 준비 중\", 행사 참가 신청은 사무국 메일, 온라인 납부는 준비 중 배지로 대체.",
+   "files": [
+    "assets/js/site.js",
+    "members/index.html",
+    "events/index.html",
+    "giving/index.html",
+    "_redirects",
+    "sitemap.xml"
+   ]
+  },
+  {
+   "id": "L-0022",
+   "ts": "2026-09-09 10:45",
+   "kind": "discuss",
+   "title": "회의 결정 저장 · 반영 — 2장 15건 중 11건 결정, 4건 보류(회비 체계·결제·예우 등급·브랜드 표기는 메모), 1장 12건 전부 운영위원회/단톡방으로 이관",
+   "detail": "결정: 회원 범위=학부+기존 대학원(MBA 제외, 박사 추가 결정 필요) · 상대동창회와 병립 · 브랜드=서울대학교 경영대학 총동문회 + SNU Business School Alumni · 버건디 유지 · 인증=사무국 명부 대조 후 이메일 로그인 · 공개범위 최소(opt-in) · 커뮤니티는 로그인 전용(확실치 않음) · 알림=카카오+이메일 · 영문=전체 /en/ · 작업대=Cloudflare Access(운영진, 오너가 권한 부여) · 오픈=핵심 20명 즉시, 11/26 송년회에서 준비모임 200명 공개(사실상 정식) · 멘토링 보류. 스냅샷 data/meeting-results.json.",
+   "ref": "meeting",
+   "files": [
+    "data/meeting-results.json"
+   ]
+  },
+  {
+   "id": "L-0023",
+   "ts": "2026-09-09 10:50",
+   "kind": "build",
+   "title": "QR 코드 생성 — https://snubusiness.com (SVG 사이트 내 · PNG docs/)",
+   "files": [
+    "assets/img/qr-snubusiness.svg",
+    "docs/snubusiness-qr.png"
+   ]
+  },
+  {
+   "id": "L-0024",
+   "ts": "2026-09-09 10:55",
+   "kind": "plan",
+   "title": "마스터플랜 갱신 — P1 완료, P2 진행(~11/26 송년회), 영문 /en/ P2 편입, 멘토링 보류, 작업대 Access 보호 즉시",
+   "detail": "P2 산출물에 브랜드 영문명 교체(SNU Business School Alumni), 전체 영문 사이트 추가. P3 인증 방식 확정(사무국 승인+이메일). P4 결제는 계좌이체+간편결제 다중 PG 리서치 후 결정.",
+   "files": [
+    "data/plan.json",
+    "content/overview.md"
+   ]
+  },
+  {
+   "id": "L-0025",
+   "ts": "2026-09-09 12:30",
+   "kind": "build",
+   "title": "전체 공개 사이트 한/영 전환 — 우상단 KO·EN 토글, 사전(479개 문구) 기반 런타임 번역, 동적 데이터 _en 필드",
+   "detail": "i18n.js: localStorage에 언어 저장, 텍스트 노드·placeholder·title·meta 치환, MutationObserver로 동적 렌더도 번역, 영문일 때 세리프 헤드라인은 Cormorant. 사전은 data/i18n.json(ko→en). 데이터 JSON은 title_en/body_en/desc_en/place_en/kind_en. 작업대는 국문 전용. 브랜드 영문 표기 SNU Business School Alumni로 교체(회의 결정 3).",
+   "files": [
+    "assets/js/i18n.js",
+    "data/i18n.json",
+    "assets/js/site.js",
+    "assets/css/main.css",
+    "*.html",
+    "data/*.json"
+   ]
+  },
+  {
+   "id": "L-0026",
+   "ts": "2026-09-09 12:40",
+   "kind": "build",
+   "title": "실제 일정 반영 — 9/9 조찬 회의(종료), 10/24 골프(포천 힐마루), 11/10 준비위원회, 11/26 송년회(준비모임 공개), 2027/4/16 창립총회·정식 출범",
+   "detail": "작업대 주인 지시. 송년회까지는 준비모임 기간임을 홈 히어로·공지·연혁에 표기. 샘플 경조사·언론 항목 삭제(실자료 전까지 비움). 임원 섹션은 준비위원회 체제로.",
+   "files": [
+    "data/events.json",
+    "data/notices.json",
+    "data/officers.json",
+    "index.html",
+    "about/index.html"
+   ]
+  },
+  {
+   "id": "L-0027",
+   "ts": "2026-09-09 12:50",
+   "kind": "build",
+   "title": "회장 인사말 새로 작성(글로벌 톤, 국·영문) · 회칙 검토용 초안 6장 23조 + 부칙(국·영문)",
+   "detail": "인사말은 HBS(here for you — for life)·LBS(continue your journey) 톤을 참고해 세계 각지의 동문을 향한 메시지로. 회칙은 상대 총동창회 회칙(1963/2024)과 국내외 동문회 정관을 참고, 온라인 의결·개인정보·장학기금·결제수단 조항 추가. 서명은 창립총회 선임 예정·준비위원회 드림.",
+   "files": [
+    "about/index.html",
+    "data/i18n.json"
+   ]
+  },
+  {
+   "id": "L-0028",
+   "ts": "2026-09-09 21:50",
+   "kind": "fix",
+   "title": "모바일 좌우 밀림 수정 — 헤더에 추가된 언어 토글로 헤더 폭이 화면을 넘어 가로 스크롤 발생, 고정 메뉴 오버레이가 어긋나 보임",
+   "detail": "작업대 주인 카카오톡 브라우저 스크린샷 제보. 조치: html/body overflow-x hidden, 브랜드명 말줄임, 모바일 토글을 36px 원형 단일 표시(EN/KO)로 축소, 480px 이하 헤더 간격·인장 축소, 오버레이 안에 언어 전환 행 추가. 자율점검 S-12(360px 폭 가로 넘침 검사) 추가 대상.",
+   "files": [
+    "assets/css/main.css",
+    "assets/js/site.js"
+   ]
+  },
+  {
+   "id": "L-0029",
+   "ts": "2026-09-15 10:30",
+   "kind": "build",
+   "title": "준비위원회(21인) 온라인 회의 안건판 — /admin/meeting/?m=committee",
+   "detail": "회의 페이지를 회의별 데이터(meeting-<id>.json, 저장 키 prefix)로 확장. 구성: 0 진행 순서(48분) · 1 9/9 결정 11건 보고(이의 메모) · 2 의결 9건(명칭 총동문회/총동창회, 회원 범위 확정, 회비 금액 리서치 비교, 결제 PG, 송년회·골프 신청 폼, 공개 범위·Access, 소위원회, 커뮤니티) · 3 자료 담당자 12건 · 4 회칙 쟁점 5조문 · 5 일정표. 회비 리서치: 서울대 총동창회 1만/5만/50만(65세↑ 30만), 고려대 교우회 5만/50만, 연세대 3만/50만, 서울대 미대 5만/50만.",
+   "files": [
+    "admin/meeting/index.html",
+    "data/meeting-committee.json",
+    "assets/js/admin.js"
+   ]
+  },
+  {
+   "id": "L-0030",
+   "ts": "2026-09-15 17:40",
+   "kind": "fix",
+   "title": "회비 비교 리서치 정정 — 상대 총동창회(입회비 없음, 5만/50만, 임원회비) 직접 확인 추가, 연세대는 미확인 표시",
+   "detail": "작업대 주인 지적. sangdae.com/content/3010, snua.or.kr/membership/guide, kuaa.or.kr, snuarta.or.kr 을 브라우저로 직접 읽어 확인. 임원회비(분담금) 선택지를 의결 3번에 추가.",
+   "files": [
+    "data/meeting-committee.json"
+   ]
+  },
+  {
+   "id": "L-0031",
+   "ts": "2026-09-15 19:00",
+   "kind": "build",
+   "title": "준비위원 21인 전용 입장 — 이름 + 개인 입장코드, 세션 쿠키, 사이트 전체 보호(GATE_MODE=all)",
+   "detail": "작업대 주인 결정: 이메일 수집·Cloudflare Zero Trust(결제수단 화면 우려) 없이 자체 인증. /enter/ 에서 명단(committee.json) 중 이름 선택 + 코드 입력 → /api/login → HMAC 서명 쿠키 90일. functions/_middleware.js 가 /enter, /api/login·logout·health, /assets 외 전부 보호. 토론·회의 API는 세션 이름을 작성자로 강제 기록. 코드 해시는 D1 access_codes(sha256(code|name)), 평문 목록은 docs/access-codes.txt(git 제외)로 작업대 주인에게 전달. 공개 전환 시 GATE_MODE=admin 으로 변경.",
+   "files": [
+    "functions/_auth.js",
+    "functions/_middleware.js",
+    "functions/api/login.js",
+    "functions/api/logout.js",
+    "functions/api/me.js",
+    "public/enter/index.html",
+    "data/committee.json"
+   ]
+  },
+  {
+   "id": "L-0032",
+   "ts": "2026-09-15 21:30",
+   "kind": "build",
+   "title": "입장 방식 확정 — 회원가입(명단 이름 검증) + 이메일 아이디/비밀번호 로그인, 오너용 회원 관리 패널",
+   "detail": "작업대 주인 결정: 사이트를 준비위원 21인만 접근 가능하게 하되, 첫 화면에서 회원가입 시 명단(committee.json)의 이름과 대조. 비밀번호는 가입 시 본인이 정하고 D1 accounts 에 PBKDF2-SHA256(10만회)+솔트 해시로만 저장, 평문 보관 없음. 이름당 1계정(동명이인·오가입은 오너가 대시보드 회원 관리에서 차단/삭제/임시 비밀번호). 초대코드 방식(access_codes)은 폐기. 에이전트 계정 agent@snubusiness.com(role=agent, 자격은 .cf/agent-login.json).",
+   "files": [
+    "functions/_auth.js",
+    "functions/_middleware.js",
+    "functions/api/signup.js",
+    "functions/api/login.js",
+    "functions/api/accounts.js",
+    "functions/api/me.js",
+    "public/enter/index.html",
+    "public/admin/index.html"
+   ]
+  },
+  {
+   "id": "L-0033",
+   "ts": "2026-09-15 23:30",
+   "kind": "build",
+   "title": "결산 관리 페이지 /admin/finance/ — 권한(finance) 있는 위원만: 거래 입력·수정·삭제, 월별·항목별 집계, 잔액, CSV 내려받기, 엑셀 붙여넣기 가져오기",
+   "detail": "작업대 주인 지시(서희원 위원이 엑셀로 관리 중인 결산을 홈페이지에서). 권한 모델 추가: accounts.perms(콤마 목록), committee.json perms에 서희원=finance 사전 부여(가입 시·로그인 시 자동 동기화), 오너는 대시보드 회원 관리에서 체크박스로 부여/해제. API /api/finance(GET/POST/PUT/DELETE, export=csv), D1 ledger. 메뉴는 권한자에게만 표시되고 API도 403.",
+   "files": [
+    "functions/api/finance.js",
+    "public/admin/finance/index.html",
+    "functions/_auth.js",
+    "functions/api/accounts.js",
+    "functions/api/signup.js",
+    "functions/api/login.js",
+    "assets/js/admin.js",
+    "data/committee.json"
+   ]
+  }
+ ]
 }
