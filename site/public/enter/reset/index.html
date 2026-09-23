@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>비밀번호 재설정 | 서울대학교 경영대학 총동문회</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260924a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center;padding:20px}
+.gate{width:100%;max-width:480px;background:var(--paper);padding:clamp(28px,5vw,44px);border-top:3px solid var(--gold-400);box-shadow:var(--shadow-2);position:relative;overflow:hidden}
+.gate .seal{width:60px;height:60px;color:var(--navy-800);margin:0 auto 16px}
+.gate h1{font-size:21px;text-align:center;font-weight:600}
+.gate .sub{text-align:center;font-size:13.5px;color:var(--ink-3);margin:8px 0 22px}
+.field{margin-bottom:12px}.field input{padding:13px 14px;font-size:15.5px}
+.gate .btn{width:100%;justify-content:center;margin-top:6px;padding:15px}
+.err{color:var(--danger);font-size:13.5px;text-align:center;margin-top:12px;min-height:20px}
+.help{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:16px;line-height:1.7}
+.wm{position:absolute;right:-60px;bottom:-60px;width:220px;opacity:.06;color:var(--navy-800)}
+.field .chk{font-size:12.5px;margin-top:5px;min-height:16px}
+.field .chk.bad{color:var(--danger)}.field .chk.good{color:var(--success)}
+.field input.bad{border-color:var(--danger)}.field input.good{border-color:var(--success)}
+.dead{text-align:center;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="gate">
+  <div class="seal" data-seal></div>
+  <h1>비밀번호 재설정</h1>
+  <div class="sub" id="sub">확인 중…</div>
+  <form id="f" hidden>
+    <div class="field"><label for="pw">새 비밀번호 (8자 이상)</label><input id="pw" type="password" autocomplete="new-password" minlength="8" required autofocus></div>
+    <div class="field"><label for="pw2">새 비밀번호 확인</label><input id="pw2" type="password" autocomplete="new-password" minlength="8" required><div class="chk" id="pw-chk"></div></div>
+    <button class="btn gold" type="submit">비밀번호 변경하고 입장</button>
+    <div class="err" id="err"></div>
+  </form>
+  <div class="dead" id="dead" hidden><p id="dead-msg"></p><a class="btn" href="/enter/?tab=forgot">재설정 다시 요청</a></div>
+  <div class="wm" data-seal></div>
+</div>
+<script src="/assets/js/site.js?v=20260924a"></script>
+<script>
+(async () => {
+  const q = s => document.querySelector(s);
+  const token = new URLSearchParams(location.search).get('t') || '';
+  const r = await fetch('/api/reset?t=' + encodeURIComponent(token)); const j = await r.json().catch(() => ({}));
+  if (!r.ok) { q('#sub').textContent = ''; q('#dead').hidden = false; q('#dead-msg').textContent = j.error || '링크가 올바르지 않습니다'; return; }
+  q('#sub').innerHTML = '<b>' + j.name + '</b> 위원님 (' + j.email + ')<br>새 비밀번호를 정해 주세요.';
+  q('#f').hidden = false; q('#pw').focus();
+  const pwChk = () => { const a = q('#pw').value, b = q('#pw2').value, el = q('#pw-chk'), i2 = q('#pw2');
+    if (!b) { el.textContent = ''; el.className = 'chk'; i2.className = ''; return; }
+    if (a.length < 8) { el.textContent = '비밀번호는 8자 이상이어야 합니다'; el.className = 'chk bad'; i2.className = 'bad'; return; }
+    const same = a === b; el.textContent = same ? '비밀번호가 일치합니다' : '비밀번호가 서로 다릅니다'; el.className = 'chk ' + (same ? 'good' : 'bad'); i2.className = same ? 'good' : 'bad'; };
+  q('#pw').addEventListener('input', pwChk); q('#pw2').addEventListener('input', pwChk);
+  q('#f').addEventListener('submit', async e => { e.preventDefault(); const err = q('#err'); err.textContent = '';
+    if (q('#pw').value !== q('#pw2').value) { err.textContent = '비밀번호 확인이 일치하지 않습니다'; q('#pw2').select(); return; }
+    const res = await fetch('/api/reset', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ token, password: q('#pw').value }) });
+    const jj = await res.json().catch(() => ({}));
+    if (!res.ok) { err.textContent = jj.error || '변경할 수 없습니다'; return; } location.href = '/'; });
+})();
+</script>
+</body></html>

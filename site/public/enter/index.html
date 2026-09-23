@@ -5,7 +5,7 @@
 <title>입장 | 서울대학교 경영대학 총동문회</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260923b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260924a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center;padding:20px}
 .gate{width:100%;max-width:520px;background:var(--paper);padding:clamp(28px,5vw,44px);border-top:3px solid var(--gold-400);box-shadow:var(--shadow-2);position:relative;overflow:hidden}
@@ -44,7 +44,17 @@ body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center
     <div class="field"><label for="l-pw">비밀번호</label><input id="l-pw" type="password" autocomplete="current-password" required></div>
     <button class="btn gold" type="submit">로그인</button>
     <div class="err" id="l-err"></div>
-    <div class="help">비밀번호를 잊으셨으면 이태경 위원에게 임시 비밀번호를 요청해 주세요.<br>한 번 로그인하면 이 기기에서 90일간 유지됩니다.</div>
+    <div class="help"><a href="#" data-goto="forgot" style="color:var(--navy-800);border-bottom:1px solid var(--gold-400)">비밀번호를 잊으셨나요?</a><br>한 번 로그인하면 이 기기에서 90일간 유지됩니다.</div>
+  </form>
+
+  <form class="pane" id="forgot" autocomplete="on">
+    <label>비밀번호 재설정</label>
+    <div class="hint">가입하신 이메일 아이디로 재설정 링크를 보내드립니다 (1시간 유효).</div>
+    <div class="field"><label for="f-email">이메일 아이디</label><input id="f-email" type="email" autocomplete="username" placeholder="name@example.com" required></div>
+    <button class="btn gold" type="submit">재설정 링크 보내기</button>
+    <div class="err" id="f-err"></div>
+    <div class="help" id="f-ok" style="color:var(--success)"></div>
+    <div class="help"><a href="#" data-goto="login" style="color:var(--navy-800)">← 로그인으로</a> · 가입한 적이 없으면 <a href="#" data-goto="signup" style="color:var(--navy-800)">회원가입</a></div>
   </form>
 
   <form class="pane" id="signup" autocomplete="on">
@@ -60,13 +70,15 @@ body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center
   </form>
   <div class="wm" data-seal></div>
 </div>
-<script src="/assets/js/site.js?v=20260923b"></script>
+<script src="/assets/js/site.js?v=20260924a"></script>
 <script>
 (async () => {
   const q = s => document.querySelector(s);
   const next = (() => { const n = new URLSearchParams(location.search).get('next') || '/'; return n.startsWith('/') ? n : '/'; })();
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === b.dataset.tab)); }));
-  if (new URLSearchParams(location.search).get('tab') === 'signup') q('[data-tab="signup"]').click();
+  const goto = id => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x.dataset.tab === id)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === id)); };
+  document.querySelectorAll('[data-goto]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); goto(a.dataset.goto); (document.querySelector('#' + a.dataset.goto + ' input') || {}).focus?.(); }));
+  const tab0 = new URLSearchParams(location.search).get('tab'); if (tab0 === 'signup' || tab0 === 'forgot') goto(tab0);
   const roster = (await fetch('/data/committee.json').then(r => r.json())).members;
   let picked = ''; const box = q('#names');
   box.innerHTML = roster.map(n => `<button type="button" data-n="${n}">${n}</button>`).join('');
@@ -81,6 +93,9 @@ body{background:var(--navy-900);min-height:100vh;display:grid;place-items:center
   q('#login').addEventListener('submit', async e => { e.preventDefault(); const err = q('#l-err'); err.textContent = '';
     const { ok, j } = await post('/api/login', { email: q('#l-email').value.trim(), password: q('#l-pw').value });
     if (!ok) { err.textContent = j.error || '로그인할 수 없습니다'; q('#l-pw').select(); return; } location.href = next; });
+  q('#forgot').addEventListener('submit', async e => { e.preventDefault(); const err = q('#f-err'), ok = q('#f-ok'); err.textContent = ''; ok.textContent = ''; const btn = e.target.querySelector('button'); btn.disabled = true;
+    const { ok: good, j } = await post('/api/reset', { email: q('#f-email').value.trim() }); btn.disabled = false;
+    if (!good) { err.textContent = j.error || '요청할 수 없습니다'; return; } ok.textContent = j.message; });
   q('#signup').addEventListener('submit', async e => { e.preventDefault(); const err = q('#s-err'); err.textContent = '';
     if (!picked) { err.textContent = '본인 이름을 먼저 골라 주세요'; return; }
     if (q('#s-pw').value !== q('#s-pw2').value) { err.textContent = '비밀번호 확인이 일치하지 않습니다'; q('#s-pw2').select(); return; }

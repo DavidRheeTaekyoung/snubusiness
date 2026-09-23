@@ -56,5 +56,5 @@ export function clearCookie() { return `${COOKIE}=; Path=/; HttpOnly; Secure; Sa
 export const isEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 
 // 보호 예외 경로
-export const OPEN = ['/enter', '/api/login', '/api/signup', '/api/logout', '/api/health', '/assets/', '/data/committee.json', '/favicon', '/robots.txt', '/sitemap.xml'];
+export const OPEN = ['/enter', '/api/login', '/api/signup', '/api/logout', '/api/reset', '/api/health', '/assets/', '/data/committee.json', '/favicon', '/robots.txt', '/sitemap.xml'];
 export function isOpen(path) { return OPEN.some(p => path === p || path.startsWith(p) || path === p + '/'); }
