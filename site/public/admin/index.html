@@ -13,8 +13,12 @@
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><h1>대시보드</h1><div class="sub">마스터 개발계획을 늘 상기하며 — 오늘의 상태</div></div>
-      <div class="actions"><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
+      <div class="actions"><a class="btn sm gold" href="/admin/meeting/?m=committee">회의 자료</a><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
     <div class="admin-body">
+      <div class="meet-cards">
+        <a class="meet-card hot" href="/admin/meeting/?m=committee"><div class="tag">다음 회의 · 온라인</div><h3>준비위원회 회의</h3><div class="when">9월 29일(화) 22:00 · 위원 22인</div><div class="desc">회의 안건 6건 · 결정 사항 9건 · 위원 입력 12건 · 회칙 검토 · 일정 확인</div><span class="go">안건판 열기 →</span></a>
+        <a class="meet-card" href="/admin/meeting/"><div class="tag">지난 회의 · 결정 완료</div><h3>9/9 조찬 회의</h3><div class="when">9월 9일(화) 조찬 · 결정 11건 저장</div><div class="desc">1장 입력 12건 · 2장 의사결정 15건 — 결정 결과와 인쇄본</div><span class="go">회의 기록 보기 →</span></a>
+      </div>
       <div class="kpi">
         <div class="k"><div class="v" id="k-phase">—</div><div class="l">현재 단계</div></div>
         <div class="k gold"><div class="v" id="k-open">—</div><div class="l">열린 토론</div></div>
@@ -43,7 +47,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20260909b"></script><script src="/assets/js/admin.js?v=20260923a"></script>
+<script src="/assets/js/site.js?v=20260909b"></script><script src="/assets/js/admin.js?v=20260923b"></script>
 <script>
 (async () => {
   const esc = SNU.esc;

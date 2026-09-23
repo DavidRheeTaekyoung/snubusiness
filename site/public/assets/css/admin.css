@@ -23,6 +23,18 @@
 .panel h2{font-size:20px;margin-bottom:14px;display:flex;align-items:center;gap:12px}
 .panel h2 .badge{font-size:10px}
 .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.meet-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}
+.meet-card{display:block;position:relative;padding:22px 24px;background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--navy-700);box-shadow:var(--shadow-1);transition:transform .25s var(--ease),box-shadow .25s}
+.meet-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.meet-card.hot{background:var(--navy-800);color:var(--paper);border-color:var(--navy-800);border-top-color:var(--gold-400)}
+.meet-card .tag{font-family:var(--display);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-500);margin-bottom:8px}
+.meet-card.hot .tag{color:var(--gold-300)}
+.meet-card h3{font-family:var(--serif);font-size:21px;font-weight:600;margin:0 0 4px;color:inherit}
+.meet-card .when{font-size:14px;font-weight:500;margin-bottom:10px}
+.meet-card .desc{font-size:13.5px;line-height:1.7;opacity:.8}
+.meet-card .go{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--navy-800);border-bottom:1px solid var(--gold-400);padding-bottom:2px}
+.meet-card.hot .go{color:var(--gold-300)}
+@media (max-width:760px){.meet-cards{grid-template-columns:1fr}.meet-card{padding:18px}}
 .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 @media (max-width:900px){.kpi{grid-template-columns:repeat(2,1fr)}}
 .kpi .k{background:var(--paper);border:1px solid var(--line);padding:20px 22px}
