@@ -1,12 +1,75 @@
 {
-  "_meta": { "note": "실제 일정 기반 공지 (2026-09-09). 경조사·언론 항목은 실제 자료 수령 전까지 비움.", "updated": "2026-09-09" },
+  "_meta": {
+    "note": "실제 일정 기반 공지 (2026-09-09). 경조사·언론 항목은 실제 자료 수령 전까지 비움.",
+    "updated": "2026-09-09"
+  },
   "items": [
-    { "id": 1, "cat": "공지", "cat_en": "Notice", "type": "notice", "title": "서울대학교 경영대학 총동문회 정식 출범 — 2027년 4월 16일", "title_en": "Official launch of the SNU Business School Alumni Association — April 16, 2027", "date": "2026-09-09", "pinned": true, "body": "서울대학교 경영대학 총동문회는 2027년 4월 16일 창립총회와 함께 정식 출범합니다. 그때까지는 '총동문회 준비모임'으로 운영되며, 올해 11월 26일 송년회에서 준비모임 회원 여러분께 홈페이지와 계획을 공개합니다.", "body_en": "The SNU Business School Alumni Association will be formally launched at its founding assembly on April 16, 2027. Until then it operates as a preparatory group; this website and the plan will be presented to preparatory members at the year-end party on November 26." },
-    { "id": 2, "cat": "안내", "cat_en": "Info", "type": "notice", "title": "준비모임 골프 모임 — 10월 24일(토) 포천 힐마루", "title_en": "Preparatory golf outing — Saturday, October 24, Hillmaru GC, Pocheon", "date": "2026-09-09", "pinned": true, "body": "준비모임 회원 친선 라운드를 10월 24일 포천 힐마루 골프클럽에서 갖습니다. 참가 신청은 사무국(alumni@snubusiness.com)으로 보내 주세요.", "body_en": "A friendly round for preparatory members at Hillmaru Golf Club, Pocheon, on October 24. Register with the office (alumni@snubusiness.com)." },
-    { "id": 3, "cat": "안내", "cat_en": "Info", "type": "notice", "title": "준비위원회 모임 — 11월 10일", "title_en": "Preparatory committee meeting — November 10", "date": "2026-09-09", "body": "송년회 준비와 정식 출범 로드맵을 점검합니다. 장소는 추후 공지합니다.", "body_en": "Year-end party preparations and the launch roadmap. Venue to be announced." },
-    { "id": 4, "cat": "안내", "cat_en": "Info", "type": "notice", "title": "송년회 — 11월 26일, 준비모임 회원 공개", "title_en": "Year-end party — November 26, open to preparatory members", "date": "2026-09-09", "body": "준비모임 회원 200여 명이 모이는 송년회에서 총동문회의 비전과 홈페이지를 공개합니다. 장소는 추후 공지합니다.", "body_en": "About 200 preparatory members gather for the year-end party, where the association's vision and this website are presented. Venue to be announced." },
-    { "id": 5, "cat": "공지", "cat_en": "Notice", "type": "notice", "title": "홈페이지 개설 안내 — snubusiness.com", "title_en": "Website launched — snubusiness.com", "date": "2026-09-04", "body": "총동문회 공식 홈페이지를 열었습니다. 동문 찾기, 행사 신청, 회비 납부 기능은 정식 출범에 맞춰 순차적으로 열립니다.", "body_en": "The association's official website is open. The directory, event registration and dues payment will follow in stages toward the official launch." },
-    { "id": 6, "cat": "소식", "cat_en": "News", "type": "news", "title": "준비모임 조찬 회의 개최 — 홈페이지 방향과 주요 사항 결정", "title_en": "Preparatory breakfast meeting held — website direction and key decisions", "date": "2026-09-09", "body": "9월 9일 조찬 회의에서 홈페이지를 검토하고 회원 범위, 인증 방식, 공개 일정 등 주요 사항을 결정했습니다.", "body_en": "At the September 9 breakfast meeting the website was reviewed and key items were decided, including membership scope, verification and the launch schedule." },
-    { "id": 7, "cat": "소식", "cat_en": "News", "type": "news", "title": "총동문회 준비모임 출범", "title_en": "Preparatory group formed", "date": "2026-09-01", "body": "서울대학교 경영대학 총동문회 설립을 위한 준비모임이 구성되었습니다. 2027년 4월 정식 출범을 목표로 합니다.", "body_en": "A preparatory group has been formed to establish the SNU Business School Alumni Association, targeting an official launch in April 2027." }
+    {
+      "id": 1,
+      "cat": "공지",
+      "cat_en": "Notice",
+      "type": "notice",
+      "title": "서울대학교 경영대학 총동문회 정식 출범 — 2027년 4월 16일",
+      "title_en": "Official launch of the SNU Business School Alumni Association — April 16, 2027",
+      "date": "2026-09-09",
+      "pinned": true,
+      "body": "서울대학교 경영대학 총동문회는 2027년 4월 16일 창립총회와 함께 정식 출범합니다. 그때까지는 '총동문회 준비모임'으로 운영되며, 올해 11월 26일 송년회에서 준비모임 회원 여러분께 홈페이지와 계획을 공개합니다.",
+      "body_en": "The SNU Business School Alumni Association will be formally launched at its founding assembly on April 16, 2027. Until then it operates as a preparatory group; this website and the plan will be presented to preparatory members at the year-end party on November 26."
+    },
+    {
+      "id": 3,
+      "cat": "안내",
+      "cat_en": "Info",
+      "type": "notice",
+      "title": "준비위원회 모임 — 11월 10일",
+      "title_en": "Preparatory committee meeting — November 10",
+      "date": "2026-09-09",
+      "body": "송년회 준비와 정식 출범 로드맵을 점검합니다. 장소는 추후 공지합니다.",
+      "body_en": "Year-end party preparations and the launch roadmap. Venue to be announced."
+    },
+    {
+      "id": 4,
+      "cat": "안내",
+      "cat_en": "Info",
+      "type": "notice",
+      "title": "송년회 — 11월 26일, 준비모임 회원 공개",
+      "title_en": "Year-end party — November 26, open to preparatory members",
+      "date": "2026-09-09",
+      "body": "준비모임 회원 200여 명이 모이는 송년회에서 총동문회의 비전과 홈페이지를 공개합니다. 장소는 추후 공지합니다.",
+      "body_en": "About 200 preparatory members gather for the year-end party, where the association's vision and this website are presented. Venue to be announced."
+    },
+    {
+      "id": 5,
+      "cat": "공지",
+      "cat_en": "Notice",
+      "type": "notice",
+      "title": "홈페이지 개설 안내 — snubusiness.com",
+      "title_en": "Website launched — snubusiness.com",
+      "date": "2026-09-04",
+      "body": "총동문회 공식 홈페이지를 열었습니다. 동문 찾기, 행사 신청, 회비 납부 기능은 정식 출범에 맞춰 순차적으로 열립니다.",
+      "body_en": "The association's official website is open. The directory, event registration and dues payment will follow in stages toward the official launch."
+    },
+    {
+      "id": 6,
+      "cat": "소식",
+      "cat_en": "News",
+      "type": "news",
+      "title": "준비모임 조찬 회의 개최 — 홈페이지 방향과 주요 사항 결정",
+      "title_en": "Preparatory breakfast meeting held — website direction and key decisions",
+      "date": "2026-09-09",
+      "body": "9월 9일 조찬 회의에서 홈페이지를 검토하고 회원 범위, 인증 방식, 공개 일정 등 주요 사항을 결정했습니다.",
+      "body_en": "At the September 9 breakfast meeting the website was reviewed and key items were decided, including membership scope, verification and the launch schedule."
+    },
+    {
+      "id": 7,
+      "cat": "소식",
+      "cat_en": "News",
+      "type": "news",
+      "title": "총동문회 준비모임 출범",
+      "title_en": "Preparatory group formed",
+      "date": "2026-09-01",
+      "body": "서울대학교 경영대학 총동문회 설립을 위한 준비모임이 구성되었습니다. 2027년 4월 정식 출범을 목표로 합니다.",
+      "body_en": "A preparatory group has been formed to establish the SNU Business School Alumni Association, targeting an official launch in April 2027."
+    }
   ]
 }
