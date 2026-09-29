@@ -54,6 +54,7 @@
 .progress{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
 .progress b{color:var(--navy-800)}
 .fold .chapter{cursor:pointer}.fold-t{margin-left:auto;font-size:13px;color:var(--gold-500);white-space:nowrap}.fold.shut>:not(.chapter){display:none!important}@media print{.fold.shut>:not(.chapter){display:block!important}.fold-t{display:none}}
+.locked-bar{background:var(--navy-800);color:var(--paper);padding:16px 22px;margin-bottom:18px;border-top:3px solid var(--gold-400);font-size:14.5px;line-height:1.7}.locked-bar span{display:block;font-size:13px;opacity:.75}.admin-body textarea:disabled{background:#FBF9F4;color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink)}
 .disc-points{margin:4px 0 12px 18px;padding:0;font-size:14px;line-height:1.8;color:var(--ink-2)}
 .agenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:8px}
 .agenda .a{background:var(--paper);border:1px solid var(--line);padding:14px 16px}
@@ -165,7 +166,7 @@
   if (M.schedule) document.getElementById('schedule-box').innerHTML = '<div class="chapter"><span class="n">5</span><h2>일정 확인</h2></div><table class="sched"><thead><tr><th>날짜</th><th>행사</th><th>장소</th><th>홈페이지에서 할 일</th></tr></thead><tbody>' + M.schedule.map(s => `<tr><td>${esc(s.date)}</td><td><b>${esc(s.title)}</b></td><td>${esc(s.place)}</td><td class="muted">${esc(s.site)}</td></tr>`).join('') + '</tbody></table>';
   async function save(key, value, note) {
     const by = document.getElementById('by').value || '회의';
-    try { const r = await api('/meeting', { method: 'POST', body: { key, value, note, by } }); D[key] = r.decision; flash(key); progress(); summary(); }
+    try { const r = await api('/meeting', { method: 'POST', body: { key: PFX + key, value, note, by } }); D[PFX + key] = r.decision; flash(key); progress(); summary(); }
     catch (e) { toast('저장 실패: ' + e.message); }
   }
   function flash(key) { const el = document.querySelector(`[data-saved="${key}"]`); if (el) { el.textContent = ''; } okState(key); }
@@ -226,6 +227,19 @@
       + `<tr><td>자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
   }
   progress(); summary(); addConfirm();
+  // 회의 종료 후 잠금: 입력 막고 서기 기록임을 표시
+  const LOCK = M.prefix && D['lock:' + M.prefix];
+  if (LOCK) {
+    document.querySelectorAll('.admin-body input, .admin-body textarea, .admin-body select').forEach(el => { el.disabled = true; });
+    document.querySelectorAll('.ok-btn').forEach(b => b.remove());
+    document.querySelectorAll('.ok-st').forEach(sp => { sp.innerHTML = sp.innerHTML.replace('입력 후 확인을 눌러 주세요', '기록 없음'); });
+    let mn = null; try { mn = await SNU.json('/data/minutes-' + M.prefix + '.json'); } catch (e) {}
+    const who = mn ? mn.recorder_role + ' ' + mn.recorder : (LOCK.by || '');
+    const bar = document.createElement('div'); bar.className = 'locked-bar';
+    bar.innerHTML = '<b>회의록 확정</b> · ' + esc(mn ? mn.date : '') + ' · 기록: <b>' + esc(who) + '</b><span>회의 중 서기가 입력한 내용이 그대로 보존되어 있으며 더 이상 수정되지 않습니다.' + (mn && mn.venue_note ? ' ' + esc(mn.venue_note) + '.' : '') + '</span>';
+    document.querySelector('.admin-body').prepend(bar);
+    document.getElementById('m-title').textContent = M.title + ' · 회의록';
+  }
   const fold = document.getElementById('fold-in'); if (fold && fold.querySelector('.chapter')) { const ch = fold.querySelector('.chapter'); const t = document.createElement('span'); t.className = 'fold-t'; ch.appendChild(t); const sync = () => t.textContent = fold.classList.contains('shut') ? '펼치기 ▾ (' + M.inputs.length + '건)' : '접기 ▴'; sync(); ch.addEventListener('click', () => { fold.classList.toggle('shut'); sync(); }); }
   // 장 번호: 화면 순서대로 (진행 순서가 있으면 0부터)
   const chs = [...document.querySelectorAll('.admin-body .chapter')]; const start = document.querySelector('#agenda-box .chapter') ? 0 : 1;
