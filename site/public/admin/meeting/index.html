@@ -53,6 +53,7 @@
 .summary .none{color:rgba(247,244,238,.45)}
 .progress{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
 .progress b{color:var(--navy-800)}
+.fold .chapter{cursor:pointer}.fold-t{margin-left:auto;font-size:13px;color:var(--gold-500);white-space:nowrap}.fold.shut>:not(.chapter){display:none!important}@media print{.fold.shut>:not(.chapter){display:block!important}.fold-t{display:none}}
 .disc-points{margin:4px 0 12px 18px;padding:0;font-size:14px;line-height:1.8;color:var(--ink-2)}
 .agenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:8px}
 .agenda .a{background:var(--paper);border:1px solid var(--line);padding:14px 16px}
@@ -109,9 +110,9 @@
       <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목의 리서치 요약을 보시고 하나를 고르세요. <span class="rec" style="font-size:10.5px;letter-spacing:.1em;color:var(--gold-500);border:1px solid var(--gold-400);padding:1px 7px;border-radius:999px;font-family:var(--display);font-weight:700">권장</span> 표시는 에이전트의 추천입니다. 다른 의견은 메모에 적어 주세요.</p>
       <div id="decisions"></div>
       <div id="discuss-box"></div>
-      <div class="chapter" id="ch-in"><span class="n">3</span><h2>사람이 해주셔야 하는 것</h2><span class="d">에이전트가 만들 수 없는, 동문회만 줄 수 있는 자료</span></div>
+      <div class="fold shut" id="fold-in"><div class="chapter" id="ch-in"><span class="n">3</span><h2>사람이 해주셔야 하는 것</h2><span class="d">에이전트가 만들 수 없는, 동문회만 줄 수 있는 자료</span></div>
       <p class="muted" style="font-size:14px;margin:-6px 0 18px">각 항목 오른쪽에서 담당자와 상태를 정해 주시면 됩니다. 자료는 카톡·이메일·엑셀 무엇이든 괜찮고, 형식은 에이전트가 맞춥니다.</p>
-      <div id="inputs"></div>
+      <div id="inputs"></div></div>
 
       <div id="bylaws-box"></div>
       <div id="schedule-box"></div>
@@ -225,6 +226,7 @@
       + `<tr><td>자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
   }
   progress(); summary(); addConfirm();
+  const fold = document.getElementById('fold-in'); if (fold && fold.querySelector('.chapter')) { const ch = fold.querySelector('.chapter'); const t = document.createElement('span'); t.className = 'fold-t'; ch.appendChild(t); const sync = () => t.textContent = fold.classList.contains('shut') ? '펼치기 ▾ (' + M.inputs.length + '건)' : '접기 ▴'; sync(); ch.addEventListener('click', () => { fold.classList.toggle('shut'); sync(); }); }
   // 장 번호: 화면 순서대로 (진행 순서가 있으면 0부터)
   const chs = [...document.querySelectorAll('.admin-body .chapter')]; const start = document.querySelector('#agenda-box .chapter') ? 0 : 1;
   chs.forEach((c, i) => { const n = c.querySelector('.n'); if (n) n.textContent = start + i; });
