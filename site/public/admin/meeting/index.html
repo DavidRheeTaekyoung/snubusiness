@@ -5,7 +5,7 @@
 <title>8. 회의자료 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260929a"><link rel="stylesheet" href="/assets/css/admin.css?v=20260929a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260929b"><link rel="stylesheet" href="/assets/css/admin.css?v=20260929b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .chapter{margin:40px 0 18px;display:flex;align-items:baseline;gap:16px}
 .chapter .n{font-family:var(--display);font-size:44px;color:var(--gold-400);line-height:1}
@@ -38,6 +38,13 @@
 .dec .memo{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
 .dec .memo textarea{flex:1;font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line-2);min-height:44px;resize:vertical;border-radius:2px}
 .saved{font-size:12px;color:var(--success);min-width:70px;text-align:right}
+.ok-row{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.ok-btn{font:inherit;font-size:13px;font-weight:600;padding:7px 18px;background:var(--navy-800);color:var(--paper);border:0;border-radius:2px;cursor:pointer;letter-spacing:.04em}
+.ok-btn:hover{background:var(--navy-700)}
+.ok-btn.done{background:var(--paper);color:var(--navy-800);border:1px solid var(--navy-800)}
+.ok-st{font-size:12.5px;color:var(--ink-3)}.ok-st b{color:var(--success);font-weight:600}
+.dec.confirmed,.item.confirmed,.rep.confirmed{box-shadow:inset 3px 0 0 var(--success)}
+.dec .memo{flex-wrap:wrap}.dec .memo .ok-row{flex-basis:100%;margin-top:0}
 .summary{background:var(--navy-800);color:var(--paper);padding:28px 32px;margin-top:32px}
 .summary h2{color:var(--paper);font-size:20px;margin-bottom:14px}
 .summary table{width:100%;border-collapse:collapse;font-size:14px}
@@ -66,7 +73,7 @@
 .share{background:var(--gold-100);border:1px solid var(--gold-300);padding:12px 18px;font-size:13.5px;color:var(--ink-2);margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .share code{font-family:var(--mono);background:var(--paper);padding:2px 8px;border:1px solid var(--line)}
 @media print{
-  .admin-side,.admin-top .actions,.opt input,.dec .memo,.item .side select{display:none!important}
+  .admin-side,.admin-top .actions,.opt input,.dec .memo,.item .side select,.ok-btn{display:none!important}
   .admin-shell{display:block}.admin-body{padding:0;max-width:none}
   @page{size:A4;margin:14mm 12mm}
   html,body{width:auto!important;min-width:0!important;overflow:visible!important}
@@ -113,7 +120,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20260929a"></script><script src="/assets/js/admin.js?v=20260929a"></script>
+<script src="/assets/js/site.js?v=20260929b"></script><script src="/assets/js/admin.js?v=20260929b"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB;
@@ -160,7 +167,27 @@
     try { const r = await api('/meeting', { method: 'POST', body: { key, value, note, by } }); D[key] = r.decision; flash(key); progress(); summary(); }
     catch (e) { toast('저장 실패: ' + e.message); }
   }
-  function flash(key) { const el = document.querySelector(`[data-saved="${key}"]`); if (el) { el.textContent = '저장됨 ✓'; setTimeout(() => el.textContent = '', 1800); } }
+  function flash(key) { const el = document.querySelector(`[data-saved="${key}"]`); if (el) { el.textContent = ''; } okState(key); }
+  const hm = iso => { const d = new Date(iso); return isNaN(d) ? '' : (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  function okState(key) {
+    const sp = document.querySelector(`[data-saved="${key}"]`); if (!sp) return;
+    const row = sp.parentElement.querySelector('.ok-row'); if (!row) return;
+    const d = D[PFX + key]; const btn = row.querySelector('.ok-btn'), st = row.querySelector('.ok-st');
+    const box = sp.closest('.dec, .item, .rep');
+    if (d && (d.value || d.note)) { btn.textContent = '다시 확인'; btn.classList.add('done'); st.innerHTML = '<b>✓ 확인됨</b> · ' + esc(d.by || '') + ' · ' + hm(d.updated_at); box && box.classList.add('confirmed'); }
+    else { btn.textContent = '확인'; btn.classList.remove('done'); st.textContent = '입력 후 확인을 눌러 주세요'; box && box.classList.remove('confirmed'); }
+  }
+  function addConfirm() {
+    document.querySelectorAll('[data-saved]').forEach(sp => {
+      const wrap = sp.parentElement; if (wrap.querySelector('.ok-row')) return;
+      const ta = wrap.querySelector('textarea'); if (!ta) return;
+      const row = document.createElement('div'); row.className = 'ok-row';
+      row.innerHTML = '<button type="button" class="ok-btn">확인</button><span class="ok-st"></span>';
+      wrap.appendChild(row);
+      row.querySelector('.ok-btn').addEventListener('click', () => { ta.dispatchEvent(new Event('change', { bubbles: true })); });
+      okState(sp.dataset.saved);
+    });
+  }
 
   // Chapter 1
   document.getElementById('inputs').innerHTML = M.inputs.map(i => { const d = get('input:' + i.key); return `
@@ -197,7 +224,7 @@
       + (M.discuss ? M.discuss.map(x => { const d = get('disc:' + x.key); return `<tr><td>논의 · ${esc(x.title)}</td><td>${d.note ? esc(d.note) : '<span class="none">기록 없음</span>'}</td></tr>`; }).join('') : '')
       + `<tr><td>자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
   }
-  progress(); summary();
+  progress(); summary(); addConfirm();
   // 장 번호: 화면 순서대로 (진행 순서가 있으면 0부터)
   const chs = [...document.querySelectorAll('.admin-body .chapter')]; const start = document.querySelector('#agenda-box .chapter') ? 0 : 1;
   chs.forEach((c, i) => { const n = c.querySelector('.n'); if (n) n.textContent = start + i; });
