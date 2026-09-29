@@ -54,7 +54,7 @@
 .progress{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--ink-3)}
 .progress b{color:var(--navy-800)}
 .fold .chapter{cursor:pointer}.fold-t{margin-left:auto;font-size:13px;color:var(--gold-500);white-space:nowrap}.fold.shut>:not(.chapter){display:none!important}@media print{.fold.shut>:not(.chapter){display:block!important}.fold-t{display:none}}
-.locked-bar{background:var(--navy-800);color:var(--paper);padding:16px 22px;margin-bottom:18px;border-top:3px solid var(--gold-400);font-size:14.5px;line-height:1.7}.locked-bar span{display:block;font-size:13px;opacity:.75}.admin-body textarea:disabled{background:#FBF9F4;color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink)}
+.locked-bar{background:var(--navy-800);color:var(--paper);padding:16px 22px;margin-bottom:18px;border-top:3px solid var(--gold-400);font-size:14.5px;line-height:1.7}.locked-bar span{display:block;font-size:13px;opacity:.75}.admin-body textarea{overflow:hidden}.admin-body textarea:disabled{background:#FBF9F4;color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink)}
 .disc-points{margin:4px 0 12px 18px;padding:0;font-size:14px;line-height:1.8;color:var(--ink-2)}
 .agenda{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:8px}
 .agenda .a{background:var(--paper);border:1px solid var(--line);padding:14px 16px}
@@ -227,6 +227,11 @@
       + `<tr><td>자료 확보</td><td>${M.inputs.filter(i => ['자료 받음', '반영 완료'].includes(get('input:' + i.key).value)).map(i => esc(i.title)).join(', ') || '<span class="none">아직 없음</span>'}</td></tr>`;
   }
   progress(); summary(); addConfirm();
+  // 메모 칸 높이를 내용에 맞춤
+  const fit = ta => { if (!ta.offsetParent) return; ta.style.height = 'auto'; ta.style.height = (ta.scrollHeight + 2) + 'px'; };
+  const fitAll = () => document.querySelectorAll('.admin-body textarea').forEach(fit);
+  document.addEventListener('input', e => { if (e.target.tagName === 'TEXTAREA') fit(e.target); });
+  window.addEventListener('resize', fitAll); window.addEventListener('beforeprint', fitAll);
   // 회의 종료 후 잠금: 입력 막고 서기 기록임을 표시
   const LOCK = M.prefix && D['lock:' + M.prefix];
   if (LOCK) {
@@ -240,7 +245,8 @@
     document.querySelector('.admin-body').prepend(bar);
     document.getElementById('m-title').textContent = M.title + ' · 회의록';
   }
-  const fold = document.getElementById('fold-in'); if (fold && fold.querySelector('.chapter')) { const ch = fold.querySelector('.chapter'); const t = document.createElement('span'); t.className = 'fold-t'; ch.appendChild(t); const sync = () => t.textContent = fold.classList.contains('shut') ? '펼치기 ▾ (' + M.inputs.length + '건)' : '접기 ▴'; sync(); ch.addEventListener('click', () => { fold.classList.toggle('shut'); sync(); }); }
+  fitAll(); setTimeout(fitAll, 600);
+  const fold = document.getElementById('fold-in'); if (fold && fold.querySelector('.chapter')) { const ch = fold.querySelector('.chapter'); const t = document.createElement('span'); t.className = 'fold-t'; ch.appendChild(t); const sync = () => t.textContent = fold.classList.contains('shut') ? '펼치기 ▾ (' + M.inputs.length + '건)' : '접기 ▴'; sync(); ch.addEventListener('click', () => { fold.classList.toggle('shut'); sync(); fitAll(); }); }
   // 장 번호: 화면 순서대로 (진행 순서가 있으면 0부터)
   const chs = [...document.querySelectorAll('.admin-body .chapter')]; const start = document.querySelector('#agenda-box .chapter') ? 0 : 1;
   chs.forEach((c, i) => { const n = c.querySelector('.n'); if (n) n.textContent = start + i; });
