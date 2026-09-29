@@ -5,7 +5,7 @@
 <title>8. 회의자료 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20260928a"><link rel="stylesheet" href="/assets/css/admin.css?v=20260928a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20260929a"><link rel="stylesheet" href="/assets/css/admin.css?v=20260929a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .chapter{margin:40px 0 18px;display:flex;align-items:baseline;gap:16px}
 .chapter .n{font-family:var(--display);font-size:44px;color:var(--gold-400);line-height:1}
@@ -102,7 +102,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20260928a"></script><script src="/assets/js/admin.js?v=20260928a"></script>
+<script src="/assets/js/site.js?v=20260929a"></script><script src="/assets/js/admin.js?v=20260929a"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB;
@@ -126,7 +126,7 @@
   const STATUS = ['미정', '담당자 지정', '자료 요청함', '자료 받음', '반영 완료'];
   if (M.report && M.report.from === 'meeting') {
     const M0 = await SNU.json('/data/meeting.json');
-    const rows = M0.decisions.map(q => { const d = D['dec:' + q.key] || {}; const o = q.options.find(x => x.id === d.value); const rv = get('rep:' + q.key); return `<div class="rep"><div><div class="q">${esc(q.title)}</div><div class="a">${o ? esc(o.label) : '<span class="muted">보류 · ' + esc(d.note || '미결정') + '</span>'}</div>${o && d.note ? `<div class="memo">메모: ${esc(d.note)}</div>` : ''}</div><div><textarea data-rep="${q.key}" placeholder="이의 · 보완 의견">${esc(rv.note || '')}</textarea><span class="saved" data-saved="rep:${q.key}"></span></div></div>`; }).join('');
+    const rows = M0.decisions.filter(q => !(M.report.exclude || []).includes(q.key)).map(q => { const d = D['dec:' + q.key] || {}; const o = q.options.find(x => x.id === d.value); const rv = get('rep:' + q.key); return `<div class="rep"><div><div class="q">${esc(q.title)}</div><div class="a">${o ? esc(o.label) : '<span class="muted">보류 · ' + esc(d.note || '미결정') + '</span>'}</div>${o && d.note ? `<div class="memo">메모: ${esc(d.note)}</div>` : ''}</div><div><textarea data-rep="${q.key}" placeholder="이의 · 보완 의견">${esc(rv.note || '')}</textarea><span class="saved" data-saved="rep:${q.key}"></span></div></div>`; }).join('');
     document.getElementById('report-box').innerHTML = `<div class="chapter"><span class="n">1</span><h2>${esc(M.report.title)}</h2><span class="d">확인만 하면 됩니다</span></div><p class="muted" style="font-size:14px;margin:-6px 0 14px">${esc(M.report.note)}</p>${rows}`;
     document.getElementById('report-box').addEventListener('change', e => { const k = e.target.dataset.rep; if (k) save('rep:' + k, 'reviewed', e.target.value); });
   }
@@ -138,7 +138,7 @@
     document.getElementById('bylaws-box').addEventListener('change', e => { const q = e.target.closest('.dec'); if (!q) return; const key = q.id.replace('by-', ''); q.querySelectorAll('.opt').forEach(o => o.classList.toggle('on', o.querySelector('input').checked)); save('by:' + key, q.querySelector('input:checked')?.value || '', q.querySelector('[data-by-note]').value); });
   }
   if (M.discuss) {
-    document.getElementById('discuss-box').innerHTML = '<div class="chapter"><span class="n"></span><h2>행사 준비 논의</h2><span class="d">의결이 아니라 논의 — 결과와 담당자를 메모해 주세요</span></div>' + M.discuss.map(x => { const d = get('disc:' + x.key); return `<div class="dec" id="disc-${x.key}"><h3>${esc(x.title)}</h3><div class="ctx">${esc(x.context)}</div>
+    document.getElementById('discuss-box').innerHTML = '<div class="chapter"><span class="n"></span><h2>${esc(M.discussTitle || '행사 준비 논의')}</h2><span class="d">의결이 아니라 논의 — 결과와 담당자를 메모해 주세요</span></div>' + M.discuss.map(x => { const d = get('disc:' + x.key); return `<div class="dec" id="disc-${x.key}"><h3>${esc(x.title)}</h3><div class="ctx">${esc(x.context)}</div>
       <ul class="disc-points">${x.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
       <div class="memo"><textarea data-disc="${x.key}" placeholder="논의 결과 · 담당자 · 기한">${esc(d.note || '')}</textarea><span class="saved" data-saved="disc:${x.key}"></span></div></div>`; }).join('');
     document.getElementById('discuss-box').addEventListener('change', e => { const k = e.target.dataset.disc; if (k) save('disc:' + k, e.target.value.trim() ? 'noted' : '', e.target.value); });
