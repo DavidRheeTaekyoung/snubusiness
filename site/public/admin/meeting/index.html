@@ -68,7 +68,18 @@
 @media print{
   .admin-side,.admin-top .actions,.opt input,.dec .memo,.item .side select{display:none!important}
   .admin-shell{display:block}.admin-body{padding:0;max-width:none}
-  .opt{border:0;padding:4px 0;margin:0}.opt.on .l::before{content:"☑ "}.opt:not(.on) .l::before{content:"☐ ";color:#999}
+  @page{size:A4;margin:14mm 12mm}
+  html,body{width:auto!important;min-width:0!important;overflow:visible!important}
+  .admin-main,.admin-body,.admin-top{width:auto!important;max-width:none!important;margin:0!important}
+  .admin-top{padding:0 0 12px!important;display:block!important;position:static!important}
+  .opt{display:block!important;border:0;padding:4px 0;margin:0;box-shadow:none!important;background:none!important}.opt .l{font-size:13.5px}.opt .n{font-size:12px}
+  .item,.rep{display:block!important}.item .side,.rep>div+div{border:0!important;padding:8px 0 0!important}
+  .item .side textarea,.rep textarea{min-height:0;height:auto;border:1px solid #ccc;width:100%}
+  .item .meta{grid-template-columns:48px 1fr}
+  .agenda{grid-template-columns:repeat(4,1fr)!important}
+  .share,#share-box{display:none!important}
+  h3,.chapter{break-after:avoid}
+  .opt.on .l::before{content:"☑ "}.opt:not(.on) .l::before{content:"☐ ";color:#999}
   .dec,.item{break-inside:avoid;border:0;border-bottom:1px solid #ddd;padding:12px 0}
   .summary{background:#fff;color:#000;border:1px solid #000}.summary h2,.summary td:first-child{color:#000}
   body{background:#fff}
