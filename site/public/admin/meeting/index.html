@@ -138,7 +138,7 @@
     document.getElementById('bylaws-box').addEventListener('change', e => { const q = e.target.closest('.dec'); if (!q) return; const key = q.id.replace('by-', ''); q.querySelectorAll('.opt').forEach(o => o.classList.toggle('on', o.querySelector('input').checked)); save('by:' + key, q.querySelector('input:checked')?.value || '', q.querySelector('[data-by-note]').value); });
   }
   if (M.discuss) {
-    document.getElementById('discuss-box').innerHTML = '<div class="chapter"><span class="n"></span><h2>${esc(M.discussTitle || '행사 준비 논의')}</h2><span class="d">의결이 아니라 논의 — 결과와 담당자를 메모해 주세요</span></div>' + M.discuss.map(x => { const d = get('disc:' + x.key); return `<div class="dec" id="disc-${x.key}"><h3>${esc(x.title)}</h3><div class="ctx">${esc(x.context)}</div>
+    document.getElementById('discuss-box').innerHTML = '<div class="chapter"><span class="n"></span><h2>' + esc(M.discussTitle || '행사 준비 논의') + '</h2><span class="d">의결이 아니라 논의 — 결과와 담당자를 메모해 주세요</span></div>' + M.discuss.map(x => { const d = get('disc:' + x.key); return `<div class="dec" id="disc-${x.key}"><h3>${esc(x.title)}</h3><div class="ctx">${esc(x.context)}</div>
       <ul class="disc-points">${x.points.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
       <div class="memo"><textarea data-disc="${x.key}" placeholder="논의 결과 · 담당자 · 기한">${esc(d.note || '')}</textarea><span class="saved" data-saved="disc:${x.key}"></span></div></div>`; }).join('');
     document.getElementById('discuss-box').addEventListener('change', e => { const k = e.target.dataset.disc; if (k) save('disc:' + k, e.target.value.trim() ? 'noted' : '', e.target.value); });
