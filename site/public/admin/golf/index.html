@@ -143,6 +143,7 @@
               <button class="btn" id="auto">조편성</button>
               <span class="muted" id="try" style="font-size:13px"></span>
               <button class="btn sm gold" id="save-teams">저장</button>
+              <button class="btn sm ghost" id="kakao">카톡용 복사</button>
               <button class="btn sm ghost" id="clear">미잠금 조 비우기</button>
             </div>
           </div>
@@ -285,6 +286,12 @@
   q('#teams').addEventListener('dragover', e => { const t = e.target.closest('.team'); if (!t) return; e.preventDefault(); document.querySelectorAll('.team.over').forEach(x => x.classList.remove('over')); t.classList.add('over'); });
   q('#teams').addEventListener('dragleave', e => { const t = e.target.closest('.team'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('over'); });
   q('#teams').addEventListener('drop', e => { const t = e.target.closest('.team'); if (!t) return; e.preventDefault(); t.classList.remove('over'); const pid = Number(e.dataTransfer.getData('text/plain')); if (pid) move(pid, Number(t.dataset.t)); });
+  const copyText = async (t, msg) => { try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(msg); };
+  q('#kakao').addEventListener('click', () => { const e = S.event; const d = new Date(e.date); const dow = ['일','월','화','수','목','금','토'][d.getDay()] || '';
+    const lines = ["[" + (e.title || '골프') + ' 조편성]', "" + (e.date || '').replace(/-/g, '.') + (dow ? '(' + dow + ') ' : ' ') + (e.place || ''), ''];
+    S.teams.forEach(t => { const ps = inTeam(t.id); if (!ps.length) return; lines.push(t.seq + '조 ' + t.course + ' ' + t.tee); lines.push('  ' + ps.map(p => p.name + (p.cohort ? '(' + p.cohort + ')' : '')).join(' · ')); });
+    const pool = inTeam(null); if (pool.length) lines.push('', '미배정: ' + pool.map(p => p.name).join(', '));
+    lines.push('', '* 티오프 30분 전까지 도착 부탁드립니다.'); copyText(lines.join('\n'), '카톡용으로 복사했습니다 — 단톡방에 붙여 넣으세요'); });
   q('#clear').addEventListener('click', () => { const locked = new Set(S.teams.filter(t => t.locked).map(t => t.id)); S.players.forEach(p => { if (!locked.has(assign[p.id])) assign[p.id] = null; }); dirty = true; renderTeams(); });
   q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장 — 이후에도 자유롭게 수정할 수 있습니다'); tries = 0; await load(); location.hash = 'info'; q('#try').textContent = ''; } catch (e) { toast('실패: ' + e.message); } });
 
