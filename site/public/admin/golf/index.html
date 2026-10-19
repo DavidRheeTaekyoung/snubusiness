@@ -5,7 +5,7 @@
 <title>골프 운영 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261019e"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019e"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019f"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019f"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14.5px;padding:11px 16px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -126,9 +126,9 @@
             <div class="field"><label>장소</label><input id="e-place"></div>
             <input id="e-fee" type="hidden">
           </div>
-          <div class="field" style="margin-top:12px"><label>예약 · 안내 내용</label><textarea id="e-info" style="min-height:200px;font-size:14px"></textarea></div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn sm" id="e-save">저장</button><span class="muted" style="font-size:13px">아래는 저장된 안내문입니다.</span></div>
-          <div class="g-info" id="e-view" style="margin-top:14px"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px"><b style="font-size:14px">예약 · 안내 내용</b><button class="btn sm gold" id="e-copy">복사</button><button class="btn sm ghost" id="e-edit">수정</button><span class="muted" style="font-size:13px">복사해서 개인에게 보내면 됩니다</span></div>
+          <div class="g-info" id="e-view" style="margin-top:10px"></div>
+          <div id="e-editbox" hidden><div class="field" style="margin-top:12px"><textarea id="e-info" style="min-height:200px;font-size:14px"></textarea></div><div style="display:flex;gap:10px"><button class="btn sm" id="e-save">저장</button><button class="btn sm ghost" id="e-cancel">취소</button></div></div>
         </div>
         <div class="panel"><h2>조 · 티타임 (14팀)</h2><div class="hint">예약된 코스와 시간입니다. 조편성 탭에서 각 조에 참가자를 넣습니다. 코스·시간이 바뀌면 여기서 고치세요.</div>
           <table class="table" id="tee-table"><thead><tr><th style="width:60px">조</th><th>코스</th><th>티오프</th><th>메모</th><th style="width:70px">잠금</th></tr></thead><tbody></tbody></table></div>
@@ -206,7 +206,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261019e"></script><script src="/assets/js/admin.js?v=20261019e"></script>
+<script src="/assets/js/site.js?v=20261019f"></script><script src="/assets/js/admin.js?v=20261019f"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
@@ -235,7 +235,10 @@
     q('#e-view').innerHTML = esc(e.info || '').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
     q('#tee-table tbody').innerHTML = S.teams.map(t => `<tr><td><b>${t.seq}조</b></td><td><input data-team="${t.id}" data-f="course" value="${esc(t.course)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:120px"></td><td><input data-team="${t.id}" data-f="tee" value="${esc(t.tee)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:80px"></td><td><input data-team="${t.id}" data-f="note" value="${esc(t.note)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:100%"></td><td><input type="checkbox" data-team="${t.id}" data-f="locked" ${t.locked ? 'checked' : ''}></td></tr>`).join('');
   }
-  q('#e-save').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'event', title: q('#e-title').value, date: q('#e-date').value, place: q('#e-place').value, fee: q('#e-fee').value, info: q('#e-info').value, awards: S.event.awards ? JSON.parse(S.event.awards) : {} } }); toast('저장되었습니다'); await load(); } catch (e) { toast('실패: ' + e.message); } });
+  q('#e-edit').addEventListener('click', () => { q('#e-editbox').hidden = false; q('#e-info').focus(); });
+  q('#e-cancel').addEventListener('click', () => { q('#e-editbox').hidden = true; q('#e-info').value = S.event.info || ''; });
+  q('#e-copy').addEventListener('click', async () => { const t = S.event.info || ''; try { await navigator.clipboard.writeText(t); toast('안내문을 복사했습니다'); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('안내문을 복사했습니다'); } });
+  q('#e-save').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'event', title: q('#e-title').value, date: q('#e-date').value, place: q('#e-place').value, fee: q('#e-fee').value, info: q('#e-info').value, awards: S.event.awards ? JSON.parse(S.event.awards) : {} } }); toast('저장되었습니다'); await load(); q('#e-editbox').hidden = true; } catch (e) { toast('실패: ' + e.message); } });
   q('#tee-table').addEventListener('change', async e => { const id = e.target.dataset.team; if (!id) return; const t = S.teams.find(x => x.id === Number(id)); const f = e.target.dataset.f; t[f] = f === 'locked' ? (e.target.checked ? 1 : 0) : e.target.value; try { await api('/golf', { method: 'POST', body: { r: 'team', ...t } }); renderTeams(); } catch (err) { toast('실패: ' + err.message); } });
 
   // ── 참가자
