@@ -9,6 +9,9 @@ async function ensure(db) {
     amount INTEGER NOT NULL, method TEXT NOT NULL DEFAULT '', counterparty TEXT NOT NULL DEFAULT '', memo TEXT NOT NULL DEFAULT '',
     created_by TEXT, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')), updated_at TEXT)`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS idx_ledger_date ON ledger(date)').run();
+  // 행사 구분 · 예정(계획) 여부 — 2026-10-19 추가
+  try { await db.prepare("ALTER TABLE ledger ADD COLUMN event TEXT NOT NULL DEFAULT ''").run(); } catch (e) {}
+  try { await db.prepare('ALTER TABLE ledger ADD COLUMN planned INTEGER NOT NULL DEFAULT 0').run(); } catch (e) {}
 }
 async function guard(request, env, db) {
   const s = await liveSession(request, env, db);
@@ -19,7 +22,7 @@ async function guard(request, env, db) {
 function row(b, who) {
   const type = b.type === 'income' ? 'income' : 'expense';
   const amount = Math.round(Number(String(b.amount ?? '').replace(/[^0-9.-]/g, '')));
-  return { date: clean(b.date, 10), type, category: clean(b.category, 40), item: clean(b.item, 120), amount, method: clean(b.method, 30), counterparty: clean(b.counterparty, 60), memo: clean(b.memo, 500), who };
+  return { date: clean(b.date, 10), type, category: clean(b.category, 40), item: clean(b.item, 120), amount, method: clean(b.method, 30), counterparty: clean(b.counterparty, 60), memo: clean(b.memo, 500), event: clean(b.event, 60), planned: (b.planned === true || b.planned === 1 || b.planned === '1' || /예정|계획|예산/.test(String(b.planned || ''))) ? 1 : 0, who };
 }
 const csvEsc = v => { v = String(v ?? ''); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
 
@@ -32,8 +35,8 @@ export async function onRequestGet({ request, env }) {
   q += ' ORDER BY date ASC, id ASC';
   const { results } = await db.prepare(q).bind(...args).all();
   if (u.searchParams.get('export') === 'csv') {
-    const head = ['날짜', '구분', '항목', '내용', '금액', '결제수단', '거래처', '비고', '입력자'];
-    const lines = [head.join(',')].concat(results.map(r => [r.date, r.type === 'income' ? '수입' : '지출', r.category, r.item, r.amount, r.method, r.counterparty, r.memo, r.created_by].map(csvEsc).join(',')));
+    const head = ['날짜', '구분', '항목', '내용', '금액', '결제수단', '거래처', '비고', '행사', '예정', '입력자'];
+    const lines = [head.join(',')].concat(results.map(r => [r.date, r.type === 'income' ? '수입' : '지출', r.category, r.item, r.amount, r.method, r.counterparty, r.memo, r.event, r.planned ? '예정' : '', r.created_by].map(csvEsc).join(',')));
     return new Response('﻿' + lines.join('\r\n'), { headers: { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="ledger-${year || 'all'}.csv"` } });
   }
   return json({ entries: results, me: s.name });
@@ -49,7 +52,7 @@ export async function onRequestPost({ request, env }) {
   for (const rb of rows) {
     const r = row(rb, s.name);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(r.date) || !r.item || !Number.isFinite(r.amount) || r.amount === 0) continue;
-    stmts.push(db.prepare('INSERT INTO ledger (date, type, category, item, amount, method, counterparty, memo, created_by) VALUES (?,?,?,?,?,?,?,?,?)').bind(r.date, r.type, r.category, r.item, Math.abs(r.amount), r.method, r.counterparty, r.memo, r.who));
+    stmts.push(db.prepare('INSERT INTO ledger (date, type, category, item, amount, method, counterparty, memo, event, planned, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?)').bind(r.date, r.type, r.category, r.item, Math.abs(r.amount), r.method, r.counterparty, r.memo, r.event, r.planned, r.who));
   }
   if (!stmts.length) return err('저장할 수 있는 항목이 없습니다 (날짜 YYYY-MM-DD, 내용, 금액 필요)');
   await db.batch(stmts);
@@ -63,7 +66,7 @@ export async function onRequestPut({ request, env }) {
   const id = Number(b.id); if (!id) return err('id required');
   const r = row(b, s.name);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(r.date) || !r.item || !r.amount) return err('날짜, 내용, 금액을 확인해 주세요');
-  await db.prepare("UPDATE ledger SET date=?, type=?, category=?, item=?, amount=?, method=?, counterparty=?, memo=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(r.date, r.type, r.category, r.item, Math.abs(r.amount), r.method, r.counterparty, r.memo, id).run();
+  await db.prepare("UPDATE ledger SET date=?, type=?, category=?, item=?, amount=?, method=?, counterparty=?, memo=?, event=?, planned=?, updated_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=?").bind(r.date, r.type, r.category, r.item, Math.abs(r.amount), r.method, r.counterparty, r.memo, r.event, r.planned, id).run();
   return json({ ok: true });
 }
 
