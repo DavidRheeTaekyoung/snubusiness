@@ -5,7 +5,7 @@
 <title>골프 운영 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261019g"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019g"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019h"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019h"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14.5px;padding:11px 16px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -44,6 +44,7 @@
 .team .h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px}
 .team .h b{font-family:var(--serif);font-size:16px;color:var(--navy-800)}
 .team .h small{color:var(--ink-3);font-size:12px}
+.team .h .tt{cursor:pointer}.team .h .tt:hover small{color:var(--navy-800);text-decoration:underline dotted}
 .team .lock{font:inherit;font-size:11px;padding:2px 8px;border:1px solid var(--line-2);border-radius:999px;background:var(--paper);cursor:pointer;color:var(--ink-3)}
 .team.locked .lock{background:var(--gold-500);color:#fff;border-color:var(--gold-500)}
 .team .st{font-size:11.5px;color:var(--ink-3);margin-top:8px;display:flex;gap:10px;flex-wrap:wrap}
@@ -114,7 +115,7 @@
         <div class="k"><div class="v" id="k-photos">—</div><div class="l">사진</div></div>
       </div>
       <div class="tabs" id="tabs">
-        <button data-t="info" class="on">안내</button><button data-t="players">참가자<b id="t-players"></b></button><button data-t="teams">조편성</button><button data-t="scores">스코어</button><button data-t="ledger">정산</button><button data-t="photos">사진<b id="t-photos"></b></button>
+        <button data-t="info" class="on">안내 · 조편성</button><button data-t="players">참가자<b id="t-players"></b></button><button data-t="scores">스코어</button><button data-t="ledger">정산</button><button data-t="photos">사진<b id="t-photos"></b></button>
       </div>
 
       <!-- 안내 -->
@@ -130,23 +131,7 @@
           <div class="g-info" id="e-view" style="margin-top:10px"></div>
           <div id="e-editbox" hidden><div class="field" style="margin-top:12px"><textarea id="e-info" style="min-height:200px;font-size:14px"></textarea></div><div style="display:flex;gap:10px"><button class="btn sm" id="e-save">저장</button><button class="btn sm ghost" id="e-cancel">취소</button></div></div>
         </div>
-        <div class="panel"><h2>조 · 티타임 (14팀)</h2><div class="hint">예약된 코스와 시간입니다. 조편성 탭에서 각 조에 참가자를 넣습니다. 코스·시간이 바뀌면 여기서 고치세요.</div>
-          <table class="table" id="tee-table"><thead><tr><th style="width:60px">조</th><th>코스</th><th>티오프</th><th>메모</th><th style="width:70px">잠금</th></tr></thead><tbody></tbody></table></div>
-      </div>
-
-      <!-- 참가자 -->
-      <div class="pane" id="p-players">
-        <div class="panel"><div class="panel-head"><h2>참가자 명단</h2><span class="muted" style="font-size:13px">칸을 고치면 바로 저장됩니다 · 평균타수는 조편성(실력 균형)에, 핸디는 스코어(네트)에 쓰입니다</span></div>
-          <div class="pl"><table class="table" id="pl-table"><thead><tr><th>#</th><th style="min-width:110px">이름</th><th style="width:70px">학번</th><th style="min-width:120px">연락처</th><th style="width:80px">평균타수</th><th style="width:64px">핸디</th><th style="min-width:150px">함께 희망</th><th style="min-width:140px">비고</th><th></th></tr></thead><tbody></tbody></table></div>
-          <div class="import"><b>엑셀에서 가져오기</b> — <code>이름, 학번, 연락처, 평균타수, 핸디, 함께 희망, 비고</code> 순서로 열을 맞춰 셀 범위를 복사해 붙여 넣으세요. 이름만 있어도 됩니다. 함께 희망은 이름을 붙여 써도 명단과 대조해 나눕니다.
-            <textarea id="imp" placeholder="(예시) 김동문&#9;81&#9;010-1234-5678&#9;92&#9;10&#9;이동문&#9;비고"></textarea>
-            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="imp-btn">붙여 넣은 내용 추가</button><span class="muted" style="font-size:13px" id="imp-msg"></span></div></div>
-        </div>
-      </div>
-
-      <!-- 조편성 -->
-      <div class="pane" id="p-teams">
-        <div class="panel"><div class="panel-head"><h2>조편성</h2><span class="dirty" id="t-dirty"></span></div>
+        <div class="panel"><div class="panel-head"><h2>조편성 · 티타임 (14팀)</h2><span class="dirty" id="t-dirty"></span></div>
           <div class="cond">
             <div class="cond-h">제한조건</div>
             <div class="opts" style="margin:0">
@@ -164,6 +149,17 @@
           <div class="hint">참가자 탭에서 학번·평균타수·함께 희망을 넣은 뒤 <b>조편성</b>을 누르세요. 누를 때마다 다른 안이 나오니 마음에 들 때 <b>저장</b>합니다. 저장 뒤에도 칩을 끌어 옮기거나(휴대폰은 칩 한 번 누르고 옮길 조 누르기) 다시 조편성할 수 있고, 조 제목 옆 <b>잠금</b>을 켠 조는 그대로 둡니다. 금색 테두리 칩은 "함께 희망"이 있는 사람입니다.</div>
           <div class="teams" id="teams"></div>
           <div class="gsum" id="gsum"></div>
+        </div>
+
+      </div>
+
+      <!-- 참가자 -->
+      <div class="pane" id="p-players">
+        <div class="panel"><div class="panel-head"><h2>참가자 명단</h2><span class="muted" style="font-size:13px">칸을 고치면 바로 저장됩니다 · 평균타수는 조편성(실력 균형)에, 핸디는 스코어(네트)에 쓰입니다</span></div>
+          <div class="pl"><table class="table" id="pl-table"><thead><tr><th>#</th><th style="min-width:110px">이름</th><th style="width:70px">학번</th><th style="min-width:120px">연락처</th><th style="width:80px">평균타수</th><th style="width:64px">핸디</th><th style="min-width:150px">함께 희망</th><th style="min-width:140px">비고</th><th></th></tr></thead><tbody></tbody></table></div>
+          <div class="import"><b>엑셀에서 가져오기</b> — <code>이름, 학번, 연락처, 평균타수, 핸디, 함께 희망, 비고</code> 순서로 열을 맞춰 셀 범위를 복사해 붙여 넣으세요. 이름만 있어도 됩니다. 함께 희망은 이름을 붙여 써도 명단과 대조해 나눕니다.
+            <textarea id="imp" placeholder="(예시) 김동문&#9;81&#9;010-1234-5678&#9;92&#9;10&#9;이동문&#9;비고"></textarea>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="imp-btn">붙여 넣은 내용 추가</button><span class="muted" style="font-size:13px" id="imp-msg"></span></div></div>
         </div>
       </div>
 
@@ -206,7 +202,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261019g"></script><script src="/assets/js/admin.js?v=20261019g"></script>
+<script src="/assets/js/site.js?v=20261019h"></script><script src="/assets/js/admin.js?v=20261019h"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
@@ -233,13 +229,11 @@
   function renderInfo() {
     const e = S.event; q('#e-title').value = e.title || ''; q('#e-date').value = e.date || ''; q('#e-place').value = e.place || ''; q('#e-fee').value = e.fee || ''; q('#e-info').value = e.info || '';
     q('#e-view').innerHTML = esc(e.info || '').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    q('#tee-table tbody').innerHTML = S.teams.map(t => `<tr><td><b>${t.seq}조</b></td><td><input data-team="${t.id}" data-f="course" value="${esc(t.course)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:120px"></td><td><input data-team="${t.id}" data-f="tee" value="${esc(t.tee)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:80px"></td><td><input data-team="${t.id}" data-f="note" value="${esc(t.note)}" style="font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--line-2);width:100%"></td><td><input type="checkbox" data-team="${t.id}" data-f="locked" ${t.locked ? 'checked' : ''}></td></tr>`).join('');
   }
   q('#e-edit').addEventListener('click', () => { q('#e-editbox').hidden = false; q('#e-info').focus(); });
   q('#e-cancel').addEventListener('click', () => { q('#e-editbox').hidden = true; q('#e-info').value = S.event.info || ''; });
   q('#e-copy').addEventListener('click', async () => { const t = S.event.info || ''; try { await navigator.clipboard.writeText(t); toast('안내문을 복사했습니다'); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast('안내문을 복사했습니다'); } });
   q('#e-save').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'event', title: q('#e-title').value, date: q('#e-date').value, place: q('#e-place').value, fee: q('#e-fee').value, info: q('#e-info').value, awards: S.event.awards ? JSON.parse(S.event.awards) : {} } }); toast('저장되었습니다'); await load(); q('#e-editbox').hidden = true; } catch (e) { toast('실패: ' + e.message); } });
-  q('#tee-table').addEventListener('change', async e => { const id = e.target.dataset.team; if (!id) return; const t = S.teams.find(x => x.id === Number(id)); const f = e.target.dataset.f; t[f] = f === 'locked' ? (e.target.checked ? 1 : 0) : e.target.value; try { await api('/golf', { method: 'POST', body: { r: 'team', ...t } }); renderTeams(); } catch (err) { toast('실패: ' + err.message); } });
 
   // ── 참가자
   const F = ['name', 'cohort', 'phone', 'avg', 'handicap', 'pref', 'note'];
@@ -275,14 +269,15 @@
     const chip = p => { const prefs = prefNames(p); const tid = assign[p.id] || null; const miss = prefs.filter(n => { const o = S.players.find(x => x.name === n); return o && (assign[o.id] || null) !== tid; });
       return `<span class="chip ${sel === p.id ? 'sel' : ''} ${prefs.length ? 'pref' : ''}" draggable="true" data-p="${p.id}" title="${esc(prefs.length ? '함께 희망: ' + prefs.join(', ') : '')}">${esc(p.name)}<small>${esc(p.cohort)}${p.avg ? ' · ' + p.avg : ''}</small>${miss.length ? `<span class="warn" title="${esc(miss.join(', '))}와 다른 조">!</span>` : ''}</span>`; };
     const card = t => { const ps = inTeam(t.id); const avgs = ps.map(skill).filter(Boolean); const avg = avgs.length ? Math.round(avgs.reduce((a, b) => a + b, 0) / avgs.length) : null; const cohorts = [...new Set(ps.map(p => p.cohort).filter(Boolean))];
-      return `<div class="team ${t.locked ? 'locked' : ''}" data-t="${t.id}"><div class="h"><div><b>${t.seq}조</b> <small>${esc(t.course)} ${esc(t.tee)}</small></div><button class="lock" data-lock="${t.id}">${t.locked ? '잠김' : '잠금'}</button></div><div class="chips">${ps.map(chip).join('')}</div><div class="st"><span>${ps.length}명</span>${avg ? `<span>평균 ${avg}타</span>` : ''}<span>${cohorts.map(c => c + '학번').join(' · ')}</span>${t.note ? `<span>${esc(t.note)}</span>` : ''}</div></div>`; };
+      return `<div class="team ${t.locked ? 'locked' : ''}" data-t="${t.id}"><div class="h"><div class="tt" data-edit="${t.id}" title="코스·티타임 수정"><b>${t.seq}조</b> <small>${esc(t.course)} ${esc(t.tee)}</small></div><button class="lock" data-lock="${t.id}">${t.locked ? '잠김' : '잠금'}</button></div><div class="chips">${ps.map(chip).join('')}</div><div class="st"><span>${ps.length}명</span>${avg ? `<span>평균 ${avg}타</span>` : ''}<span>${cohorts.map(c => c + '학번').join(' · ')}</span>${t.note ? `<span>${esc(t.note)}</span>` : ''}</div></div>`; };
     q('#teams').innerHTML = `<div class="team pool" data-t="0"><div class="h"><b>미배정</b><small>${pool.length}명</small></div><div class="chips">${pool.map(chip).join('')}</div></div>` + S.teams.map(card).join('');
     q('#t-dirty').textContent = dirty ? '저장되지 않은 변경이 있습니다' : '';
     const n = S.players.length, cap = S.teams.length * 4; q('#gsum').textContent = `참가 ${n}명 · 조 ${S.teams.length}개(정원 ${cap}) · 잠긴 조 ${S.teams.filter(t => t.locked).length}개`;
   }
   function move(pid, tid) { assign[pid] = tid || null; dirty = true; sel = null; renderTeams(); }
   q('#teams').addEventListener('click', e => {
-    const lk = e.target.closest('[data-lock]'); if (lk) { const t = S.teams.find(x => x.id === Number(lk.dataset.lock)); t.locked = t.locked ? 0 : 1; api('/golf', { method: 'POST', body: { r: 'team', ...t } }).catch(err => toast('실패: ' + err.message)); renderTeams(); renderInfo(); return; }
+    const ed = e.target.closest('[data-edit]'); if (ed) { const t = S.teams.find(x => x.id === Number(ed.dataset.edit)); const v = prompt(t.seq + '조 코스와 티타임 (예: 시그니처A 07:34)', t.course + ' ' + t.tee); if (v == null) return; const m = v.trim().match(/^(.*?)\s*(\d{1,2}:\d{2})?$/); t.course = (m[1] || t.course).trim(); if (m[2]) t.tee = m[2]; api('/golf', { method: 'POST', body: { r: 'team', ...t } }).then(() => toast('저장')).catch(err => toast('실패: ' + err.message)); renderTeams(); return; }
+    const lk = e.target.closest('[data-lock]'); if (lk) { const t = S.teams.find(x => x.id === Number(lk.dataset.lock)); t.locked = t.locked ? 0 : 1; api('/golf', { method: 'POST', body: { r: 'team', ...t } }).catch(err => toast('실패: ' + err.message)); renderTeams(); return; }
     const c = e.target.closest('.chip'); if (c) { sel = sel === Number(c.dataset.p) ? null : Number(c.dataset.p); renderTeams(); return; }
     const t = e.target.closest('.team'); if (t && sel != null) move(sel, Number(t.dataset.t));
   });
@@ -291,7 +286,7 @@
   q('#teams').addEventListener('dragleave', e => { const t = e.target.closest('.team'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('over'); });
   q('#teams').addEventListener('drop', e => { const t = e.target.closest('.team'); if (!t) return; e.preventDefault(); t.classList.remove('over'); const pid = Number(e.dataTransfer.getData('text/plain')); if (pid) move(pid, Number(t.dataset.t)); });
   q('#clear').addEventListener('click', () => { const locked = new Set(S.teams.filter(t => t.locked).map(t => t.id)); S.players.forEach(p => { if (!locked.has(assign[p.id])) assign[p.id] = null; }); dirty = true; renderTeams(); });
-  q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장 — 이후에도 자유롭게 수정할 수 있습니다'); tries = 0; await load(); location.hash = 'teams'; q('#try').textContent = ''; } catch (e) { toast('실패: ' + e.message); } });
+  q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장 — 이후에도 자유롭게 수정할 수 있습니다'); tries = 0; await load(); location.hash = 'info'; q('#try').textContent = ''; } catch (e) { toast('실패: ' + e.message); } });
 
   // 자동 편성: 희망 동반 묶음(유닛) → 비용 최소 배치 → 교환 개선
   q('#auto').addEventListener('click', () => {
