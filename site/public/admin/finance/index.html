@@ -5,7 +5,7 @@
 <title>회비 정산 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261019k"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019k"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019m"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019m"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .entry{display:grid;grid-template-columns:130px 96px 140px 1fr 130px 120px 140px;gap:10px;align-items:end}
 @media (max-width:1100px){.entry{grid-template-columns:1fr 1fr 1fr}}
@@ -36,7 +36,7 @@
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · 서희원 · 이태경 전용</span><h1>총동문회 회비 정산</h1><div class="sub">준비위원회 수입·지출 장부. 입력 즉시 저장되고, 월별·항목별 집계와 잔액이 자동으로 계산됩니다.</div></div>
-      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm ghost" id="csv" href="/api/finance?export=csv">CSV(엑셀) 내려받기</a><button class="btn sm ghost" onclick="window.print()">인쇄</button></div></div>
+      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm gold" href="/admin/finance/books/">장부 · 결산서</a><a class="btn sm ghost" id="csv" href="/api/finance?export=csv">CSV(엑셀) 내려받기</a><button class="btn sm ghost" onclick="window.print()">인쇄</button></div></div>
     <div class="admin-body" id="body">
       <div class="kpi"><div class="k"><div class="v inc" id="k-in">—</div><div class="l">수입 합계</div></div><div class="k"><div class="v exp" id="k-out">—</div><div class="l">지출 합계</div></div><div class="k gold"><div class="v" id="k-bal">—</div><div class="l">현재 잔액</div></div><div class="k"><div class="v" id="k-n">—</div><div class="l">예정 반영 후 잔액</div></div></div>
 
@@ -73,7 +73,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261019k"></script><script src="/assets/js/admin.js?v=20261019k"></script>
+<script src="/assets/js/site.js?v=20261019m"></script><script src="/assets/js/admin.js?v=20261019m"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원';

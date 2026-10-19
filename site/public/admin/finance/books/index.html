@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>장부 · 결산서 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019m"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019m"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-size:14px;padding:10px 14px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
+.tabs button.on{color:var(--navy-800);border-color:var(--gold-500);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fs{width:100%;border-collapse:collapse;font-size:14px}
+.fs th,.fs td{padding:8px 12px;border-bottom:1px solid var(--line)}
+.fs th{text-align:left;font-size:12px;letter-spacing:.06em;color:var(--ink-3);background:var(--ivory);font-weight:600}
+.fs th.amt{text-align:right}
+.fs tr.sec td{background:#FBF8F2;font-weight:700;color:var(--navy-800)}
+.fs tr.sub td:first-child{padding-left:28px}
+.fs tr.tot td{font-weight:700;border-top:2px solid var(--navy-800);border-bottom:2px solid var(--navy-800)}
+.fs tr.grand td{font-weight:700;background:var(--navy-800);color:var(--paper)}
+.fs .code{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);width:60px}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;padding:4px 10px;border-radius:999px}
+.chk.ok{background:#E3F1EA;color:var(--success)}.chk.bad{background:#F8E3E0;color:var(--danger)}
+.jr td{vertical-align:top;font-size:13.5px}
+.jr .lines{display:grid;grid-template-columns:1fr 110px 110px;gap:2px 12px}
+.jr .lines .cr{padding-left:22px}
+.tagk{font-size:11px;padding:2px 7px;border-radius:999px;background:var(--ivory-2);color:var(--ink-3)}
+.tagk.auto{background:#EEF2F8;color:#3B5B8C}.tagk.adjust{background:#FFF1DD;color:var(--warn)}.tagk.opening{background:#E3F1EA;color:var(--success)}
+.form-j{display:grid;grid-template-columns:140px 1fr;gap:10px;margin-bottom:10px}
+.jl{display:grid;grid-template-columns:1fr 130px 130px 1fr 34px;gap:8px;margin-bottom:6px}
+.jl select,.jl input,.form-j input,.coa input,.coa select{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line-2);border-radius:2px;background:var(--paper);width:100%}
+.jl button{font:inherit;border:1px solid var(--line-2);background:var(--paper);border-radius:2px;cursor:pointer}
+.coa td{padding:5px 6px;vertical-align:middle}
+.map td{font-size:13px;padding:6px 8px}
+.map select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line-2);max-width:180px}
+.note{font-size:13px;color:var(--ink-3);line-height:1.7;background:var(--ivory);border-left:3px solid var(--gold-400);padding:12px 16px;margin-bottom:18px}
+.wrap{overflow-x:auto}
+/* 결산서 (인쇄) */
+.report{background:#fff;border:1px solid var(--line);padding:36px 42px;max-width:860px;margin:0 auto}
+.report .cover{text-align:center;padding:40px 0 30px;border-bottom:2px solid var(--navy-800);margin-bottom:26px}
+.report .cover .en{font-family:var(--display);letter-spacing:.2em;font-size:12px;color:var(--gold-500);text-transform:uppercase}
+.report .cover h1{font-family:var(--serif);font-size:28px;margin:10px 0 6px;color:var(--navy-900)}
+.report .cover .p{color:var(--ink-3);font-size:14px}
+.report h2{font-family:var(--serif);font-size:18px;color:var(--navy-800);margin:28px 0 4px}
+.report .unit{font-size:12px;color:var(--ink-3);text-align:right;margin-bottom:6px}
+.report .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px;font-size:14px}
+.report .sign div{border-top:1px solid var(--ink-3);padding-top:8px;text-align:center}
+.report .notes{white-space:pre-wrap;font-size:13.5px;line-height:1.8}
+@media print{
+  .admin-side,.admin-top,.tabs,.no-print,.pane:not(#p-report){display:none!important}
+  #p-report{display:block!important}
+  .admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}
+  .report{border:0;padding:0;max-width:none}
+  .report .page{break-after:page}
+  .fs{font-size:11.5px}.fs th,.fs td{padding:5px 8px}
+  @page{size:A4;margin:16mm 14mm}
+}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · Books</span><h1>장부 · 결산서</h1><div class="sub">회비 정산 장부의 거래를 복식부기로 자동 분개해 시산표와 재무제표를 만듭니다.</div></div>
+      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm ghost" href="/admin/finance/">장부 입력으로</a></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi">
+        <div class="k"><div class="v" id="k-asset">—</div><div class="l">자산 (기말)</div></div>
+        <div class="k"><div class="v" id="k-liab">—</div><div class="l">부채 (기말)</div></div>
+        <div class="k gold"><div class="v" id="k-net">—</div><div class="l">순자산 (기말)</div></div>
+        <div class="k"><div class="v" id="k-ops">—</div><div class="l">당기 운영성과</div></div>
+      </div>
+      <div id="balance-check" style="margin:-8px 0 18px"></div>
+
+      <div class="tabs" id="tabs">
+        <button data-t="tb" class="on">합계잔액시산표</button><button data-t="bs">재무상태표</button><button data-t="is">운영성과표</button><button data-t="gl">계정별 원장</button><button data-t="jr">분개장</button><button data-t="adj">수동 분개</button><button data-t="coa">계정과목 · 매핑</button><button data-t="report">결산서 (인쇄)</button>
+      </div>
+
+      <div class="pane on" id="p-tb"><div class="panel"><div class="panel-head"><h2>합계잔액시산표</h2><span class="muted" id="tb-period" style="font-size:13px"></span></div>
+        <div class="wrap"><table class="fs" id="tb"></table></div></div></div>
+
+      <div class="pane" id="p-bs"><div class="panel"><div class="panel-head"><h2>재무상태표</h2><span class="muted" id="bs-period" style="font-size:13px"></span></div>
+        <div class="wrap"><table class="fs" id="bs"></table></div></div></div>
+
+      <div class="pane" id="p-is"><div class="panel"><div class="panel-head"><h2>운영성과표</h2><span class="muted" id="is-period" style="font-size:13px"></span></div>
+        <div class="wrap"><table class="fs" id="is"></table></div></div></div>
+
+      <div class="pane" id="p-gl"><div class="panel"><div class="panel-head"><h2>계정별 원장</h2><select id="gl-acc" style="font:inherit;padding:8px 10px;border:1px solid var(--line-2);min-width:220px"></select></div>
+        <div class="wrap"><table class="fs" id="gl"></table></div></div></div>
+
+      <div class="pane" id="p-jr"><div class="panel"><div class="panel-head"><h2>분개장</h2><span class="muted" style="font-size:13px"><span class="tagk auto">자동</span> 장부 거래에서 생성 · <span class="tagk adjust">수정</span> 수동 분개 · <span class="tagk opening">기초</span> 기초잔액</span></div>
+        <div class="wrap"><table class="fs jr" id="jr"></table></div></div></div>
+
+      <div class="pane" id="p-adj">
+        <div class="panel"><div class="panel-head"><h2>수동 분개 입력</h2><span class="muted" style="font-size:13px">미지급금·선수회비·예금 이체·기초잔액처럼 수입/지출 한 줄로 표현이 안 되는 거래</span></div>
+          <div class="note">예) 12월 말에 아직 지급하지 않은 송년회 대관료 300만 원 → 차변 <b>503 장소대관료</b> 3,000,000 / 대변 <b>201 미지급금</b> 3,000,000.<br>시작 시점에 이미 통장에 있던 돈 → 구분 "기초잔액", 차변 <b>102 보통예금</b> / 대변 <b>301 순자산</b>.</div>
+          <div class="form-j"><input type="date" id="j-date"><input id="j-memo" placeholder="적요 (예: 송년회 대관료 미지급 계상)"></div>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:13.5px">구분 <select id="j-kind" style="font:inherit;padding:6px 8px;border:1px solid var(--line-2)"><option value="adjust">수정 분개</option><option value="opening">기초잔액</option></select></div>
+          <div class="jl" style="font-size:12px;color:var(--ink-3)"><span>계정</span><span>차변</span><span>대변</span><span>메모</span><span></span></div>
+          <div id="j-lines"></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sm ghost" id="j-add">줄 추가</button><button class="btn sm" id="j-save">분개 저장</button><span id="j-bal" style="font-size:13.5px"></span></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>수동 분개 목록</h2></div><div class="wrap"><table class="fs jr" id="adj-list"></table></div></div>
+      </div>
+
+      <div class="pane" id="p-coa">
+        <div class="panel"><div class="panel-head"><h2>계정과목표</h2><span class="muted" style="font-size:13px">매핑 규칙: 장부의 "항목·내용"에 이 단어가 있으면 이 계정으로 자동 분류 (| 로 구분)</span></div>
+          <div class="wrap"><table class="fs coa" id="coa"></table></div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap" class="coa"><input id="c-code" placeholder="코드 (예: 511)" style="width:110px"><input id="c-name" placeholder="계정명" style="width:180px"><select id="c-kind" style="width:120px"><option value="revenue">수익</option><option value="expense">비용</option><option value="asset">자산</option><option value="liability">부채</option><option value="net">순자산</option></select><input id="c-rule" placeholder="매핑 규칙 (예: 교재|도서)" style="flex:1;min-width:180px"><button class="btn sm" id="c-add">계정 추가</button></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>거래별 계정 확인</h2><span class="muted" style="font-size:13px" id="map-sum"></span></div>
+          <div class="hint" style="font-size:13px;color:var(--ink-3);margin:-6px 0 12px">자동 분류가 틀린 거래만 오른쪽에서 계정을 바꾸면 됩니다. 노란 줄은 규칙에 안 걸려 "기타"로 간 거래입니다.</div>
+          <div class="wrap"><table class="fs map" id="map"></table></div></div>
+      </div>
+
+      <div class="pane" id="p-report">
+        <div class="panel no-print"><div class="panel-head"><h2>결산서 설정</h2><button class="btn sm" onclick="window.print()">인쇄 · PDF 저장</button></div>
+          <div class="form-j" style="grid-template-columns:140px 1fr"><label style="font-size:13.5px;padding-top:8px">단체명</label><input id="m-org"><label style="font-size:13.5px;padding-top:8px">작성자</label><input id="m-preparer"><label style="font-size:13.5px;padding-top:8px">감사</label><input id="m-auditor"></div>
+          <div class="field" style="margin:0"><label>주석 (회계정책·특이사항)</label><textarea id="m-notes" style="min-height:120px;font-size:13.5px"></textarea></div>
+          <button class="btn sm ghost" id="m-save" style="margin-top:10px">설정 저장</button>
+        </div>
+        <div class="report" id="report"></div>
+      </div>
+
+      <div class="note no-print" style="margin-top:24px">
+        <b>회계 처리 방식</b> — 장부의 수입 1건은 <i>차변 예금(또는 현금) / 대변 수익계정</i>, 지출 1건은 <i>차변 비용계정 / 대변 예금(또는 현금)</i>으로 자동 분개합니다. 결제수단이 "현금"이면 101 현금, 그 밖은 102 보통예금으로 봅니다. "예정·예산" 거래는 분개하지 않습니다. 이전 연도까지의 누적 결과는 다음 연도 기초 순자산으로 자동 이월됩니다.<br>
+        서식은 비영리 단체 결산에서 흔히 쓰는 재무상태표·운영성과표 구성을 따랐습니다. 공식 결산이나 외부 제출 전에는 회계 전문가의 검토를 권합니다.
+      </div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261019m"></script><script src="/assets/js/admin.js?v=20261019m"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const won = n => { n = Math.round(n || 0); return n === 0 ? '—' : (n < 0 ? '(' + Math.abs(n).toLocaleString('ko-KR') + ')' : n.toLocaleString('ko-KR')); };
+  const KIND = { asset: '자산', liability: '부채', net: '순자산', revenue: '수익', expense: '비용' };
+  const me = await api('/me').catch(() => ({}));
+  if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('finance'))) { q('#body').innerHTML = '<div class="noperm" style="padding:60px;text-align:center;color:var(--ink-3)">결산 관리 권한이 없습니다.</div>'; return; }
+
+  let L = [], B = { coa: [], journal: [], meta: {} }, year = String(new Date().getFullYear());
+  async function load() { const [f, b] = await Promise.all([api('/finance'), api('/books')]); L = f.entries; B = b; render(); }
+
+  const coaBy = () => Object.fromEntries(B.coa.map(c => [c.code, c]));
+  const assetOf = e => /현금/.test(e.method || '') ? '101' : '102';
+  function counterOf(e) {
+    if (e.account && coaBy()[e.account]) return { code: e.account, how: 'manual' };
+    const kind = e.type === 'income' ? 'revenue' : 'expense'; const text = (e.category || '') + ' ' + (e.item || '');
+    for (const c of B.coa.filter(c => c.kind === kind && c.active && c.rule)) { try { if (new RegExp(c.rule).test(text)) return { code: c.code, how: 'rule' }; } catch (x) {} }
+    return { code: kind === 'revenue' ? '409' : '599', how: 'default' };
+  }
+  // 모든 분개 (자동 + 수동)
+  function entries() {
+    const out = [];
+    for (const e of L) { if (e.planned) continue; const a = assetOf(e), c = counterOf(e).code;
+      out.push({ date: e.date, memo: [e.category, e.item, e.counterparty].filter(Boolean).join(' · '), kind: 'auto', ref: e.id,
+        lines: e.type === 'income' ? [{ code: a, dr: e.amount, cr: 0 }, { code: c, dr: 0, cr: e.amount }] : [{ code: c, dr: e.amount, cr: 0 }, { code: a, dr: 0, cr: e.amount }] }); }
+    for (const j of B.journal) out.push({ date: j.date, memo: j.memo, kind: j.kind, id: j.id, lines: j.lines });
+    return out.sort((x, y) => x.date.localeCompare(y.date));
+  }
+  const startMonth = () => Math.min(12, Math.max(1, Number(B.meta.fy_start || 1)));
+  const period = y => { const m = String(startMonth()).padStart(2, '0'); const s = `${y}-${m}-01`; const ey = startMonth() === 1 ? Number(y) : Number(y) + 1; const em = startMonth() === 1 ? 12 : startMonth() - 1; const last = new Date(ey, em, 0).getDate(); return { s, e: `${ey}-${String(em).padStart(2, '0')}-${String(last).padStart(2, '0')}` }; };
+
+  function compute() {
+    const P = period(year), all = entries(), C = coaBy();
+    const acc = {}; const A = code => (acc[code] ||= { open: 0, dr: 0, cr: 0 });
+    const sign = code => ['asset', 'expense'].includes((C[code] || {}).kind) ? 1 : -1; // 차변잔액 성격
+    let carry = 0; // 이전 기간 수익-비용 → 순자산 이월
+    for (const j of all) for (const l of j.lines) {
+      const k = (C[l.code] || {}).kind;
+      if (j.date < P.s) { if (k === 'revenue' || k === 'expense') carry += (l.cr - l.dr); else A(l.code).open += (l.dr - l.cr); }
+      else if (j.date <= P.e) { A(l.code).dr += l.dr; A(l.code).cr += l.cr; }
+    }
+    A('301').open += -carry; // 순자산은 대변잔액(음수)으로 보관
+    const bal = code => { const x = acc[code] || { open: 0, dr: 0, cr: 0 }; return x.open + x.dr - x.cr; }; // 차변 기준
+    const sumKind = k => B.coa.filter(c => c.kind === k).reduce((s, c) => s + bal(c.code), 0);
+    const rev = -sumKind('revenue'), exp = sumKind('expense'), ops = rev - exp;
+    const asset = sumKind('asset'), liab = -sumKind('liability'), netOpen = -sumKind('net'), net = netOpen + ops;
+    return { P, all, acc, bal, rev, exp, ops, asset, liab, netOpen, net, inPeriod: all.filter(j => j.date >= P.s && j.date <= P.e) };
+  }
+
+  function render() {
+    const yrs = [...new Set(L.map(e => e.date.slice(0, 4)).concat(B.journal.map(j => j.date.slice(0, 4))))]; if (!yrs.includes(year)) yrs.push(year); yrs.sort();
+    q('#years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
+    const R = compute(), C = coaBy(); const pl = `${R.P.s.replace(/-/g, '.')} ~ ${R.P.e.replace(/-/g, '.')}`;
+    q('#k-asset').textContent = won(R.asset); q('#k-liab').textContent = won(R.liab); q('#k-net').textContent = won(R.net); q('#k-ops').textContent = won(R.ops);
+    const diff = Math.round(R.asset - R.liab - R.net);
+    q('#balance-check').innerHTML = diff === 0 ? '<span class="chk ok">대차 일치 — 자산 = 부채 + 순자산</span>' : `<span class="chk bad">대차 불일치 ${won(diff)} — 수동 분개를 확인하세요</span>`;
+    ['tb', 'bs', 'is'].forEach(k => q('#' + k + '-period').textContent = k === 'bs' ? R.P.e.replace(/-/g, '.') + ' 현재 · 단위 원' : pl + ' · 단위 원');
+
+    // 합계잔액시산표
+    let T = { db: 0, dt: 0, ct: 0, cb: 0 };
+    const tbRows = B.coa.filter(c => { const x = R.acc[c.code]; return x && (x.open || x.dr || x.cr); }).map(c => { const x = R.acc[c.code]; const dSum = x.dr + Math.max(0, x.open), cSum = x.cr + Math.max(0, -x.open); const b = dSum - cSum;
+      T.db += Math.max(0, b); T.dt += dSum; T.ct += cSum; T.cb += Math.max(0, -b);
+      return `<tr><td class="amt">${won(Math.max(0, b))}</td><td class="amt">${won(dSum)}</td><td><span class="code">${c.code}</span> ${esc(c.name)} <span class="tagk">${KIND[c.kind]}</span></td><td class="amt">${won(cSum)}</td><td class="amt">${won(Math.max(0, -b))}</td></tr>`; }).join('');
+    q('#tb').innerHTML = `<thead><tr><th class="amt">차변 잔액</th><th class="amt">차변 합계</th><th style="text-align:center">계정과목</th><th class="amt">대변 합계</th><th class="amt">대변 잔액</th></tr></thead><tbody>${tbRows || '<tr><td colspan="5" class="muted">이 기간의 거래가 없습니다.</td></tr>'}<tr class="grand"><td class="amt">${won(T.db)}</td><td class="amt">${won(T.dt)}</td><td style="text-align:center">합 계</td><td class="amt">${won(T.ct)}</td><td class="amt">${won(T.cb)}</td></tr></tbody>`;
+
+    // 재무상태표
+    const line = (c, v) => `<tr class="sub"><td><span class="code">${c.code}</span> ${esc(c.name)}</td><td class="amt">${won(v)}</td></tr>`;
+    const list = (k, sg) => B.coa.filter(c => c.kind === k).map(c => [c, sg * R.bal(c.code)]).filter(([, v]) => Math.round(v) !== 0);
+    const bsHtml = `<thead><tr><th>과목</th><th class="amt">금액</th></tr></thead><tbody>
+      <tr class="sec"><td>Ⅰ. 자산</td><td></td></tr>${list('asset', 1).map(([c, v]) => line(c, v)).join('') || '<tr class="sub"><td class="muted">—</td><td></td></tr>'}<tr class="tot"><td>자산 총계</td><td class="amt">${won(R.asset)}</td></tr>
+      <tr class="sec"><td>Ⅱ. 부채</td><td></td></tr>${list('liability', -1).map(([c, v]) => line(c, v)).join('') || '<tr class="sub"><td class="muted">—</td><td></td></tr>'}<tr class="tot"><td>부채 총계</td><td class="amt">${won(R.liab)}</td></tr>
+      <tr class="sec"><td>Ⅲ. 순자산</td><td></td></tr><tr class="sub"><td>기초 순자산</td><td class="amt">${won(R.netOpen)}</td></tr><tr class="sub"><td>당기 운영성과</td><td class="amt">${won(R.ops)}</td></tr><tr class="tot"><td>순자산 총계</td><td class="amt">${won(R.net)}</td></tr>
+      <tr class="grand"><td>부채와 순자산 총계</td><td class="amt">${won(R.liab + R.net)}</td></tr></tbody>`;
+    q('#bs').innerHTML = bsHtml;
+
+    // 운영성과표
+    const isHtml = `<thead><tr><th>과목</th><th class="amt">금액</th></tr></thead><tbody>
+      <tr class="sec"><td>Ⅰ. 수익</td><td></td></tr>${list('revenue', -1).map(([c, v]) => line(c, v)).join('') || '<tr class="sub"><td class="muted">—</td><td></td></tr>'}<tr class="tot"><td>수익 합계</td><td class="amt">${won(R.rev)}</td></tr>
+      <tr class="sec"><td>Ⅱ. 비용</td><td></td></tr>${list('expense', 1).map(([c, v]) => line(c, v)).join('') || '<tr class="sub"><td class="muted">—</td><td></td></tr>'}<tr class="tot"><td>비용 합계</td><td class="amt">${won(R.exp)}</td></tr>
+      <tr class="grand"><td>Ⅲ. 당기 운영성과 (수익 − 비용)</td><td class="amt">${won(R.ops)}</td></tr></tbody>`;
+    q('#is').innerHTML = isHtml;
+
+    // 계정별 원장
+    const sel = q('#gl-acc'); const cur = sel.value || '102';
+    sel.innerHTML = B.coa.map(c => `<option value="${c.code}" ${c.code === cur ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join('');
+    const code = sel.value, ck = (C[code] || {}).kind, dnat = ['asset', 'expense'].includes(ck);
+    let run = (R.acc[code] || {}).open || 0; if (ck === 'revenue' || ck === 'expense') run = 0;
+    const glRows = R.inPeriod.flatMap(j => j.lines.filter(l => l.code === code).map(l => { run += l.dr - l.cr; return `<tr><td>${j.date}</td><td>${esc(j.memo)}</td><td class="amt">${won(l.dr)}</td><td class="amt">${won(l.cr)}</td><td class="amt"><b>${won(dnat ? run : -run)}</b></td></tr>`; })).join('');
+    q('#gl').innerHTML = `<thead><tr><th>일자</th><th>적요</th><th class="amt">차변</th><th class="amt">대변</th><th class="amt">잔액</th></tr></thead><tbody><tr class="sec"><td>${R.P.s}</td><td>전기이월</td><td></td><td></td><td class="amt">${won(dnat ? ((R.acc[code] || {}).open || 0) : -((R.acc[code] || {}).open || 0))}</td></tr>${glRows || '<tr><td colspan="5" class="muted">이 기간에 이 계정의 거래가 없습니다.</td></tr>'}</tbody>`;
+
+    // 분개장
+    const nm = c => (C[c] ? c + ' ' + C[c].name : c);
+    const jrow = j => `<tr><td style="white-space:nowrap">${j.date}<br><span class="tagk ${j.kind}">${j.kind === 'auto' ? '자동' : j.kind === 'opening' ? '기초' : '수정'}</span></td><td>${esc(j.memo)}<div class="lines" style="margin-top:6px">${j.lines.map(l => `<span class="${l.cr ? 'cr' : ''}">${l.cr ? '(대) ' : '(차) '}${esc(nm(l.code))}</span><span class="amt">${l.dr ? won(l.dr) : ''}</span><span class="amt">${l.cr ? won(l.cr) : ''}</span>`).join('')}</div></td>${j.id ? `<td class="no-print"><button class="pill" data-jdel="${j.id}">삭제</button></td>` : '<td></td>'}</tr>`;
+    q('#jr').innerHTML = `<thead><tr><th style="width:110px">일자</th><th>적요 · 분개</th><th></th></tr></thead><tbody>${R.inPeriod.map(jrow).join('') || '<tr><td colspan="3" class="muted">이 기간의 분개가 없습니다.</td></tr>'}</tbody>`;
+    q('#adj-list').innerHTML = `<tbody>${B.journal.map(j => jrow({ ...j })).join('') || '<tr><td class="muted">수동 분개가 없습니다.</td></tr>'}</tbody>`;
+
+    // 계정과목표
+    q('#coa').innerHTML = `<thead><tr><th>코드</th><th>계정명</th><th>구분</th><th>매핑 규칙</th><th></th></tr></thead><tbody>${B.coa.map(c => `<tr data-code="${c.code}" style="${c.active ? '' : 'opacity:.45'}"><td class="code">${c.code}</td><td><input value="${esc(c.name)}" data-f="name"></td><td><select data-f="kind">${Object.entries(KIND).map(([k, v]) => `<option value="${k}" ${k === c.kind ? 'selected' : ''}>${v}</option>`).join('')}</select></td><td><input value="${esc(c.rule)}" data-f="rule" placeholder="${['asset', 'liability', 'net'].includes(c.kind) ? '(자동 분류 대상 아님)' : '단어|단어'}"></td><td><button class="pill" data-cdel="${c.code}">${c.active ? '삭제' : '비활성'}</button></td></tr>`).join('')}</tbody>`;
+    // 거래별 매핑
+    const rows = L.filter(e => !e.planned && e.date >= R.P.s && e.date <= R.P.e);
+    const opts = (kind, val) => B.coa.filter(c => c.kind === kind && c.active).map(c => `<option value="${c.code}" ${c.code === val ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join('');
+    let unk = 0;
+    q('#map').innerHTML = `<thead><tr><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>계정</th></tr></thead><tbody>${rows.map(e => { const m = counterOf(e); if (m.how === 'default') unk++; return `<tr style="${m.how === 'default' ? 'background:#FFF8E6' : ''}"><td>${e.date}</td><td>${e.type === 'income' ? '수입' : '지출'}</td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td><select data-assign="${e.id}"><option value="">자동 (${esc(nm(m.code))})</option>${opts(e.type === 'income' ? 'revenue' : 'expense', e.account)}</select></td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">이 기간의 거래가 없습니다.</td></tr>'}</tbody>`;
+    q('#map-sum').textContent = `${rows.length}건 중 기타로 분류 ${unk}건`;
+
+    // 결산서
+    q('#m-org').value = B.meta.org || '서울대학교 경영대학 총동문회'; q('#m-preparer').value = B.meta.preparer || ''; q('#m-auditor').value = B.meta.auditor || ''; q('#m-notes').value = B.meta.notes || '';
+    const org = esc(B.meta.org || '서울대학교 경영대학 총동문회');
+    q('#report').innerHTML = `<div class="page"><div class="cover"><div class="en">Annual Financial Statements</div><h1>${org}<br>${year} 회계연도 결산서</h1><div class="p">회계기간 ${pl}</div></div>
+      <h2>1. 재무상태표</h2><div class="unit">${R.P.e.replace(/-/g, '.')} 현재 · (단위: 원)</div><table class="fs">${bsHtml}</table>
+      <h2>2. 운영성과표</h2><div class="unit">${pl} · (단위: 원)</div><table class="fs">${isHtml}</table></div>
+      <div class="page"><h2>3. 합계잔액시산표</h2><div class="unit">${pl} · (단위: 원)</div><table class="fs">${q('#tb').innerHTML}</table>
+      <h2>4. 주석</h2><div class="notes">${esc(B.meta.notes || '1. 회계 처리 기준: 발생한 수입·지출을 거래일 기준으로 기록하고, 기말에 미지급·미수 항목은 수정 분개로 반영하였습니다.\n2. 현금 및 예금: 결제수단이 현금인 거래는 현금, 그 밖의 거래는 보통예금으로 처리하였습니다.')}</div>
+      <div class="sign"><div>작성자 ${esc(B.meta.preparer || '')} (인)</div><div>감사 ${esc(B.meta.auditor || '')} (인)</div></div></div>`;
+  }
+
+  // 이벤트
+  q('#years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
+  q('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); location.hash = b.dataset.t; });
+  const h0 = location.hash.slice(1); if (h0) setTimeout(() => q(`#tabs [data-t="${h0}"]`)?.click(), 0);
+  q('#gl-acc').addEventListener('change', render);
+  q('#coa').addEventListener('change', async e => { const tr = e.target.closest('tr[data-code]'); if (!tr) return; const c = B.coa.find(x => x.code === tr.dataset.code); const body = { r: 'coa', code: c.code, name: tr.querySelector('[data-f=name]').value, kind: tr.querySelector('[data-f=kind]').value, rule: tr.querySelector('[data-f=rule]').value, active: c.active };
+    try { await api('/books', { method: 'POST', body }); Object.assign(c, body); render(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
+  q('#coa').addEventListener('click', async e => { const b = e.target.closest('[data-cdel]'); if (!b) return; if (!confirm(b.dataset.cdel + ' 계정을 삭제할까요? (사용 중이면 비활성 처리)')) return; try { await api('/books?r=coa&code=' + b.dataset.cdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
+  q('#c-add').addEventListener('click', async () => { try { await api('/books', { method: 'POST', body: { r: 'coa', code: q('#c-code').value, name: q('#c-name').value, kind: q('#c-kind').value, rule: q('#c-rule').value } }); ['c-code', 'c-name', 'c-rule'].forEach(id => q('#' + id).value = ''); await load(); toast('계정 추가'); } catch (err) { toast('실패: ' + err.message); } });
+  q('#map').addEventListener('change', async e => { const id = e.target.dataset.assign; if (!id) return; try { await api('/books', { method: 'POST', body: { r: 'assign', id, account: e.target.value } }); L.find(x => x.id === Number(id)).account = e.target.value; render(); toast('계정 지정'); } catch (err) { toast('실패: ' + err.message); } });
+  // 수동 분개
+  const jl = () => `<div class="jl"><select data-j="code">${B.coa.filter(c => c.active).map(c => `<option value="${c.code}">${c.code} ${esc(c.name)}</option>`).join('')}</select><input data-j="dr" inputmode="numeric" placeholder="0"><input data-j="cr" inputmode="numeric" placeholder="0"><input data-j="memo"><button type="button" data-jx>×</button></div>`;
+  const jbal = () => { let d = 0, c = 0; document.querySelectorAll('#j-lines .jl').forEach(r => { d += Number(r.querySelector('[data-j=dr]').value.replace(/[^0-9]/g, '')) || 0; c += Number(r.querySelector('[data-j=cr]').value.replace(/[^0-9]/g, '')) || 0; }); q('#j-bal').innerHTML = d === c && d ? `<span class="chk ok">차변 ${d.toLocaleString()} = 대변 ${c.toLocaleString()}</span>` : `<span class="chk bad">차변 ${d.toLocaleString()} / 대변 ${c.toLocaleString()}</span>`; };
+  const resetJ = () => { q('#j-lines').innerHTML = jl() + jl(); q('#j-date').value = new Date().toISOString().slice(0, 10); q('#j-memo').value = ''; jbal(); };
+  q('#j-add').addEventListener('click', () => { q('#j-lines').insertAdjacentHTML('beforeend', jl()); });
+  q('#j-lines').addEventListener('input', jbal); q('#j-lines').addEventListener('click', e => { if (e.target.closest('[data-jx]')) { e.target.closest('.jl').remove(); jbal(); } });
+  q('#j-save').addEventListener('click', async () => { const lines = [...document.querySelectorAll('#j-lines .jl')].map(r => ({ code: r.querySelector('[data-j=code]').value, dr: r.querySelector('[data-j=dr]').value, cr: r.querySelector('[data-j=cr]').value, memo: r.querySelector('[data-j=memo]').value }));
+    try { await api('/books', { method: 'POST', body: { r: 'journal', date: q('#j-date').value, memo: q('#j-memo').value, kind: q('#j-kind').value, lines } }); toast('분개 저장'); await load(); resetJ(); } catch (err) { toast('실패: ' + err.message); } });
+  document.addEventListener('click', async e => { const b = e.target.closest('[data-jdel]'); if (!b) return; if (!confirm('이 분개를 삭제할까요?')) return; try { await api('/books?r=journal&id=' + b.dataset.jdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
+  q('#m-save').addEventListener('click', async () => { try { await api('/books', { method: 'POST', body: { r: 'meta', meta: { org: q('#m-org').value, preparer: q('#m-preparer').value, auditor: q('#m-auditor').value, notes: q('#m-notes').value } } }); await load(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
+
+  await load(); resetJ();
+})();
+</script>
+</body></html>
