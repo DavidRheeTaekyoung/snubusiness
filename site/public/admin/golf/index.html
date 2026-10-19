@@ -292,7 +292,7 @@
     const hm = x => String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); const meet = first != null ? Math.floor((first - 60) / 30) * 30 : null, photo = meet != null ? meet + 45 : null;
     const lines = ["[" + (e.title || '골프') + ' 조편성 및 안내]', "" + (e.date || '').replace(/-/g, '.') + (dow ? '(' + dow + ') ' : ' ') + (e.place || ''), ''];
     if (meet != null) lines.push('■ ' + hm(meet) + '까지 클럽하우스 식당으로 모여 주세요 (첫 티오프 ' + hm(first) + ')', '■ 단체사진 촬영 ' + hm(photo), '');
-    S.teams.forEach(t => { const ps = inTeam(t.id); if (!ps.length) return; lines.push(t.seq + '조 ' + t.course + ' ' + t.tee); lines.push('  ' + ps.map(p => p.name + (p.cohort ? '(' + p.cohort + ')' : '')).join(' · ')); });
+    S.teams.forEach(t => { const ps = inTeam(t.id); if (!ps.length) return; lines.push(t.seq + '조 ' + t.course + ' ' + t.tee); lines.push('  ' + ps.map(p => p.name + (p.cohort ? ' ' + p.cohort : '')).join(' · ')); });
     const pool = inTeam(null); if (pool.length) lines.push('', '미배정: ' + pool.map(p => p.name).join(', '));
     lines.push('', '■ 라운드 후에는 가급적 결제를 마치고 점심식사를 위해 예약된 룸으로 와 주세요.'); copyText(lines.join('\n'), '카톡용으로 복사했습니다 — 단톡방에 붙여 넣으세요'); });
   q('#clear').addEventListener('click', () => { const locked = new Set(S.teams.filter(t => t.locked).map(t => t.id)); S.players.forEach(p => { if (!locked.has(assign[p.id])) assign[p.id] = null; }); dirty = true; renderTeams(); });
