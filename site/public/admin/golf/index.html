@@ -5,7 +5,7 @@
 <title>골프 운영 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261019d"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019d"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019e"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019e"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14.5px;padding:11px 16px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -56,6 +56,10 @@
 .team.pool .chip{background:#fff}
 .dirty{font-size:13px;color:var(--warn);font-weight:600}
 .gsum{font-size:13px;color:var(--ink-3);margin-top:10px}
+.cond{background:var(--ivory);border:1px solid var(--line);padding:16px 18px;margin-bottom:14px}
+.cond-h{font-family:var(--display);letter-spacing:.14em;font-size:12px;color:var(--gold-500);text-transform:uppercase;margin-bottom:8px}
+.cond-b{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.cond-b #auto{padding:12px 22px;font-size:15px}
 /* 스코어 */
 .sc td{vertical-align:middle;padding:7px 8px}
 .sc input{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line-2);width:76px;border-radius:2px;text-align:center}
@@ -143,15 +147,21 @@
       <!-- 조편성 -->
       <div class="pane" id="p-teams">
         <div class="panel"><div class="panel-head"><h2>조편성</h2><span class="dirty" id="t-dirty"></span></div>
-          <div class="opts">
-            <label><input type="checkbox" id="o-pref" checked> 함께 희망 존중</label>
-            <label><input type="checkbox" id="o-cohort" checked> 학번 다양하게</label>
-            <label><input type="checkbox" id="o-skill" checked> 실력 비슷하게</label>
-            <button class="btn sm" id="auto">자동 편성 (잠긴 조 제외)</button>
-            <button class="btn sm ghost" id="clear">미잠금 조 비우기</button>
-            <button class="btn sm gold" id="save-teams">저장</button>
+          <div class="cond">
+            <div class="cond-h">제한조건</div>
+            <div class="opts" style="margin:0">
+              <label><input type="checkbox" id="o-pref" checked> 함께 희망한 사람끼리 같은 조</label>
+              <label><input type="checkbox" id="o-cohort" checked> 학번 다양하게 섞기</label>
+              <label><input type="checkbox" id="o-skill" checked> 실력(평균타수) 비슷하게</label>
+            </div>
+            <div class="cond-b">
+              <button class="btn" id="auto">⛳ 조편성</button>
+              <span class="muted" id="try" style="font-size:13px"></span>
+              <button class="btn sm gold" id="save-teams">저장</button>
+              <button class="btn sm ghost" id="clear">미잠금 조 비우기</button>
+            </div>
           </div>
-          <div class="hint">칩을 끌어서 다른 조에 놓거나, 휴대폰에서는 칩을 한 번 누른 뒤 옮길 조를 누르세요. 조 제목 옆 <b>잠금</b>을 켜면 자동 편성에서 제외됩니다. 금색 테두리 칩은 "함께 희망"이 있는 사람입니다.</div>
+          <div class="hint">참가자 탭에서 학번·평균타수·함께 희망을 넣은 뒤 <b>조편성</b>을 누르세요. 누를 때마다 다른 안이 나오니 마음에 들 때 <b>저장</b>합니다. 저장 뒤에도 칩을 끌어 옮기거나(휴대폰은 칩 한 번 누르고 옮길 조 누르기) 다시 조편성할 수 있고, 조 제목 옆 <b>잠금</b>을 켠 조는 그대로 둡니다. 금색 테두리 칩은 "함께 희망"이 있는 사람입니다.</div>
           <div class="teams" id="teams"></div>
           <div class="gsum" id="gsum"></div>
         </div>
@@ -168,16 +178,17 @@
       <!-- 정산 -->
       <div class="pane" id="p-ledger">
         <div class="kpi">
-          <div class="k"><div class="v inc" id="l-in">—</div><div class="l">수입 (찬조 · 기타)</div></div>
+          <div class="k"><div class="v inc" id="l-in">—</div><div class="l">찬조금 · 수입</div></div>
           <div class="k"><div class="v exp" id="l-out">—</div><div class="l">지출</div></div>
           <div class="k gold"><div class="v" id="l-bal">—</div><div class="l">잔액</div></div>
-          <div class="k"><div class="v" id="l-per">—</div><div class="l">1인당 분담 — (지출 − 수입) ÷ 참가</div></div>
+          <div class="k"><div class="v" id="l-per">—</div><div class="l">1인당 분담 — 찬조금으로 못 메운 몫</div></div>
         </div>
         </div>
-        <div class="panel"><div class="panel-head"><h2>당일 정산 — 지출 · 수입</h2><span class="muted" style="font-size:13px">참가 회비 없음. 당일 지출을 적으면 1인당 분담액이 계산됩니다</span></div>
+        <div class="panel"><div class="panel-head"><h2>당일 정산 — 찬조금을 어디에 얼마나 쓰나</h2><span class="muted" style="font-size:13px">참가 회비 없음. 찬조금은 "수입"으로, 그린피·식사·시상품 등은 "지출"로 적습니다</span></div>
+          <div class="hint">잔액이 양수면 찬조금이 남는 것이고, 음수면 그만큼을 참가자가 나눠 냅니다(1인당 분담). <b>이 정산은 뼈대만 두었습니다.</b> 실제로 쓰다가 필요해지면 — 찬조자별 명단, 조별·항목별 집계, 영수증 사진 첨부, 결산 관리(/admin/finance/) 장부로 자동 이관, 엑셀 내려받기 — 같은 것은 같은 데이터 위에 바로 붙일 수 있습니다.</div>
           <form class="entry" id="entry" autocomplete="off">
-            <div class="field"><label>구분</label><select id="e-type"><option value="expense">지출</option><option value="income">수입</option></select></div>
-            <div class="field"><label>내용</label><input id="e-item" placeholder="예: 그린피, 카트피, 캐디피, 식사, 시상품" required></div>
+            <div class="field"><label>구분</label><select id="e-type"><option value="income">찬조금(수입)</option><option value="expense">지출</option></select></div>
+            <div class="field"><label>내용</label><input id="e-item" placeholder="예: ○○○ 선배 찬조 / 그린피 14팀 / 시상품" required></div>
             <div class="field"><label>금액 (원)</label><input id="e-amt" inputmode="numeric" required></div>
             <div class="field"><label>비고</label><input id="e-memo"></div>
             <div class="field"><button class="btn sm" type="submit" style="width:100%;justify-content:center">추가</button></div>
@@ -195,13 +206,13 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261019d"></script><script src="/assets/js/admin.js?v=20261019d"></script>
+<script src="/assets/js/site.js?v=20261019e"></script><script src="/assets/js/admin.js?v=20261019e"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
   const won = n => (n == null ? '—' : Math.round(n).toLocaleString('ko-KR') + '원');
   let S = { event: {}, players: [], teams: [], scores: [], ledger: [], photos: 0 };
-  let assign = {}, dirty = false, sel = null;
+  let assign = {}, dirty = false, sel = null, tries = 0;
 
   async function load() { S = await api('/golf'); q('#me-name').textContent = S.me || '—'; assign = {}; S.players.forEach(p => assign[p.id] = p.team); dirty = false; renderAll(); }
   function renderAll() { kpis(); renderInfo(); renderPlayers(); renderTeams(); renderScores(); renderLedger(); }
@@ -277,7 +288,7 @@
   q('#teams').addEventListener('dragleave', e => { const t = e.target.closest('.team'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('over'); });
   q('#teams').addEventListener('drop', e => { const t = e.target.closest('.team'); if (!t) return; e.preventDefault(); t.classList.remove('over'); const pid = Number(e.dataTransfer.getData('text/plain')); if (pid) move(pid, Number(t.dataset.t)); });
   q('#clear').addEventListener('click', () => { const locked = new Set(S.teams.filter(t => t.locked).map(t => t.id)); S.players.forEach(p => { if (!locked.has(assign[p.id])) assign[p.id] = null; }); dirty = true; renderTeams(); });
-  q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장'); await load(); location.hash = 'teams'; } catch (e) { toast('실패: ' + e.message); } });
+  q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장 — 이후에도 자유롭게 수정할 수 있습니다'); tries = 0; await load(); location.hash = 'teams'; q('#try').textContent = ''; } catch (e) { toast('실패: ' + e.message); } });
 
   // 자동 편성: 희망 동반 묶음(유닛) → 비용 최소 배치 → 교환 개선
   q('#auto').addEventListener('click', () => {
@@ -294,7 +305,8 @@
       free.forEach(p => unitOf.set(p.id, p.id));
       free.forEach(p => prefNames(p).forEach(n => { const o = byName[n]; if (!o) return; const a = find(p), b = find(o); if (a.id !== b.id) { const ua = free.filter(x => find(x).id === a.id).length, ub = free.filter(x => find(x).id === b.id).length; if (ua + ub <= 4) unitOf.set(b.id, a.id); } })); }
     const groups = {}; free.forEach(p => { const root = useP ? (() => { let x = p; while (unitOf.get(x.id) !== x.id) x = byId(unitOf.get(x.id)); return x.id; })() : p.id; (groups[root] = groups[root] || []).push(p); });
-    Object.values(groups).sort((a, b) => b.length - a.length).forEach(g => units.push(g));
+    const shuffled = Object.values(groups).map(g => ({ g, k: Math.random() })).sort((x, y) => x.k - y.k).map(x => x.g);
+    shuffled.sort((a, b) => b.length - a.length).forEach(g => units.push(g));
     // 배치: 조별 정원 = 균등 (4명 기준, 부족하면 3명)
     const n = free.length + S.players.filter(p => locked.has(assign[p.id])).length; const cap = {}; const perTeam = Math.min(4, Math.ceil(free.length / teams.length)); teams.forEach(t => cap[t.id] = perTeam);
     // 더 많은 조를 쓰도록 남는 자리를 앞 조부터 (정원 4) 배분
@@ -312,7 +324,7 @@
       const ia = Math.floor(Math.random() * members[a.id].length), ib = Math.floor(Math.random() * members[b.id].length); const pa = members[a.id][ia], pb = members[b.id][ib]; if (!singles.has(pa.id) || !singles.has(pb.id)) continue;
       members[a.id][ia] = pb; members[b.id][ib] = pa; const nc = total(); if (nc < cur) cur = nc; else { members[a.id][ia] = pa; members[b.id][ib] = pb; } }
     for (const t of teams) members[t.id].forEach(p => assign[p.id] = t.id);
-    dirty = true; sel = null; renderTeams(); toast('자동 편성 완료 — 확인 후 저장을 누르세요');
+    dirty = true; sel = null; tries++; renderTeams(); q('#try').textContent = tries + '번째 안 — 마음에 들면 저장, 아니면 다시 조편성'; toast('조편성 ' + tries + '번째 안');
   });
 
   // ── 스코어
