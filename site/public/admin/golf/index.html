@@ -5,7 +5,7 @@
 <title>골프 운영 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261019b"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261019c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261019c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14.5px;padding:11px 16px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -22,6 +22,7 @@
 .pl table{min-width:980px}
 .pl td{padding:6px 6px;vertical-align:middle}
 .pl th{padding:8px 6px}
+.pl th:nth-child(1),.pl td:nth-child(1){position:sticky;left:0;background:var(--paper);z-index:2}.pl th:nth-child(2),.pl td:nth-child(2){position:sticky;left:34px;background:var(--paper);z-index:2;box-shadow:2px 0 0 var(--line)}.pl th:nth-child(1),.pl th:nth-child(2){background:var(--ivory)}.pl tr.new td:nth-child(1),.pl tr.new td:nth-child(2){background:#FBF4E6}
 .pl input[type=text],.pl input[type=number]{font:inherit;font-size:13.5px;padding:6px 8px;border:1px solid var(--line-2);width:100%;border-radius:2px;background:var(--paper)}
 .pl input:focus{outline:0;border-color:var(--navy-800)}
 .pl input[type=checkbox]{width:18px;height:18px;accent-color:var(--navy-800)}
@@ -196,7 +197,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261019b"></script><script src="/assets/js/admin.js?v=20261019b"></script>
+<script src="/assets/js/site.js?v=20261019c"></script><script src="/assets/js/admin.js?v=20261019c"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
@@ -232,7 +233,7 @@
   // ── 참가자
   const F = ['name', 'cohort', 'phone', 'avg', 'handicap', 'pref', 'fee', 'paid', 'cart', 'dinner', 'note'];
   function plRow(p, i) { const v = f => p[f] == null ? '' : p[f]; const cb = f => `<td><input type="checkbox" data-id="${p.id}" data-f="${f}" ${p[f] ? 'checked' : ''}></td>`;
-    return `<tr data-row="${p.id}"><td class="n">${i + 1}</td><td><input type="text" data-id="${p.id}" data-f="name" value="${esc(v('name'))}"></td><td><input type="text" data-id="${p.id}" data-f="cohort" value="${esc(v('cohort'))}" inputmode="numeric"></td><td><input type="text" data-id="${p.id}" data-f="phone" value="${esc(v('phone'))}"></td><td><input type="number" data-id="${p.id}" data-f="avg" value="${esc(v('avg'))}" placeholder="타수"></td><td><input type="number" data-id="${p.id}" data-f="handicap" value="${esc(v('handicap'))}"></td><td><input type="text" data-id="${p.id}" data-f="pref" value="${esc(v('pref'))}" placeholder="이름, 이름"></td><td><input type="text" data-id="${p.id}" data-f="fee" value="${esc(v('fee'))}" placeholder="${S.event.fee || 0}" inputmode="numeric"></td>${cb('paid')}${cb('cart')}${cb('dinner')}<td><input type="text" data-id="${p.id}" data-f="note" value="${esc(v('note'))}"></td><td>${p.id ? `<button class="del" data-del="${p.id}">삭제</button>` : ''}</td></tr>`; }
+    return `<tr data-row="${p.id}"><td class="n">${i + 1}</td><td><input type="text" data-id="${p.id}" data-f="name" value="${esc(v('name'))}"></td><td><input type="text" data-id="${p.id}" data-f="cohort" value="${esc(v('cohort'))}" inputmode="numeric"></td><td><input type="text" data-id="${p.id}" data-f="phone" value="${esc(v('phone'))}"></td><td><input type="number" data-id="${p.id}" data-f="avg" value="${esc(v('avg'))}" placeholder="타수"></td><td><input type="number" data-id="${p.id}" data-f="handicap" value="${esc(v('handicap'))}"></td><td><input type="text" data-id="${p.id}" data-f="pref" value="${esc(v('pref'))}" placeholder="이름 이름 (붙여 써도 됨)"></td><td><input type="text" data-id="${p.id}" data-f="fee" value="${esc(v('fee'))}" placeholder="${S.event.fee || 0}" inputmode="numeric"></td>${cb('paid')}${cb('cart')}${cb('dinner')}<td><input type="text" data-id="${p.id}" data-f="note" value="${esc(v('note'))}"></td><td>${p.id ? `<button class="del" data-del="${p.id}">삭제</button>` : ''}</td></tr>`; }
   function renderPlayers() {
     const blank = { id: 0, name: '', cohort: '', phone: '', avg: '', handicap: '', pref: '', fee: '', paid: 0, cart: 0, dinner: 0, note: '' };
     q('#pl-table tbody').innerHTML = S.players.map(plRow).join('') + `<tr class="new">${plRow(blank, S.players.length).replace(/^<tr[^>]*>/, '').replace(/<\/tr>$/, '')}</tr>`;
@@ -242,7 +243,7 @@
   const timers = {};
   q('#pl-table').addEventListener('change', e => {
     const el = e.target; if (!el.dataset.f) return; const tr = el.closest('tr'); const id = Number(el.dataset.id);
-    clearTimeout(timers[id]); timers[id] = setTimeout(async () => { const d = rowData(tr); if (!d.name.trim()) return;
+    clearTimeout(timers[id]); timers[id] = setTimeout(async () => { const d = rowData(tr); if (!d.name.trim()) return; if (d.pref) { d.pref = parseNames(d.pref).join(', '); const pf = tr.querySelector('[data-f=pref]'); if (pf && pf.value !== d.pref) pf.value = d.pref; }
       try { const r = await api('/golf', { method: 'POST', body: { r: 'player', id: id || undefined, ...d } }); if (!id) { toast(d.name + ' 추가'); await load(); q('#pl-table tbody tr.new input').focus(); } else { Object.assign(byId(id), d, { avg: d.avg === '' ? null : Number(d.avg), handicap: Number(d.handicap || 0), fee: d.fee === '' ? null : Number(d.fee) }); kpis(); renderTeams(); renderScores(); renderLedger(); } } catch (err) { toast('저장 실패: ' + err.message); } }, 350);
   });
   q('#pl-table').addEventListener('click', async e => { const b = e.target.closest('[data-del]'); if (!b) return; const p = byId(b.dataset.del); if (!confirm(p.name + ' 님을 명단에서 뺄까요?')) return; try { await api('/golf?r=player&id=' + p.id, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
@@ -253,7 +254,9 @@
   });
 
   // ── 조편성
-  const prefNames = p => (p.pref || '').split(/[,、/]/).map(s => s.trim()).filter(Boolean);
+  const roster = () => S.players.map(p => p.name).sort((a, b) => b.length - a.length);
+  function parseNames(str) { const out = []; const names = roster(); for (let tok of String(str || '').split(/[,，、/·;|s]+/)) { tok = tok.trim(); if (!tok) continue; if (names.includes(tok)) { out.push(tok); continue; } let i = 0, ok = true, part = []; while (i < tok.length) { const hit = names.find(n => tok.startsWith(n, i)); if (!hit) { ok = false; break; } part.push(hit); i += hit.length; } if (ok && part.length) out.push(...part); else out.push(tok); } return [...new Set(out)]; }
+  const prefNames = p => parseNames(p.pref);
   const inTeam = tid => S.players.filter(p => (assign[p.id] || null) === tid);
   const skill = p => p.avg || null;
   function renderTeams() {
