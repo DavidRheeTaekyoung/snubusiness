@@ -288,10 +288,13 @@
   q('#teams').addEventListener('drop', e => { const t = e.target.closest('.team'); if (!t) return; e.preventDefault(); t.classList.remove('over'); const pid = Number(e.dataTransfer.getData('text/plain')); if (pid) move(pid, Number(t.dataset.t)); });
   const copyText = async (t, msg) => { try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(msg); };
   q('#kakao').addEventListener('click', () => { const e = S.event; const d = new Date(e.date); const dow = ['일','월','화','수','목','금','토'][d.getDay()] || '';
-    const lines = ["[" + (e.title || '골프') + ' 조편성]', "" + (e.date || '').replace(/-/g, '.') + (dow ? '(' + dow + ') ' : ' ') + (e.place || ''), ''];
+    const tees = S.teams.map(t => t.tee).filter(t => /^d{1,2}:d{2}$/.test(t)).map(t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; }); const first = tees.length ? Math.min(...tees) : null;
+    const hm = x => String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(x % 60).padStart(2, '0'); const meet = first != null ? Math.floor((first - 60) / 30) * 30 : null, photo = meet != null ? meet + 45 : null;
+    const lines = ["[" + (e.title || '골프') + ' 조편성 및 안내]', "" + (e.date || '').replace(/-/g, '.') + (dow ? '(' + dow + ') ' : ' ') + (e.place || ''), ''];
+    if (meet != null) lines.push('■ ' + hm(meet) + '까지 클럽하우스 식당으로 모여 주세요 (첫 티오프 ' + hm(first) + ')', '■ 단체사진 촬영 ' + hm(photo), '');
     S.teams.forEach(t => { const ps = inTeam(t.id); if (!ps.length) return; lines.push(t.seq + '조 ' + t.course + ' ' + t.tee); lines.push('  ' + ps.map(p => p.name + (p.cohort ? '(' + p.cohort + ')' : '')).join(' · ')); });
     const pool = inTeam(null); if (pool.length) lines.push('', '미배정: ' + pool.map(p => p.name).join(', '));
-    lines.push('', '* 티오프 30분 전까지 도착 부탁드립니다.'); copyText(lines.join('\n'), '카톡용으로 복사했습니다 — 단톡방에 붙여 넣으세요'); });
+    lines.push('', '■ 라운드 후에는 가급적 결제를 마치고 점심식사를 위해 예약된 룸으로 와 주세요.'); copyText(lines.join('\n'), '카톡용으로 복사했습니다 — 단톡방에 붙여 넣으세요'); });
   q('#clear').addEventListener('click', () => { const locked = new Set(S.teams.filter(t => t.locked).map(t => t.id)); S.players.forEach(p => { if (!locked.has(assign[p.id])) assign[p.id] = null; }); dirty = true; renderTeams(); });
   q('#save-teams').addEventListener('click', async () => { try { await api('/golf', { method: 'POST', body: { r: 'teams', assign } }); toast('조편성 저장 — 이후에도 자유롭게 수정할 수 있습니다'); tries = 0; await load(); location.hash = 'info'; q('#try').textContent = ''; } catch (e) { toast('실패: ' + e.message); } });
 
