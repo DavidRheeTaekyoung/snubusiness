@@ -14,12 +14,12 @@
 .pane{display:none}.pane.on{display:block}
 .g-info{white-space:pre-wrap;font-size:14px;line-height:1.8;background:var(--ivory);padding:18px 22px;border-left:3px solid var(--gold-400)}
 .g-info a{color:var(--navy-800);text-decoration:underline;word-break:break-all}
-.ev{display:grid;grid-template-columns:1.4fr 1fr 1.4fr 1fr;gap:12px}
+.ev{display:grid;grid-template-columns:1.4fr 1fr 1.4fr;gap:12px}
 @media (max-width:800px){.ev{grid-template-columns:1fr 1fr}}
 .ev .field{margin:0}.ev .field input{padding:10px 11px;font-size:14px}
 /* 참가자 표 */
 .pl{overflow-x:auto}
-.pl table{min-width:980px}
+.pl table{min-width:760px}
 .pl td{padding:6px 6px;vertical-align:middle}
 .pl th{padding:8px 6px}
 .pl th:nth-child(1),.pl td:nth-child(1){position:sticky;left:0;background:var(--paper);z-index:2}.pl th:nth-child(2),.pl td:nth-child(2){position:sticky;left:34px;background:var(--paper);z-index:2;box-shadow:2px 0 0 var(--line)}.pl th:nth-child(1),.pl th:nth-child(2){background:var(--ivory)}.pl tr.new td:nth-child(1),.pl tr.new td:nth-child(2){background:#FBF4E6}
@@ -106,7 +106,7 @@
       <div class="kpi">
         <div class="k"><div class="v" id="k-players">—</div><div class="l">참가 신청 (정원 56)</div></div>
         <div class="k gold"><div class="v" id="k-assigned">—</div><div class="l">조 배정 완료</div></div>
-        <div class="k"><div class="v" id="k-paid">—</div><div class="l">회비 납부</div></div>
+        <div class="k"><div class="v" id="k-paid">—</div><div class="l">당일 지출 합계</div></div>
         <div class="k"><div class="v" id="k-photos">—</div><div class="l">사진</div></div>
       </div>
       <div class="tabs" id="tabs">
@@ -120,7 +120,7 @@
             <div class="field"><label>행사명</label><input id="e-title"></div>
             <div class="field"><label>날짜</label><input id="e-date" type="date"></div>
             <div class="field"><label>장소</label><input id="e-place"></div>
-            <div class="field"><label>기본 회비 (원/인)</label><input id="e-fee" inputmode="numeric"></div>
+            <input id="e-fee" type="hidden">
           </div>
           <div class="field" style="margin-top:12px"><label>예약 · 안내 내용</label><textarea id="e-info" style="min-height:200px;font-size:14px"></textarea></div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn sm" id="e-save">저장</button><span class="muted" style="font-size:13px">아래는 저장된 안내문입니다.</span></div>
@@ -133,8 +133,8 @@
       <!-- 참가자 -->
       <div class="pane" id="p-players">
         <div class="panel"><div class="panel-head"><h2>참가자 명단</h2><span class="muted" style="font-size:13px">칸을 고치면 바로 저장됩니다 · 평균타수는 조편성(실력 균형)에, 핸디는 스코어(네트)에 쓰입니다</span></div>
-          <div class="pl"><table class="table" id="pl-table"><thead><tr><th>#</th><th style="min-width:110px">이름</th><th style="width:70px">학번</th><th style="min-width:120px">연락처</th><th style="width:80px">평균타수</th><th style="width:64px">핸디</th><th style="min-width:150px">함께 희망</th><th style="width:90px">회비</th><th style="width:50px">납부</th><th style="width:46px">카트</th><th style="width:46px">디너</th><th style="min-width:140px">비고</th><th></th></tr></thead><tbody></tbody></table></div>
-          <div class="import"><b>엑셀에서 가져오기</b> — <code>이름, 학번, 연락처, 평균타수, 핸디, 함께 희망, 비고</code> 순서로 열을 맞춰 셀 범위를 복사해 붙여 넣으세요. 이름만 있어도 됩니다. "함께 희망"은 같은 조를 원하는 사람 이름(여러 명이면 쉼표).
+          <div class="pl"><table class="table" id="pl-table"><thead><tr><th>#</th><th style="min-width:110px">이름</th><th style="width:70px">학번</th><th style="min-width:120px">연락처</th><th style="width:80px">평균타수</th><th style="width:64px">핸디</th><th style="min-width:150px">함께 희망</th><th style="min-width:140px">비고</th><th></th></tr></thead><tbody></tbody></table></div>
+          <div class="import"><b>엑셀에서 가져오기</b> — <code>이름, 학번, 연락처, 평균타수, 핸디, 함께 희망, 비고</code> 순서로 열을 맞춰 셀 범위를 복사해 붙여 넣으세요. 이름만 있어도 됩니다. 함께 희망은 이름을 붙여 써도 명단과 대조해 나눕니다. "함께 희망"은 같은 조를 원하는 사람 이름(여러 명이면 쉼표).
             <textarea id="imp" placeholder="김동문&#9;81&#9;010-1234-5678&#9;92&#9;10&#9;이동문&#9;카트 필요"></textarea>
             <div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="imp-btn">붙여 넣은 내용 추가</button><span class="muted" style="font-size:13px" id="imp-msg"></span></div></div>
         </div>
@@ -168,18 +168,16 @@
       <!-- 정산 -->
       <div class="pane" id="p-ledger">
         <div class="kpi">
-          <div class="k"><div class="v inc" id="l-in">—</div><div class="l">수입 (회비 납부 + 기타)</div></div>
+          <div class="k"><div class="v inc" id="l-in">—</div><div class="l">수입 (찬조 · 기타)</div></div>
           <div class="k"><div class="v exp" id="l-out">—</div><div class="l">지출</div></div>
           <div class="k gold"><div class="v" id="l-bal">—</div><div class="l">잔액</div></div>
-          <div class="k"><div class="v" id="l-per">—</div><div class="l">1인당 지출</div></div>
+          <div class="k"><div class="v" id="l-per">—</div><div class="l">1인당 분담 — (지출 − 수입) ÷ 참가</div></div>
         </div>
-        <div class="panel"><div class="panel-head"><h2>회비 납부 현황</h2><span class="muted" style="font-size:13px" id="l-paidsum"></span></div>
-          <div class="hint">납부 체크는 참가자 탭에서 합니다. 회비가 비어 있으면 기본 회비(안내 탭)를 적용합니다.</div>
-          <div><b style="font-size:13.5px">미납</b> <span class="muted" style="font-size:12.5px">(이름을 누르면 납부 처리)</span></div><div class="unpaid" id="unpaid" style="margin-top:8px"></div></div>
-        <div class="panel"><div class="panel-head"><h2>지출 · 기타 수입</h2></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>당일 정산 — 지출 · 수입</h2><span class="muted" style="font-size:13px">참가 회비 없음. 당일 지출을 적으면 1인당 분담액이 계산됩니다</span></div>
           <form class="entry" id="entry" autocomplete="off">
             <div class="field"><label>구분</label><select id="e-type"><option value="expense">지출</option><option value="income">수입</option></select></div>
-            <div class="field"><label>내용</label><input id="e-item" placeholder="예: 그린피 14팀, 카트, 식사, 시상품" required></div>
+            <div class="field"><label>내용</label><input id="e-item" placeholder="예: 그린피, 카트피, 캐디피, 식사, 시상품" required></div>
             <div class="field"><label>금액 (원)</label><input id="e-amt" inputmode="numeric" required></div>
             <div class="field"><label>비고</label><input id="e-memo"></div>
             <div class="field"><button class="btn sm" type="submit" style="width:100%;justify-content:center">추가</button></div>
@@ -207,12 +205,11 @@
 
   async function load() { S = await api('/golf'); q('#me-name').textContent = S.me || '—'; assign = {}; S.players.forEach(p => assign[p.id] = p.team); dirty = false; renderAll(); }
   function renderAll() { kpis(); renderInfo(); renderPlayers(); renderTeams(); renderScores(); renderLedger(); }
-  const feeOf = p => p.fee ?? (S.event.fee || 0);
   const byId = id => S.players.find(p => p.id === Number(id));
 
   function kpis() {
-    const n = S.players.length, a = S.players.filter(p => p.team).length, paid = S.players.filter(p => p.paid).length;
-    q('#k-players').textContent = n; q('#k-assigned').textContent = a + ' / ' + n; q('#k-paid').textContent = paid + ' / ' + n; q('#k-photos').textContent = S.photos;
+    const n = S.players.length, a = S.players.filter(p => p.team).length;
+    q('#k-players').textContent = n; q('#k-assigned').textContent = a + ' / ' + n; q('#k-paid').textContent = won(S.ledger.filter(l => l.type === 'expense').reduce((a, l) => a + l.amount, 0)); q('#k-photos').textContent = S.photos;
     q('#t-players').textContent = n || ''; q('#t-photos').textContent = S.photos || '';
     q('#g-title').textContent = (S.event.title || '골프 운영') + ' · ' + (S.event.date || '');
   }
@@ -231,9 +228,9 @@
   q('#tee-table').addEventListener('change', async e => { const id = e.target.dataset.team; if (!id) return; const t = S.teams.find(x => x.id === Number(id)); const f = e.target.dataset.f; t[f] = f === 'locked' ? (e.target.checked ? 1 : 0) : e.target.value; try { await api('/golf', { method: 'POST', body: { r: 'team', ...t } }); renderTeams(); } catch (err) { toast('실패: ' + err.message); } });
 
   // ── 참가자
-  const F = ['name', 'cohort', 'phone', 'avg', 'handicap', 'pref', 'fee', 'paid', 'cart', 'dinner', 'note'];
-  function plRow(p, i) { const v = f => p[f] == null ? '' : p[f]; const cb = f => `<td><input type="checkbox" data-id="${p.id}" data-f="${f}" ${p[f] ? 'checked' : ''}></td>`;
-    return `<tr data-row="${p.id}"><td class="n">${i + 1}</td><td><input type="text" data-id="${p.id}" data-f="name" value="${esc(v('name'))}"></td><td><input type="text" data-id="${p.id}" data-f="cohort" value="${esc(v('cohort'))}" inputmode="numeric"></td><td><input type="text" data-id="${p.id}" data-f="phone" value="${esc(v('phone'))}"></td><td><input type="number" data-id="${p.id}" data-f="avg" value="${esc(v('avg'))}" placeholder="타수"></td><td><input type="number" data-id="${p.id}" data-f="handicap" value="${esc(v('handicap'))}"></td><td><input type="text" data-id="${p.id}" data-f="pref" value="${esc(v('pref'))}" placeholder="이름 이름 (붙여 써도 됨)"></td><td><input type="text" data-id="${p.id}" data-f="fee" value="${esc(v('fee'))}" placeholder="${S.event.fee || 0}" inputmode="numeric"></td>${cb('paid')}${cb('cart')}${cb('dinner')}<td><input type="text" data-id="${p.id}" data-f="note" value="${esc(v('note'))}"></td><td>${p.id ? `<button class="del" data-del="${p.id}">삭제</button>` : ''}</td></tr>`; }
+  const F = ['name', 'cohort', 'phone', 'avg', 'handicap', 'pref', 'note'];
+  function plRow(p, i) { const v = f => p[f] == null ? '' : p[f]; 
+    return `<tr data-row="${p.id}"><td class="n">${i + 1}</td><td><input type="text" data-id="${p.id}" data-f="name" value="${esc(v('name'))}"></td><td><input type="text" data-id="${p.id}" data-f="cohort" value="${esc(v('cohort'))}" inputmode="numeric"></td><td><input type="text" data-id="${p.id}" data-f="phone" value="${esc(v('phone'))}"></td><td><input type="number" data-id="${p.id}" data-f="avg" value="${esc(v('avg'))}" placeholder="타수"></td><td><input type="number" data-id="${p.id}" data-f="handicap" value="${esc(v('handicap'))}"></td><td><input type="text" data-id="${p.id}" data-f="pref" value="${esc(v('pref'))}" placeholder="이름 이름 (붙여 써도 됨)"></td><td><input type="text" data-id="${p.id}" data-f="note" value="${esc(v('note'))}"></td><td>${p.id ? `<button class="del" data-del="${p.id}">삭제</button>` : ''}</td></tr>`; }
   function renderPlayers() {
     const blank = { id: 0, name: '', cohort: '', phone: '', avg: '', handicap: '', pref: '', fee: '', paid: 0, cart: 0, dinner: 0, note: '' };
     q('#pl-table tbody').innerHTML = S.players.map(plRow).join('') + `<tr class="new">${plRow(blank, S.players.length).replace(/^<tr[^>]*>/, '').replace(/<\/tr>$/, '')}</tr>`;
@@ -337,14 +334,10 @@
 
   // ── 정산
   function renderLedger() {
-    const paid = S.players.filter(p => p.paid), unpaid = S.players.filter(p => !p.paid);
-    const dues = paid.reduce((a, p) => a + feeOf(p), 0), inc = S.ledger.filter(l => l.type === 'income').reduce((a, l) => a + l.amount, 0), out = S.ledger.filter(l => l.type === 'expense').reduce((a, l) => a + l.amount, 0);
-    q('#l-in').textContent = won(dues + inc); q('#l-out').textContent = won(out); q('#l-bal').textContent = won(dues + inc - out); q('#l-per').textContent = S.players.length ? won(out / S.players.length) : '—';
-    q('#l-paidsum').textContent = `${paid.length}명 납부 ${won(dues)} · 미납 ${unpaid.length}명 ${won(unpaid.reduce((a, p) => a + feeOf(p), 0))}`;
-    q('#unpaid').innerHTML = unpaid.map(p => `<span data-pay="${p.id}" style="cursor:pointer">${esc(p.name)} <small class="muted">${won(feeOf(p))}</small></span>`).join('') || '<span class="muted">미납자가 없습니다</span>';
-    q('#ledger tbody').innerHTML = S.ledger.map(l => `<tr><td><span class="status ${l.type === 'income' ? 'done' : 'fail'}">${l.type === 'income' ? '수입' : '지출'}</span></td><td>${esc(l.item)}</td><td class="amt ${l.type === 'income' ? 'inc' : 'exp'}">${won(l.amount)}</td><td class="muted">${esc(l.memo)}</td><td class="muted">${esc(l.created_by || '')}</td><td class="act"><button data-ldel="${l.id}">삭제</button></td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 항목이 없습니다. 그린피·카트·식사·시상품 등을 적어 두세요.</td></tr>';
+    const inc = S.ledger.filter(l => l.type === 'income').reduce((a, l) => a + l.amount, 0), out = S.ledger.filter(l => l.type === 'expense').reduce((a, l) => a + l.amount, 0), n = S.players.length;
+    q('#l-in').textContent = won(inc); q('#l-out').textContent = won(out); q('#l-bal').textContent = won(inc - out); q('#l-per').textContent = n ? won(Math.max(0, out - inc) / n) : '—';
+    q('#ledger tbody').innerHTML = S.ledger.map(l => `<tr><td><span class="status ${l.type === 'income' ? 'done' : 'fail'}">${l.type === 'income' ? '수입' : '지출'}</span></td><td>${esc(l.item)}</td><td class="amt ${l.type === 'income' ? 'inc' : 'exp'}">${won(l.amount)}</td><td class="muted">${esc(l.memo)}</td><td class="muted">${esc(l.created_by || '')}</td><td class="act"><button data-ldel="${l.id}">삭제</button></td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 항목이 없습니다. 그린피·카트·캐디·식사·시상품 등을 적어 두세요.</td></tr>';
   }
-  q('#unpaid').addEventListener('click', async e => { const s = e.target.closest('[data-pay]'); if (!s) return; const p = byId(s.dataset.pay); if (!confirm(p.name + ' 님 납부 처리할까요?')) return; try { await api('/golf', { method: 'POST', body: { r: 'player', ...p, paid: 1 } }); await load(); location.hash = 'ledger'; } catch (err) { toast('실패: ' + err.message); } });
   q('#entry').addEventListener('submit', async e => { e.preventDefault(); try { await api('/golf', { method: 'POST', body: { r: 'ledger', type: q('#e-type').value, item: q('#e-item').value, amount: q('#e-amt').value, memo: q('#e-memo').value } }); q('#e-item').value = ''; q('#e-amt').value = ''; q('#e-memo').value = ''; await load(); location.hash = 'ledger'; } catch (err) { toast('실패: ' + err.message); } });
   q('#ledger').addEventListener('click', async e => { const b = e.target.closest('[data-ldel]'); if (!b) return; if (!confirm('이 항목을 지울까요?')) return; try { await api('/golf?r=ledger&id=' + b.dataset.ldel, { method: 'DELETE' }); await load(); location.hash = 'ledger'; } catch (err) { toast('실패: ' + err.message); } });
 
