@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>창립총회 행사기획 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020a"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-size:14.5px;padding:11px 15px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
+.tabs button.on{color:var(--navy-800);border-color:var(--gold-500);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.facts{display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14.5px;line-height:1.7}
+.facts dt{color:var(--ink-3);font-size:13px;padding-top:2px}.facts dd{margin:0}
+.warn{background:#FFF6E5;border-left:3px solid var(--warn);padding:12px 16px;font-size:13.5px;line-height:1.75;margin-bottom:16px}
+.warn b{color:#8A5A00}
+.team td{font-size:14px}
+.script{background:var(--navy-800);color:var(--paper);padding:20px 24px;font-size:15px;line-height:1.85;border-top:3px solid var(--gold-400);position:relative}
+.script .t{font-family:var(--display);letter-spacing:.14em;font-size:12px;color:var(--gold-300);text-transform:uppercase;margin-bottom:6px}
+.script .copy{position:absolute;right:14px;top:14px;font:inherit;font-size:12px;padding:4px 10px;border:1px solid rgba(255,255,255,.35);background:none;color:var(--paper);border-radius:999px;cursor:pointer}
+.scripts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+@media (max-width:860px){.scripts{grid-template-columns:1fr}}
+.script.light{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-top:3px solid var(--navy-700)}
+.script.light .t{color:var(--gold-500)}.script.light .copy{border-color:var(--line-2);color:var(--ink-3)}
+.checks{counter-reset:c;list-style:none;padding:0;margin:0;font-size:14px;line-height:1.7}
+.checks li{counter-increment:c;padding:7px 0 7px 34px;position:relative;border-bottom:1px dashed var(--line)}
+.checks li::before{content:counter(c);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--ivory);color:var(--navy-800);font-family:var(--display);font-weight:700;display:grid;place-items:center;font-size:14px}
+.checks b{color:var(--navy-800)}
+.vendors{display:grid;gap:14px}
+.vd{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--navy-700)}
+.vd.called{border-left-color:var(--success)}.vd.declined{opacity:.6;border-left-color:var(--ink-3)}
+.vd-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.vd-h h3{font-family:var(--serif);font-size:19px;color:var(--navy-800);margin:0}
+.vd-h h3 small{font-family:var(--display);font-size:13px;color:var(--ink-3);letter-spacing:.06em;margin-left:6px}
+.vd-h .seq{font-family:var(--display);font-size:22px;color:var(--gold-500);font-weight:700;margin-right:8px}
+.tel{display:inline-flex;align-items:center;gap:6px;font-size:17px;font-weight:700;color:var(--paper);background:var(--navy-800);padding:9px 16px;border-radius:999px;font-variant-numeric:tabular-nums}
+.tel.sub{background:var(--paper);color:var(--navy-800);border:1px solid var(--navy-800);font-size:14px;padding:7px 12px}
+.vd-b{display:grid;grid-template-columns:1.1fr 1fr;gap:0}
+@media (max-width:900px){.vd-b{grid-template-columns:1fr}}
+.vd-info{padding:14px 18px;font-size:13.5px;line-height:1.75;border-right:1px solid var(--line)}
+.vd-info p{margin:0 0 6px}.vd-info b{color:var(--navy-800);font-weight:600}
+.vd-info .q{background:#FBF4E6;padding:8px 12px;margin-top:8px;border-left:3px solid var(--gold-400)}
+.vd-info a{color:var(--navy-800);text-decoration:underline;word-break:break-all}
+.vd-form{padding:14px 18px;display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;background:#FCFBF8}
+.vd-form label{font-size:11.5px;color:var(--ink-3);letter-spacing:.04em;display:block;margin-bottom:2px}
+.vd-form input,.vd-form select,.vd-form textarea{font:inherit;font-size:13.5px;padding:7px 9px;border:1px solid var(--line-2);border-radius:2px;width:100%;background:var(--paper)}
+.vd-form .full{grid-column:1/-1}
+.vd-form textarea{min-height:56px;resize:vertical}
+.vd-foot{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
+.st{display:inline-block;font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--ivory-2);color:var(--ink-3)}
+.st.ok{background:#E3F1EA;color:var(--success)}.st.no{background:#F8E3E0;color:var(--danger)}.st.mid{background:#FFF1DD;color:var(--warn)}
+.board td{font-size:13px;padding:8px 10px}
+.mailbox{display:grid;grid-template-columns:1fr;gap:10px}
+.mailbox .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mailbox input,.mailbox select,.mailbox textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line-2);border-radius:2px;width:100%;background:var(--paper)}
+.mailbox textarea{min-height:420px;line-height:1.75;font-size:14px}
+.mailbox label{font-size:12px;color:var(--ink-3)}
+.mbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.rub td{font-size:13px;vertical-align:top}
+.rub .big td{background:#FBF8F2;font-weight:700;color:var(--navy-800)}
+.sc input{width:56px;font:inherit;font-size:14px;padding:5px;text-align:center;border:1px solid var(--line-2)}
+.sc td,.sc th{padding:6px 8px;font-size:13px}
+.files a.btn{margin-right:8px;margin-bottom:8px}
+.pre{white-space:pre-wrap;font-size:14px;line-height:1.8}
+@media print{.admin-side,.admin-top .actions,.tabs,.no-print{display:none!important}.pane{display:block!important;break-after:page}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Event 2027 · 행사기획팀 전용</span><h1>2027 창립총회 행사기획</h1><div class="sub">2027. 4. 16.(금) 18:00–21:00 · 그랜드 하얏트 서울 Grand Ballroom · 약 700명</div></div>
+      <div class="actions"><span class="muted" style="font-size:13px">접속: <b id="me">—</b></span></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi">
+        <div class="k"><div class="v" id="k-called">—</div><div class="l">통화 완료 / 7개사</div></div>
+        <div class="k gold"><div class="v" id="k-yes">—</div><div class="l">참여 의사 확인</div></div>
+        <div class="k"><div class="v" id="k-docs">—</div><div class="l">자료 수령</div></div>
+        <div class="k"><div class="v" id="k-mail">—</div><div class="l">발송한 메일</div></div>
+      </div>
+      <div class="tabs" id="tabs"><button data-t="call" class="on">전화 · 업체</button><button data-t="mail">메일 · RFP</button><button data-t="score">채점표</button><button data-t="brief">행사 개요 · 예산</button><button data-t="files">엑셀 · 자료</button></div>
+
+      <!-- 전화 · 업체 -->
+      <div class="pane on" id="p-call">
+        <div class="warn"><b>통화 원칙</b> — 인터컴 먼저(정보 확보용, 선정 내정 아님), 나머지 6곳은 1~2일 안에 같은 조건으로. 공개된 이메일은 "담당자 지정 완료"가 아니므로 <b>담당자 성함·직통·실제 수신 이메일·제안 가능 일정</b>을 전화로 받아 아래 칸에 적습니다. 호텔 계약서 전체·내부 연사 후보·개인정보는 말하지 않습니다(강연은 "연사 미정").</div>
+        <div class="scripts">
+          <div class="script"><div class="t">① 첫 인사 · 30초</div><button class="copy" data-copy="s1">복사</button><div id="s1">안녕하세요. 서울대 경영대학 <span class="orgshort">동창회</span> 창립총회 준비팀의 이태경입니다. 내년 4월 16일 그랜드 하얏트에서 약 700명 규모 창립총회를 개최하는데, 행사 전체 기획·연출·운영 대행사를 검토하고 있습니다. 제안 참여가 가능하신지 확인하고 관련 실적 자료를 요청드리려고 연락했습니다. 제안 담당자 연결을 부탁드립니다.</div></div>
+          <div class="script light"><div class="t">② 대표번호·교환에서</div><button class="copy" data-copy="s2">복사</button><div id="s2">행사 대행 제안 건으로 연락드렸습니다. MICE·기업 행사 제안을 담당하시는 분과 통화하고 싶습니다. 지금 연결이 어려우시면 담당자 성함과 직통 번호, 제안서를 받으실 이메일을 알려 주시겠어요? 제 연락처는 pm@snubusiness.com 이고, 오늘 중 메일로 개요를 보내 드리겠습니다.</div></div>
+          <div class="script light"><div class="t">③ 마무리</div><button class="copy" data-copy="s3">복사</button><div id="s3">감사합니다. 오늘 중으로 pm@snubusiness.com 에서 행사 개요와 회신 양식을 보내 드리겠습니다. 이번 주 금요일까지 회사소개서, 최근 5년 유사 행사 2~3건 실적, 배정 가능한 총괄 PM 정보를 회신해 주시면 참여 업체에 정식 RFP와 일정을 안내드리겠습니다.</div></div>
+          <div class="script light"><div class="t">④ 부재 · 콜백 요청</div><button class="copy" data-copy="s4">복사</button><div id="s4">서울대 경영대학 <span class="orgshort">동창회</span> 창립총회 준비팀 이태경입니다. 2027년 4월 16일 그랜드 하얏트 약 700명 규모 창립총회의 행사대행 제안 참여 여부를 여쭙고자 연락드렸습니다. 회신은 pm@snubusiness.com 으로 부탁드리며, 담당자분 성함과 직통 번호를 남겨 주시면 다시 연락드리겠습니다.</div></div>
+        </div>
+        <div class="panel"><div class="panel-head"><h2>담당자 연결 후 — 공통 확인 8가지</h2><span class="muted" style="font-size:13px">첫 통화에서 다 못 들으면 자료로 요청</span></div>
+          <ol class="checks">
+            <li><b>참여 의사·일정</b> — 2027.4.16(금) 현장 운영 가능? 11월 RFP·PT 일정 대응 가능?</li>
+            <li><b>실제 수행 실적</b> — 최근 5년 500~1,000명 규모 갈라·창립기념식·VIP 만찬 2~3건: 연도·장소·규모·수행 범위</li>
+            <li><b>실제 인력</b> — 총괄 PM·크리에이티브 디렉터·현장 운영책임자 이름·직책·대표 실적·투입률</li>
+            <li><b>호텔 경험</b> — 그랜드 하얏트 서울 Grand Ballroom 직접 경험, 설치·철거, 호텔 Encore 협의 경험</li>
+            <li><b>프로그램 역량</b> — 총회 의결+만찬+특별 강연+세리머니+네트워킹을 3시간 안에 균형 있게 설계하는 방법</li>
+            <li><b>제작·외주</b> — 오프닝 영상·무대·AV·공연을 사내 제작하는지, 재하도급인지</li>
+            <li><b>등록·동문 정보</b> — 동문회 회원·RSVP·QR 등록 연계, 개인정보 관리 방식</li>
+            <li><b>예산·계약</b> — 총괄 1.2~1.3억원(VAT 여부 필수) 안에서 기획·PM / 직접 제작비 / 외주비 / 관리비 분리 가능?</li>
+          </ol></div>
+        <div class="panel"><div class="panel-head"><h2>7개사 진행 현황</h2><span class="muted" style="font-size:13px">카드에 적으면 바로 저장 · 팀 전체가 같은 현황을 봅니다</span></div>
+          <div class="wrap" style="overflow-x:auto"><table class="table board" id="board"></table></div></div>
+        <div class="vendors" id="vendors"></div>
+      </div>
+
+      <!-- 메일 · RFP -->
+      <div class="pane" id="p-mail">
+        <div class="warn" id="mail-warn"></div>
+        <div class="panel"><div class="panel-head"><h2>메일 작성 · 발송</h2><span class="muted" style="font-size:13px">보내는 주소: pm@snubusiness.com · 답장도 pm@ 으로 옵니다</span></div>
+          <div class="mailbox">
+            <div class="row2"><div><label>양식</label><select id="m-kind"><option value="first">① 첫 연락 — 참여 의사 확인 (오늘)</option><option value="rfp">② 정식 RFP 발송 (10/22~26)</option></select></div>
+              <div><label>업체</label><select id="m-vendor"></select></div></div>
+            <div class="row2"><div><label>단체 명칭 (메일·전화 멘트에 반영)</label><select id="m-org"><option value="동창회">서울대학교 경영대학 동창회 (인수인계 문서 표기)</option><option value="총동문회">서울대학교 경영대학 총동문회 (9/29 준비위 의결 표기)</option></select></div>
+              <div><label>회신 기한</label><input id="m-due" value="10월 23일(금) 18:00"></div></div>
+            <div><label>받는 사람</label><input id="m-to"></div>
+            <div><label>참조 (쉼표로 여러 명)</label><input id="m-cc" placeholder="예: 공동 기획 리더 이메일"></div>
+            <div><label>제목</label><input id="m-subject"></div>
+            <div><label>본문 (자유롭게 고친 뒤 보내세요)</label><textarea id="m-text"></textarea></div>
+            <label style="display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink)"><input type="checkbox" id="m-attach" checked style="width:18px;height:18px;accent-color:var(--navy-800)"> 회신 양식 엑셀 첨부 (snu2027_vendor_response_form.xlsx)</label>
+            <div class="mbar"><button class="btn" id="m-send">pm@snubusiness.com 으로 보내기</button><button class="btn ghost" id="m-copy">본문 복사</button><button class="btn ghost" id="m-reset">양식 다시 채우기</button><span class="muted" id="m-msg" style="font-size:13px"></span></div>
+          </div></div>
+        <div class="panel"><div class="panel-head"><h2>발송 기록</h2></div><div style="overflow-x:auto"><table class="table board" id="maillog"></table></div></div>
+      </div>
+
+      <!-- 채점표 -->
+      <div class="pane" id="p-score">
+        <div class="panel"><div class="panel-head"><h2>평가 채점 기준 (100점)</h2><a class="btn sm ghost" href="/admin/event2027/files/snu2027_evaluation_scoresheet.xlsx">엑셀 채점표 내려받기</a></div>
+          <div class="hint" style="font-size:13px;color:var(--ink-3);margin:-6px 0 12px">세부 항목별 배점 안에서 채점. 상·중·하는 판단 가이드입니다. 결격 확인(G1~G5)은 점수와 별도로 확인합니다. 평가 순서: 7개사 공통자료 요청 → 참여 의사 확인 → 동일 RFP 배포 → 3~4개사 PT → 우선협상.</div>
+          <div style="overflow-x:auto"><table class="table rub" id="rubric"></table></div></div>
+        <div class="panel"><div class="panel-head"><h2>내 채점 입력</h2><span class="muted" style="font-size:13px">평가자: <b id="sc-me"></b> · 본인 점수만 저장되고, 아래 종합은 입력한 평가자들의 평균입니다</span></div>
+          <div style="overflow-x:auto"><table class="table sc" id="myscore"></table></div>
+          <div class="mbar" style="margin-top:10px"><button class="btn sm" id="sc-save">내 점수 저장</button><span class="muted" id="sc-msg" style="font-size:13px"></span></div></div>
+        <div class="panel"><div class="panel-head"><h2>종합 (평가자 평균)</h2></div><div style="overflow-x:auto"><table class="table sc" id="avgscore"></table></div></div>
+      </div>
+
+      <!-- 개요 · 예산 -->
+      <div class="pane" id="p-brief">
+        <div class="panel"><h2>행사 개요</h2>
+          <dl class="facts">
+            <dt>일시 · 장소</dt><dd>2027. 4. 16.(금) 18:00–21:00 · 그랜드 하얏트 서울 Grand Ballroom <span class="st ok">계약 확정</span></dd>
+            <dt>참석 인원</dt><dd>계약 최소 600명 / 목표 700명 / 최대 800명 검토</dd>
+            <dt>성격</dt><dd>창립총회 + 만찬 + 창립 메시지·세리머니 + 초청 특별강연(연사 미정) + 동문 교류</dd>
+            <dt>핵심 목표</dt><dd>단순 친목 만찬이 아니라 새 동창회의 정체성과 미래 비전을 보여주는 첫 공식 행사</dd>
+            <dt>대행사 역할</dt><dd>콘셉트·스토리텔링부터 연출·제작·현장 운영까지 총괄. 동창회는 창립 취지·총회 의결·연사·VIP 최종 선정과 접촉·핵심 후원·주요 승인 담당</dd>
+          </dl></div>
+        <div class="panel"><h2>행사기획팀</h2>
+          <table class="table team"><thead><tr><th>구성원</th><th>역할</th><th>핵심 기여</th></tr></thead><tbody>
+            <tr><td><b>김이경</b> 89</td><td>공동 기획 리더</td><td>대행사 선정·행사 콘셉트·주요 프로그램 공동 주도, 준비위원회 협력</td></tr>
+            <tr><td><b>서정모</b> 91</td><td>공동 기획 리더</td><td>대행사 선정·콘셉트·프로그램 공동 주도, 연출·브랜드 완성도</td></tr>
+            <tr><td><b>이태경</b> 96</td><td>프로젝트 추진 리더 (PM)</td><td>RFP·대행사 선정 추진, 팀 협업·일정 조율, 실행·진행 관리</td></tr>
+            <tr><td><b>김상엽</b> 11</td><td>프로그램·콘텐츠 공동 기획</td><td>특별 강연·동문 스토리·참여형 프로그램 기획안</td></tr>
+            <tr><td><b>이소형</b> 02</td><td>프로그램·브랜드 공동 기획</td><td>특별 강연·콘텐츠·네트워킹·행사 경험 기획안</td></tr>
+            <tr><td><b>서희원</b> 98</td><td>예산·계약 검토</td><td>견적·제작비·수수료·추가비용 및 계약 주요 조건</td></tr>
+            <tr><td><b>서상훈</b> 09</td><td>디지털 경험·운영</td><td>등록·체크인·디지털 참여 경험, 현장 시스템 연계</td></tr>
+          </tbody></table></div>
+        <div class="panel"><h2>잠정 예산 (단위: 만원)</h2>
+          <table class="table"><thead><tr><th>항목</th><th class="amt">600명</th><th class="amt">700명</th><th class="amt">800명</th></tr></thead><tbody id="budget"></tbody></table>
+          <p class="muted" style="font-size:13px;margin-top:10px">잠정안이며 견적이 아닙니다. RFP 제시 범위는 호텔 식음료 제외 <b>1억 2,000만~1억 3,000만원</b>(대행 수수료 총액이 아님, VAT 포함·별도 모두 요구). 연사 강연료·여비, 해외 인사 항공·숙박, 고급 기념품, Encore 감독비·추가 전기·설치, 계약시간 외 설치·리허설, VIP 사전 리셉션 추가 F&B는 별도 검토.</p></div>
+        <div class="panel"><h2>호텔 계약 때문에 RFP에 반드시 넣을 조건</h2>
+          <ul style="font-size:14px;line-height:1.85;padding-left:20px">
+            <li>행사장 입장·설치는 당일 <b>15:00부터</b>. 무대 설치·리허설 시간 확보 대책 제출 요청 (조기 설치는 호텔 협의 필요)</li>
+            <li>외부 AV 사용 시 호텔 파트너 <b>Encore</b> 지도·감독 및 감독비 발생 가능 — 견적에서 호텔 관련 외부 비용 구분</li>
+            <li>외부 대행사 정보는 행사 <b>최소 60일 전 호텔 서면 통보</b>, 외부 설치물·전기는 호텔/Encore 사전 승인</li>
+            <li>계약 만찬 13만원/인, 예산 가정 16만원/인 — 메뉴·변경 서면 합의 전까지 16만원을 계약 확정가로 설명하지 않음</li>
+            <li>대행사에는 호텔 계약 확정과 필수 기술 제약만 전달. <b>호텔 전체 계약서·개인정보는 별도 승인 없이 배포 금지</b></li>
+          </ul></div>
+        <div class="panel"><h2>추진 일정 (제안)</h2>
+          <table class="table"><tbody>
+            <tr><td style="width:140px"><b>10/20~10/22</b></td><td>인터컴 선접촉, 7개사 전체 참여 의사·담당자 연락처 확보</td></tr>
+            <tr><td><b>10/22~10/26</b></td><td>공동 기획 리더와 RFP 최종 검토·발송 (참여 업체 공통 조건)</td></tr>
+            <tr><td><b>11월 첫째 주</b></td><td>서면 제안서 접수 · PM 실적/견적 사전 검증</td></tr>
+            <tr><td><b>11월 둘째 주</b></td><td>3~4개사 PT · 공동 기획 리더/관련 위원 참여</td></tr>
+            <tr><td><b>11월 중순</b></td><td>우선협상, 핵심 인력 확약·외주비·호텔 기술비·계약 책임 확인</td></tr>
+            <tr><td><b>12월~3월</b></td><td>콘셉트·프로그램·콘텐츠 제작, 초청·등록, 호텔 기술 협의</td></tr>
+            <tr><td><b>2027년 4월</b></td><td>최종 좌석·리허설·행사 운영 및 정산·기록</td></tr>
+          </tbody></table></div>
+      </div>
+
+      <!-- 자료 -->
+      <div class="pane" id="p-files">
+        <div class="panel files"><h2>엑셀</h2>
+          <p style="font-size:14px;line-height:1.8"><a class="btn sm" href="/admin/event2027/files/snu2027_vendor_response_form.xlsx">업체 회신 양식</a><a class="btn sm ghost" href="/admin/event2027/files/snu2027_evaluation_scoresheet.xlsx">평가 채점표</a></p>
+          <p class="muted" style="font-size:13.5px;line-height:1.8"><b>업체 회신 양식</b> — 0 작성안내 · 1 기본정보·참여의사 · 2 수행실적 · 3 투입인력 (1차 회신) / 4 역량·조건 확인 · 5 견적(700명, 수량×단가 자동 합계, PM비·외주비·수수료·VAT 자동 분리) · 6 인원 증감·옵션 (정식 제안 때).<br>
+          <b>평가 채점표</b> — 채점기준(상·중·하 가이드) · 종합(평가자 평균·순위 자동) · 평가자1~5 (배점 초과 시 빨간색, 결격 확인 G1~G5).</p></div>
+        <div class="panel"><h2>원본 문서</h2><p class="muted" style="font-size:13.5px;line-height:1.8">행사대행사 7개사 접촉·선정 인수인계(2026.10.20), 행사기획팀 구성 및 대행사 선정 브리핑 v10, 예산 검토안 — 이 페이지의 내용은 세 문서를 기준으로 정리했습니다. 호텔 계약서 원본은 이 페이지에 올리지 않습니다.</p></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261020a"></script><script src="/assets/js/admin.js?v=20261020a"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const META = {
+    intercom: { view: '대형 국제회의 운영·의전 강점. 세계지식포럼 관련 경험이 후보 검토의 핵심 근거.', clue: '공식 연혁에 2000년 세계지식포럼 창설 참여 명시. 최근 수행 연도/범위는 검증 필요.', ask: '최근 세계지식포럼의 실제 수행 범위는? 그랜드 하얏트 600~800명 만찬 및 창립행사 연출 실적은?', verify: '전화·이메일·주소 모두 공식 홈페이지 확인', first: true },
+    unione: { view: 'MICE + 프로모션·영상·브랜드 경험 결합 가능성. 기업 기념행사의 연출 수준 비교.', clue: '공식 사업영역에 메가이벤트, MICE, 공연·영상 제작 명시.', ask: '최근 호텔 볼룸 창립·기념 갈라에서 기획~현장까지 직접 총괄한 사례와 PM은?', verify: '사업 전용 이메일·전화·주소 공식 홈페이지 확인' },
+    fm: { view: '브랜드 스토리·공간·무대·영상의 차별화 제안 비교.', clue: '공식 포트폴리오에 대한항공 신규 CI 런칭 등 대형 브랜드 이벤트 소개.', ask: '700명 호텔 만찬의 좌석·동선·의전·3시간 진행까지 통합 운영 가능? 제작 외주 범위는?', verify: '전화·이메일·주소 공식 홈페이지 확인' },
+    planworks: { view: '프리미엄 브랜드·VIP 경험·공간 연출을 갖춘 대안.', clue: '브랜드 경험을 핵심 서비스로 소개. 호텔 갈라 수행 규모는 별도 검증.', ask: 'VIP 포함 약 700명 규모 복합 행사 전 과정 총괄 실적과 팀 편성은?', verify: '전화·이메일·주소 공식 홈페이지 확인' },
+    ezpmp: { view: '대규모 등록·현장 운영·디지털 시스템 강점의 비교 기준.', clue: '공식 홈페이지가 대규모 운영·참석자 등록·행사 기술 역량 소개.', ask: '오프닝 필름·창립 세리머니 등 창의적 연출을 직접 담당하는 인력은 누구인가?', verify: '공식 홈페이지 확인 (02-2153-0760은 본사 번호가 아님)' },
+    peoplex: { view: '대형 행사·학술대회에서 축적한 현장 인력과 운영 완성도 검증.', clue: '공식 문의 페이지 본사 연락처 확인. 500명 이상 행사 근거자료 추가 요청.', ask: '갈라·만찬 및 VIP 의전 전담 PM 사례가 있는지, 연출 외주 파트너는 누구인지?', verify: '전화·이메일·주소 공식 홈페이지 확인' },
+    ido: { view: '부티크 대안: 실제 갈라 행사 실적 근거로 비교. 최신 연락처 재확인 필요.', clue: '한국MICE협회 2023 디렉터리에 2022 AMCHAM Inaugural Ball 실적 명시 (2026년 AMCHAM 행사 수행을 뜻하지 않음).', ask: '2022 AMCHAM에서 담당한 기획·제작·운영 범위와 최근 3년 유사 행사·투입 가능한 팀은?', verify: '전화·이메일은 2023 협회 자료, 주소는 2026 공고 — 이메일/주소 모두 사전 전화 재확인 필요' },
+  };
+  const INTENT = ['미확인', '참여', '검토 중', '불참', '부재·콜백'], DOCS = ['미수령', '요청함', '일부 수령', '수령 완료'];
+  let S = { vendors: [], mail: [], scores: [] };
+  const me = await api('/me').catch(() => ({}));
+  if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('event2027'))) { q('#body').innerHTML = '<div style="padding:60px;text-align:center;color:var(--ink-3)">행사기획팀만 볼 수 있는 페이지입니다.</div>'; return; }
+  q('#me').textContent = me.name; q('#sc-me').textContent = me.name;
+
+  async function load() { S = await api('/event2027'); render(); }
+  const telHref = p => 'tel:' + String(p).replace(/[^0-9+]/g, '');
+  const stCls = v => v === '참여' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
+  function render() {
+    const V = S.vendors;
+    q('#k-called').textContent = V.filter(v => v.called_at).length + ' / 7'; q('#k-yes').textContent = V.filter(v => v.intent === '참여').length; q('#k-docs').textContent = V.filter(v => v.docs === '수령 완료').length; q('#k-mail').textContent = S.mail.filter(m => m.status === 'sent').length;
+    q('#board').innerHTML = `<thead><tr><th>#</th><th>업체</th><th>담당자 / 직통·수신처</th><th>참여 여부</th><th>실적·PM 자료</th><th>후속 예정</th><th>통화</th></tr></thead><tbody>${V.map(v => `<tr><td>${v.seq}</td><td><b>${esc(v.name)}</b></td><td>${esc([v.contact, v.direct, v.rfp_email].filter(Boolean).join(' · ')) || '<span class="muted">미확인</span>'}</td><td><span class="st ${stCls(v.intent)}">${esc(v.intent)}</span></td><td><span class="st ${stCls(v.docs)}">${esc(v.docs)}</span></td><td>${esc(v.next_step) || '<span class="muted">전화 후 기록</span>'}</td><td class="muted">${v.called_at ? v.called_at.slice(5, 16).replace('T', ' ') : ''}</td></tr>`).join('')}</tbody>`;
+    q('#vendors').innerHTML = V.map(v => { const m = META[v.id] || {};
+      return `<div class="vd ${v.called_at ? 'called' : ''} ${v.intent === '불참' ? 'declined' : ''}" id="v-${v.id}"><div class="vd-h"><h3><span class="seq">${v.seq}</span>${esc(v.name)}<small>${esc(v.en)}</small>${m.first ? ' <span class="st mid">우선 선접촉</span>' : ''}</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="tel" href="${telHref(v.phone)}">전화 ${esc(v.phone)}</a>${/\d{2,}-\d{3,}/.test(v.phone2) ? `<a class="tel sub" href="${telHref(v.phone2.match(/[\d-]{9,}/)[0])}">${esc(v.phone2)}</a>` : (v.phone2 ? `<span class="muted" style="font-size:12px;align-self:center">${esc(v.phone2)}</span>` : '')}</div></div>
+        <div class="vd-b"><div class="vd-info"><p><b>이메일</b> <a href="mailto:${esc(v.email)}">${esc(v.email)}</a></p><p><b>주소</b> ${esc(v.address)}</p><p><b>공식 경로</b> <a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.url)}</a></p><p><b>선정 관점</b> ${esc(m.view || '')}</p><p><b>확인된 단서</b> ${esc(m.clue || '')}</p><p class="muted" style="font-size:12.5px">연락처 검증: ${esc(m.verify || '')}</p><div class="q"><b>첫 통화 질문</b> — ${esc(m.ask || '')}</div></div>
+        <div class="vd-form" data-v="${v.id}">
+          <div><label>담당자 성함·직책</label><input data-f="contact" value="${esc(v.contact)}"></div><div><label>직통 · 휴대전화</label><input data-f="direct" value="${esc(v.direct)}"></div>
+          <div class="full"><label>RFP 받을 이메일 (확인된 실제 수신처)</label><input data-f="rfp_email" value="${esc(v.rfp_email)}" placeholder="${esc(v.email)}"></div>
+          <div><label>참여 여부</label><select data-f="intent">${INTENT.map(x => `<option ${x === v.intent ? 'selected' : ''}>${x}</option>`).join('')}</select></div><div><label>실적·PM 자료</label><select data-f="docs">${DOCS.map(x => `<option ${x === v.docs ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <div class="full"><label>후속 예정</label><input data-f="next_step" value="${esc(v.next_step)}" placeholder="예: 10/21 오전 담당자 회신 예정"></div>
+          <div class="full"><label>통화 메모 (실적·인력·호텔 경험·예산 등)</label><textarea data-f="note">${esc(v.note)}</textarea></div>
+          <div class="vd-foot"><button class="btn sm" data-called="${v.id}">${v.called_at ? '통화 다시 기록' : '통화 완료로 표시'}</button><button class="btn sm ghost" data-mail="${v.id}">메일 쓰기</button><span>${v.updated_by ? '최근 수정 ' + esc(v.updated_by) + ' · ' + (v.updated_at || '').slice(5, 16).replace('T', ' ') : ''}</span></div>
+        </div></div></div>`; }).join('');
+    // 메일
+    q('#mail-warn').innerHTML = S.mail_ready ? '<b>발송 전 확인</b> — 업체 카드의 "RFP 받을 이메일"이 확인된 주소면 그 주소로, 아니면 공개 이메일로 채워집니다. 이도플래닝은 이메일을 전화로 먼저 확인하세요. 발송 내역은 팀 전체가 봅니다.' : '<b>메일 발송 설정이 아직 없습니다.</b> 복사해서 아웃룩으로 보내세요.';
+    const cur = q('#m-vendor').value; q('#m-vendor').innerHTML = V.map(v => `<option value="${v.id}">${v.seq}. ${esc(v.name)}${v.intent === '불참' ? ' (불참)' : ''}</option>`).join(''); if (cur) q('#m-vendor').value = cur;
+    q('#maillog').innerHTML = `<thead><tr><th>시각</th><th>업체</th><th>받는 사람</th><th>제목</th><th>상태</th><th>보낸 사람</th></tr></thead><tbody>${S.mail.map(m => `<tr><td>${(m.sent_at || '').slice(5, 16).replace('T', ' ')}</td><td>${esc((V.find(v => v.id === m.vendor) || {}).name || '')}</td><td>${esc(m.to_addr)}${m.cc ? '<br><span class="muted">참조 ' + esc(m.cc) + '</span>' : ''}</td><td>${esc(m.subject)}</td><td><span class="st ${m.status === 'sent' ? 'ok' : 'no'}">${m.status === 'sent' ? '발송' : '실패'}</span>${m.error ? '<br><span class="muted" style="font-size:12px">' + esc(m.error) + '</span>' : ''}</td><td>${esc(m.sent_by || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 보낸 메일이 없습니다.</td></tr>'}</tbody>`;
+    renderScores();
+  }
+
+  // 업체 카드 저장
+  const timers = {};
+  q('#vendors').addEventListener('change', e => { const box = e.target.closest('[data-v]'); if (!box || !e.target.dataset.f) return; const id = box.dataset.v;
+    clearTimeout(timers[id]); timers[id] = setTimeout(async () => { const body = { r: 'vendor', id }; box.querySelectorAll('[data-f]').forEach(el => body[el.dataset.f] = el.value);
+      try { await api('/event2027', { method: 'POST', body }); Object.assign(S.vendors.find(v => v.id === id), body); toast('저장'); const keep = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.f : null; render(); } catch (err) { toast('실패: ' + err.message); } }, 300); });
+  q('#vendors').addEventListener('click', async e => {
+    const c = e.target.closest('[data-called]'); if (c) { const id = c.dataset.called; const box = q(`[data-v="${id}"]`); const body = { r: 'vendor', id, called: true }; box.querySelectorAll('[data-f]').forEach(el => body[el.dataset.f] = el.value);
+      try { await api('/event2027', { method: 'POST', body }); toast('통화 기록'); await load(); q('#v-' + id)?.scrollIntoView({ block: 'center' }); } catch (err) { toast('실패: ' + err.message); } return; }
+    const m = e.target.closest('[data-mail]'); if (m) { q('#tabs [data-t=mail]').click(); q('#m-vendor').value = m.dataset.mail; fillMail(); window.scrollTo({ top: 0 }); }
+  });
+  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(q('#' + b.dataset.copy).innerText, '멘트를 복사했습니다')));
+  async function copy(t, msg) { try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(msg); }
+
+  // 메일 양식
+  function fillMail() {
+    const v = S.vendors.find(x => x.id === q('#m-vendor').value) || {}; const kind = q('#m-kind').value; const org = '서울대학교 경영대학 ' + q('#m-org').value; const due = q('#m-due').value;
+    const who = v.contact ? v.contact.split(/[ ,·]/)[0] + ' 님' : '담당자님';
+    q('#m-to').value = v.rfp_email || v.email || '';
+    if (kind === 'first') {
+      q('#m-subject').value = `[${org}] 2027.4.16 창립총회 행사대행사 제안 참여 의사 확인`;
+      q('#m-text').value = `${v.name || ''} ${who}께,
+
+안녕하세요. ${org} 창립총회 행사기획팀 프로젝트 리더 이태경입니다.
+
+2027년 4월 16일(금) 18:00~21:00, 그랜드 하얏트 서울 Grand Ballroom에서 약 700명(600~800명 예상)이 참석하는 창립총회를 개최할 예정입니다. 창립총회, 만찬, 특별 초청 강연, 기념 프로그램, 동문 네트워킹을 아우르는 첫 공식 행사를 품격 있고 창의적으로 기획하고자 합니다.
+
+행사 기획·연출·제작·운영을 총괄할 전문 대행사를 선정하고 있어 귀사의 제안 참여 가능 여부를 우선 확인하고자 합니다. 호텔 식음료를 제외한 대행사 총괄 기획·제작·운영 잠정 예산은 약 1억 2,000만~1억 3,000만원입니다.
+
+참여 의사가 있으시면 ${due}까지 아래 자료를 회신해 주시기 바랍니다.
+ (1) 회사소개서
+ (2) 최근 5년 관련 행사 2~3건의 수행 실적 (인원·장소·업무 범위 포함)
+ (3) 배정 가능한 총괄 PM 및 주요 인력
+ (4) 제안 담당자 연락처
+
+첨부한 회신 양식(엑셀)의 시트 1~3을 작성해 주시면 비교 검토에 큰 도움이 됩니다. 참여 가능 업체에는 정식 RFP와 일정을 별도로 안내드리겠습니다.
+
+감사합니다.
+
+이태경 드림
+${org} 창립총회 행사기획팀 · 프로젝트 리더
+pm@snubusiness.com`;
+    } else {
+      q('#m-subject').value = `[${org}] 2027 창립총회 행사 기획·연출·운영 대행 제안요청서(RFP)`;
+      q('#m-text').value = `${v.name || ''} ${who}께,
+
+제안 참여 의사를 밝혀 주셔서 감사합니다. ${org} 2027 창립총회 행사 기획·연출·운영 대행 제안요청서(RFP)를 보내 드립니다.
+
+1. 행사 개요
+ - 일시: 2027년 4월 16일(금) 18:00~21:00
+ - 장소: 그랜드 하얏트 서울 Grand Ballroom (계약 확정)
+ - 인원: 최소 600명 / 목표 700명 / 최대 800명
+ - 구성: 창립총회(의결) + 만찬 + 특별 초청 강연·대담 1세션(연사 미정) + 창립 세리머니 + 동문 네트워킹
+ - 목표: 단순 친목 만찬이 아니라 새 동창회의 정체성과 미래 비전을 보여주는 첫 공식 행사
+
+2. 과업 범위
+ - 행사 콘셉트·전체 프로그램·진행 시나리오, 특별 강연 세션의 구성·연출 방식
+ - 무대·LED·음향·조명, 오프닝 영상, 공연·MC, 로비·포토존·사인물의 기획·제작
+ - 초청·RSVP·등록·좌석·VIP 의전, 호텔·AV 협의, 리허설·안전·현장 운영, 사진·영상 기록
+ - 동창회 담당: 창립 취지, 총회 의결, 연사·VIP 최종 선정과 접촉, 핵심 후원, 주요 승인
+
+3. 예산
+ - 호텔 식음료를 제외한 기획·제작·운영 총괄 약 1억 2,000만~1억 3,000만원 (700명 기준, 대행 수수료 총액이 아님)
+ - 견적은 부가세 포함 총액과 별도 금액을 모두 기재
+ - 기획·PM비와 외부 제작·운영비, 외주비, 대행 수수료, 호텔 관련 외부 비용(Encore 감독비 등)을 구분
+ - 항목별 수량·단가·산출 근거, 필수/선택 항목 구분, 600명·800명 변경 시 증감액 별도 제시
+ - 초청 연사 강연료·여비, 고급 기념품은 견적에서 제외 (특별 강연의 진행·연출·운영은 포함)
+
+4. 호텔 조건 (반드시 반영)
+ - 행사장 입장·설치는 당일 15:00부터. 무대 설치·리허설 시간 확보 방안 제시 (조기 설치는 호텔 협의 필요)
+ - 외부 AV 사용 시 호텔 파트너 Encore의 지도·감독 및 감독비 발생 가능
+ - 외부 대행사 정보는 행사 최소 60일 전 호텔 서면 통보, 외부 설치물·전기는 호텔/Encore 사전 승인
+
+5. 제출물
+ - 제안서 (콘셉트, 프로그램·분 단위 시나리오 개요, 연출·디자인 시안, 운영 계획)
+ - 첨부 회신 양식(엑셀) 시트 1~6 전체: 기본정보, 수행실적, 투입인력, 역량·조건 확인, 견적(700명), 인원 증감·옵션
+ - 실제 투입할 총괄 PM과 핵심 인력의 이력 및 투입률 (제안서 기재 인력의 실투입 확약)
+
+6. 일정 (안)
+ - 제안서 제출: 2026년 11월 6일(금) 18:00까지, pm@snubusiness.com
+ - 프레젠테이션: 11월 둘째 주 중 3~4개사 (일정 개별 안내)
+ - 우선협상 및 계약: 11월 중순
+
+7. 평가 기준 (100점)
+ 행사 콘셉트·창의성 25 / 유사 행사 실적 20 / 프로그램·스토리텔링 15 / 실제 투입 PM·팀 15 / 등록·VIP·현장 운영 10 / 예산 합리성·투명성 10 / 디자인·영상 5
+
+문의는 이 메일(pm@snubusiness.com)로 회신 주시면 답변드리겠습니다.
+
+감사합니다.
+
+이태경 드림
+${org} 창립총회 행사기획팀 · 프로젝트 리더
+pm@snubusiness.com`;
+    }
+  }
+  ['#m-kind', '#m-vendor', '#m-org'].forEach(s => q(s).addEventListener('change', () => { fillMail(); document.querySelectorAll('.orgshort').forEach(x => x.textContent = q('#m-org').value); }));
+  q('#m-due').addEventListener('change', fillMail); q('#m-reset').addEventListener('click', fillMail);
+  q('#m-copy').addEventListener('click', () => copy('제목: ' + q('#m-subject').value + '\n\n' + q('#m-text').value, '제목과 본문을 복사했습니다'));
+  q('#m-send').addEventListener('click', async () => { const to = q('#m-to').value.trim(); if (!to) { toast('받는 사람을 입력하세요'); return; }
+    const v = S.vendors.find(x => x.id === q('#m-vendor').value) || {};
+    if (!confirm(`${v.name || ''} (${to}) 에게 pm@snubusiness.com 명의로 보냅니다.\n제목: ${q('#m-subject').value}\n\n보낼까요?`)) return;
+    q('#m-send').disabled = true; q('#m-msg').textContent = '보내는 중…';
+    try { await api('/event2027', { method: 'POST', body: { r: 'send', vendor: v.id, kind: q('#m-kind').value, to, cc: q('#m-cc').value, subject: q('#m-subject').value, text: q('#m-text').value, attach: q('#m-attach').checked ? ['snu2027_vendor_response_form.xlsx'] : [] } });
+      q('#m-msg').textContent = '보냈습니다'; toast('발송 완료'); await load(); } catch (err) { q('#m-msg').textContent = '실패: ' + err.message; } finally { q('#m-send').disabled = false; } });
+
+  // 채점
+  const RUB = [
+    ['행사 콘셉트·창의성', 25, [['1-1', '창립 메시지 해석', 10, '정체성·비전을 행사 전체에 일관된 메시지로', '일부 요소에만 반영', '일반 갈라 수준'], ['1-2', '오프닝·세리머니 차별화', 10, '독창적이고 실현 가능한 오프닝·세리머니', '무난, 구체성 부족', '영상+축사 수준'], ['1-3', '동문 정체성·세대 연결', 5, '선후배·세대·과정 잇는 장치 구체', '언급 수준', '없음']]],
+    ['유사 행사 실적', 20, [['2-1', '500~1,000명 호텔 갈라·창립식 실적', 10, '최근 5년 3건+, 직접 총괄', '1~2건 또는 일부 범위', '해당 규모 없음'], ['2-2', '그랜드 하얏트·Encore 경험', 5, 'Grand Ballroom·Encore 직접 경험', '타 특급호텔 볼룸', '미미'], ['2-3', '레퍼런스 검증 가능성', 5, '고객 연락·자료로 검증 가능', '일부', '불가']]],
+    ['프로그램·스토리텔링', 15, [['3-1', '3시간 구성 균형', 8, '총회·만찬·강연·세리머니·네트워킹 분 단위 균형', '배분 비현실적', '나열'], ['3-2', '시나리오·큐시트 완성도', 4, '초안 큐시트 수준', '개요', '없음'], ['3-3', '특별 강연 세션 연출', 3, '연사 미정에도 형식·대안 제시', '일반 배치', '없음']]],
+    ['실제 투입 PM·팀', 15, [['4-1', '총괄 PM 경력·투입률', 8, '유사 규모 총괄 + 높은 투입률 확약', '겸직 많음', '미지정'], ['4-2', '핵심 팀 구성', 4, 'CD·현장·AV·의전 실명·실적', '일부 지정', '미지정'], ['4-3', '사내 제작 비중·외주 관리', 3, '핵심 사내 제작 또는 파트너 명확', '외주 많으나 관리안 有', '불명확']]],
+    ['등록·VIP·현장 운영', 10, [['5-1', '등록·RSVP·QR 및 홈페이지 연계', 4, '연계 + 개인정보 처리안 구체', '자체 시스템만', '없음'], ['5-2', 'VIP 의전·좌석·동선', 3, '구체', '일반적', '없음'], ['5-3', '15:00 셋업·리허설·안전', 3, '호텔 조건 반영 계획', '인지 수준', '미반영']]],
+    ['예산 합리성·투명성', 10, [['6-1', '예산 범위 적합성', 4, '1.2~1.3억 내, VAT 기준 명확', '약간 초과·VAT 불명확', '크게 초과'], ['6-2', '산출 근거·구분', 4, '수량·단가, PM/외주/수수료/VAT 분리', '일부 분리', '통합 견적'], ['6-3', '인원 증감·옵션 분리', 2, '600/800명·필수/선택', '일부', '없음']]],
+    ['디자인·영상 완성도', 5, [['7-1', '키비주얼·포트폴리오 품질', 3, '품격·일관성', '평이', '미흡'], ['7-2', '오프닝 영상 제안', 2, '구성안·레퍼런스 구체', '개념 수준', '없음']]],
+  ];
+  const SUBS = RUB.flatMap(([b, p, s]) => s.map(x => ({ big: b, code: x[0], name: x[1], max: x[2] })));
+  q('#rubric').innerHTML = `<thead><tr><th>코드</th><th>세부 항목</th><th class="amt">배점</th><th>상 (만점 근처)</th><th>중 (절반 안팎)</th><th>하 (0~하위)</th></tr></thead><tbody>${RUB.map(([b, p, s]) => `<tr class="big"><td colspan="2">${b}</td><td class="amt">${p}</td><td colspan="3"></td></tr>` + s.map(x => `<tr><td>${x[0]}</td><td><b>${x[1]}</b></td><td class="amt">${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5]}</td></tr>`).join('')).join('')}<tr class="big"><td colspan="2">합계</td><td class="amt">100</td><td colspan="3"></td></tr><tr><td colspan="6" class="muted" style="font-size:12.5px">결격 확인 (점수와 별도): G1 2027.4.16 현장 운영 가능 · G2 호텔 60일 전 통보·사전 승인 이행 · G3 VAT 포함·별도 금액 모두 제출 · G4 핵심 인력 실투입 확약 · G5 개인정보 처리 방안 제출</td></tr></tbody>`;
+  function renderScores() {
+    const V = S.vendors; const mine = Object.fromEntries(S.scores.filter(s => s.evaluator === me.name).map(s => [s.vendor, s.scores]));
+    q('#myscore').innerHTML = `<thead><tr><th>코드</th><th>세부 항목</th><th>배점</th>${V.map(v => `<th style="text-align:center">${esc(v.name.replace(/커뮤니케이션즈|엔터프라이즈/, ''))}</th>`).join('')}</tr></thead><tbody>${SUBS.map(x => `<tr><td>${x.code}</td><td>${x.name}</td><td style="text-align:center">${x.max}</td>${V.map(v => `<td style="text-align:center"><input type="number" min="0" max="${x.max}" step="0.5" data-sv="${v.id}" data-sc="${x.code}" value="${(mine[v.id] || {})[x.code] ?? ''}"></td>`).join('')}</tr>`).join('')}<tr><td></td><td><b>총점</b></td><td style="text-align:center"><b>100</b></td>${V.map(v => `<td style="text-align:center"><b data-tot="${v.id}">${Object.values(mine[v.id] || {}).reduce((a, b) => a + b, 0) || ''}</b></td>`).join('')}</tr></tbody>`;
+    const by = {}; S.scores.forEach(s => { const t = Object.values(s.scores || {}).reduce((a, b) => a + b, 0); if (!t) return; (by[s.vendor] ||= []).push({ who: s.evaluator, t, s: s.scores }); });
+    const avg = v => by[v] ? by[v].reduce((a, x) => a + x.t, 0) / by[v].length : null;
+    const ranked = V.map(v => ({ v, a: avg(v.id) })).filter(x => x.a != null).sort((a, b) => b.a - a.a);
+    q('#avgscore').innerHTML = `<thead><tr><th>대항목 (배점)</th>${V.map(v => `<th style="text-align:center">${esc(v.name.replace(/커뮤니케이션즈|엔터프라이즈/, ''))}</th>`).join('')}</tr></thead><tbody>${RUB.map(([b, p, s]) => `<tr><td>${b} (${p})</td>${V.map(v => { const L = by[v.id]; if (!L) return '<td></td>'; const val = L.reduce((a, x) => a + s.reduce((aa, ss) => aa + (x.s[ss[0]] || 0), 0), 0) / L.length; return `<td style="text-align:center">${val.toFixed(1)}</td>`; }).join('')}</tr>`).join('')}<tr><td><b>평균 총점</b></td>${V.map(v => `<td style="text-align:center"><b>${avg(v.id) != null ? avg(v.id).toFixed(1) : ''}</b></td>`).join('')}</tr><tr><td>순위 · 평가자 수</td>${V.map(v => { const i = ranked.findIndex(x => x.v.id === v.id); return `<td style="text-align:center">${i >= 0 ? (i + 1) + '위 · ' + by[v.id].length + '명' : ''}</td>`; }).join('')}</tr></tbody>`;
+  }
+  q('#myscore').addEventListener('input', e => { const i = e.target; if (!i.dataset.sv) return; const x = SUBS.find(s => s.code === i.dataset.sc); if (Number(i.value) > x.max) i.value = x.max; if (Number(i.value) < 0) i.value = 0;
+    const v = i.dataset.sv; const t = [...document.querySelectorAll(`[data-sv="${v}"]`)].reduce((a, el) => a + (Number(el.value) || 0), 0); q(`[data-tot="${v}"]`).textContent = t || ''; });
+  q('#sc-save').addEventListener('click', async () => { q('#sc-msg').textContent = '저장 중…';
+    try { for (const v of S.vendors) { const sc = {}; document.querySelectorAll(`[data-sv="${v.id}"]`).forEach(el => { if (el.value !== '') sc[el.dataset.sc] = Number(el.value); }); if (Object.keys(sc).length || S.scores.find(s => s.vendor === v.id && s.evaluator === me.name)) await api('/event2027', { method: 'POST', body: { r: 'score', vendor: v.id, scores: sc } }); }
+      q('#sc-msg').textContent = '저장했습니다'; await load(); } catch (err) { q('#sc-msg').textContent = '실패: ' + err.message; } });
+
+  // 예산표
+  const B = [['만찬 (16만원/인)', 9600, 11200, 12800], ['와인·음료·다과 (4만원/인)', 2400, 2800, 3200], ['① 호텔 식음료 소계', 12000, 14000, 16000, 1], ['행사 총괄 기획·연출·PM', 2500, 3000, 3500], ['무대·LED·음향·조명·AV', 3500, 4200, 5000], ['오프닝·브랜드 영상', 1200, 1500, 1800], ['등록·디자인·인쇄·사인물', 900, 1100, 1300], ['MC·공연·출연진', 800, 1000, 1200], ['사진·영상 기록', 600, 700, 800], ['VIP 리셉션·의전', 500, 600, 700], ['현장 추가 인력·안전·물류', 500, 600, 700], ['② 기획·제작·운영 소계', 10500, 12700, 15000, 1], ['③ 예비비', 1800, 2200, 2600, 1], ['전체 예산', 24300, 28900, 33600, 2]];
+  q('#budget').innerHTML = B.map(r => `<tr style="${r[4] === 2 ? 'background:var(--navy-800);color:var(--paper)' : r[4] ? 'background:#FBF8F2;font-weight:700' : ''}"><td>${r[0]}</td><td class="amt">${r[1].toLocaleString()}</td><td class="amt">${r[2].toLocaleString()}</td><td class="amt">${r[3].toLocaleString()}</td></tr>`).join('');
+
+  // 탭
+  q('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); });
+  await load(); fillMail();
+  const h0 = location.hash.slice(1); if (h0) q(`#tabs [data-t="${h0}"]`)?.click();
+})();
+</script>
+</body></html>

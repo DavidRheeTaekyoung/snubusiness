@@ -11,14 +11,15 @@ export async function onRequestPost({ request, env }) {
   if (!isEmail(email)) return err('이메일 형식이 올바르지 않습니다');
   if (password.length < 8) return err('비밀번호는 8자 이상이어야 합니다');
   const roster = await fetch(new URL('/data/committee.json', request.url)).then(r => r.json()).catch(() => ({ members: [] }));
-  if (!roster.members.includes(name)) return err('준비위원 명단에 없는 이름입니다. 명단은 이태경 위원에게 문의해 주세요', 403);
+  const guest = !roster.members.includes(name) && (roster.guests || {})[name];
+  if (!roster.members.includes(name) && !guest) return err('준비위원 명단에 없는 이름입니다. 명단은 이태경 위원에게 문의해 주세요', 403);
   const byEmail = await db.prepare('SELECT email FROM accounts WHERE email = ?').bind(email).first();
   if (byEmail) return err('이미 가입된 이메일입니다. 로그인해 주세요', 409);
   const byName = await db.prepare('SELECT email FROM accounts WHERE name = ?').bind(name).first();
   if (byName) return err('이 이름으로 이미 가입된 계정이 있습니다. 본인이 맞다면 이태경 위원에게 알려 주세요', 409);
   const { hash, salt } = await hashPassword(password);
-  const role = name === '이태경' ? 'owner' : 'member';
-  const perms = ((roster.perms || {})[name] || []).join(',');
+  const role = name === '이태경' ? 'owner' : (guest ? 'guest' : 'member');
+  const perms = (((roster.perms || {})[name]) || ((roster.guests || {})[name]) || []).join(',');
   await db.prepare("INSERT INTO accounts (email, name, pass_hash, salt, role, perms, last_login) VALUES (?,?,?,?,?,?, strftime('%Y-%m-%dT%H:%M:%fZ','now'))").bind(email, name, hash, salt, role, perms).run();
   const s = await issueSession(env, email, name, role);
   return json({ ok: true, name, email, role }, 201, { 'set-cookie': cookieHeader(s.value, s.exp) });

@@ -60,8 +60,13 @@
   }
 
   async function financeMenu() { try { const r = await fetch('/api/me', { cache: 'no-store' }); const me = await r.json(); if (me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('finance')) { const nav = document.querySelector('.admin-side nav'); const g = document.createElement('div'); g.className = 'group'; g.textContent = '운영'; const link = document.createElement('a'); link.href = '/admin/finance/'; link.className = seg === 'finance' ? 'active' : ''; link.innerHTML = '<span class="n">₩</span>회비 정산'; const anchor = [...nav.children].find(el => el.textContent === '바로가기'); nav.insertBefore(g, anchor); nav.insertBefore(link, anchor); const l2 = document.createElement('a'); l2.href = '/admin/finance/books/'; l2.className = location.pathname.startsWith('/admin/finance/books') ? 'active' : ''; l2.innerHTML = '<span class="n">≡</span>장부 · 결산서'; nav.insertBefore(l2, anchor); if (l2.className) link.className = ''; } } catch (e) {} }
+  async function eventMenu() { try { const me = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json()); const nav = document.querySelector('.admin-side nav'); if (!nav) return;
+    const ok = me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('event2027');
+    if (me.role === 'guest') { nav.innerHTML = '<div class="group">행사기획팀</div>' + (ok ? '<a href="/admin/event2027/" class="active"><span class="n">E</span>2027 창립총회</a>' : '') + '<a href="/api/logout"><span class="n">↩</span>나가기</a>'; return; }
+    if (!ok) return; const anchor = [...nav.children].find(el => el.textContent === '바로가기');
+    const g = document.createElement('div'); g.className = 'group'; g.textContent = '행사기획팀'; const l = document.createElement('a'); l.href = '/admin/event2027/'; l.className = location.pathname.startsWith('/admin/event2027') ? 'active' : ''; l.innerHTML = '<span class="n">E</span>2027 창립총회'; nav.insertBefore(g, anchor); nav.insertBefore(l, anchor); } catch (e) {} }
   function mount() {
-    const s = document.getElementById('admin-side'); if (s) s.outerHTML = side(); financeMenu();
+    const s = document.getElementById('admin-side'); if (s) s.outerHTML = side(); financeMenu(); eventMenu();
     document.querySelector('[data-admin-menu]')?.addEventListener('click', () => document.querySelector('.admin-side').classList.toggle('open'));
     document.querySelectorAll('[data-doc]').forEach(el => renderDoc(el, el.dataset.doc));
     health();
