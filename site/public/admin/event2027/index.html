@@ -75,7 +75,7 @@
       <div class="actions"><span class="muted" style="font-size:13px">접속: <b id="me">—</b></span></div></div>
     <div class="admin-body" id="body">
       <div class="kpi">
-        <div class="k"><div class="v" id="k-called">—</div><div class="l">통화 완료 / 7개사</div></div>
+        <div class="k"><div class="v" id="k-called">—</div><div class="l">통화 완료</div></div>
         <div class="k gold"><div class="v" id="k-yes">—</div><div class="l">참여 의사 확인</div></div>
         <div class="k"><div class="v" id="k-docs">—</div><div class="l">자료 수령</div></div>
         <div class="k"><div class="v" id="k-mail">—</div><div class="l">발송한 메일</div></div>
@@ -102,7 +102,7 @@
             <li><b>등록·동문 정보</b> — 동문회 회원·RSVP·QR 등록 연계, 개인정보 관리 방식</li>
             <li><b>예산·계약</b> — 총괄 1.2~1.3억원(VAT 여부 필수) 안에서 기획·PM / 직접 제작비 / 외주비 / 관리비 분리 가능?</li>
           </ol></div>
-        <div class="panel"><div class="panel-head"><h2>7개사 진행 현황</h2><span class="muted" style="font-size:13px">카드에 적으면 바로 저장 · 팀 전체가 같은 현황을 봅니다</span></div>
+        <div class="panel"><div class="panel-head"><h2>업체 진행 현황</h2><span class="muted" style="font-size:13px">카드에 적으면 바로 저장 · 팀 전체가 같은 현황을 봅니다</span></div>
           <div class="wrap" style="overflow-x:auto"><table class="table board" id="board"></table></div></div>
         <div class="vendors" id="vendors"></div>
       </div>
@@ -202,6 +202,7 @@
     planworks: { view: '프리미엄 브랜드·VIP 경험·공간 연출을 갖춘 대안.', clue: '브랜드 경험을 핵심 서비스로 소개. 호텔 갈라 수행 규모는 별도 검증.', ask: 'VIP 포함 약 700명 규모 복합 행사 전 과정 총괄 실적과 팀 편성은?', verify: '전화·이메일·주소 공식 홈페이지 확인' },
     ezpmp: { view: '대규모 등록·현장 운영·디지털 시스템 강점의 비교 기준.', clue: '공식 홈페이지가 대규모 운영·참석자 등록·행사 기술 역량 소개.', ask: '오프닝 필름·창립 세리머니 등 창의적 연출을 직접 담당하는 인력은 누구인가?', verify: '공식 홈페이지 확인 (02-2153-0760은 본사 번호가 아님)' },
     peoplex: { view: '대형 행사·학술대회에서 축적한 현장 인력과 운영 완성도 검증.', clue: '공식 문의 페이지 본사 연락처 확인. 500명 이상 행사 근거자료 추가 요청.', ask: '갈라·만찬 및 VIP 의전 전담 PM 사례가 있는지, 연출 외주 파트너는 누구인지?', verify: '전화·이메일·주소 공식 홈페이지 확인' },
+    chris: { view: '추천 업체 — 이장원 위원이 직접 확인(김이경 공동 리더 경유). "가능하고 잘할 수 있다"는 1차 회신. 7개사와 같은 기준으로 비교.', clue: '공식 홈페이지·실적 미확인. 담당이 대표 본인 — 첫 통화에서 회사 규모·상시 인력·유사 실적부터 확인.', ask: '최근 5년 500~1,000명 호텔 갈라·창립 행사 직접 총괄 실적과, 실제 투입될 PM·제작 인력(사내/외주)은?', verify: '이장원 위원 전달(2026.10.20) — 대표 휴대전화·개인 이메일. 회사 공식 연락처·사업자 정보 추가 확인 필요' },
     ido: { view: '부티크 대안: 실제 갈라 행사 실적 근거로 비교. 최신 연락처 재확인 필요.', clue: '한국MICE협회 2023 디렉터리에 2022 AMCHAM Inaugural Ball 실적 명시 (2026년 AMCHAM 행사 수행을 뜻하지 않음).', ask: '2022 AMCHAM에서 담당한 기획·제작·운영 범위와 최근 3년 유사 행사·투입 가능한 팀은?', verify: '전화·이메일은 2023 협회 자료, 주소는 2026 공고 — 이메일/주소 모두 사전 전화 재확인 필요' },
   };
   const INTENT = ['미확인', '참여', '검토 중', '불참', '부재·콜백'], DOCS = ['미수령', '요청함', '일부 수령', '수령 완료'];
@@ -215,7 +216,7 @@
   const stCls = v => v === '참여' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
   function render() {
     const V = S.vendors;
-    q('#k-called').textContent = V.filter(v => v.called_at).length + ' / 7'; q('#k-yes').textContent = V.filter(v => v.intent === '참여').length; q('#k-docs').textContent = V.filter(v => v.docs === '수령 완료').length; q('#k-mail').textContent = S.mail.filter(m => m.status === 'sent').length;
+    q('#k-called').textContent = V.filter(v => v.called_at).length + ' / ' + V.length; q('#k-yes').textContent = V.filter(v => v.intent === '참여').length; q('#k-docs').textContent = V.filter(v => v.docs === '수령 완료').length; q('#k-mail').textContent = S.mail.filter(m => m.status === 'sent').length;
     q('#board').innerHTML = `<thead><tr><th>#</th><th>업체</th><th>담당자 / 직통·수신처</th><th>참여 여부</th><th>실적·PM 자료</th><th>후속 예정</th><th>통화</th></tr></thead><tbody>${V.map(v => `<tr><td>${v.seq}</td><td><b>${esc(v.name)}</b></td><td>${esc([v.contact, v.direct, v.rfp_email].filter(Boolean).join(' · ')) || '<span class="muted">미확인</span>'}</td><td><span class="st ${stCls(v.intent)}">${esc(v.intent)}</span></td><td><span class="st ${stCls(v.docs)}">${esc(v.docs)}</span></td><td>${esc(v.next_step) || '<span class="muted">전화 후 기록</span>'}</td><td class="muted">${v.called_at ? v.called_at.slice(5, 16).replace('T', ' ') : ''}</td></tr>`).join('')}</tbody>`;
     q('#vendors').innerHTML = V.map(v => { const m = META[v.id] || {};
       return `<div class="vd ${v.called_at ? 'called' : ''} ${v.intent === '불참' ? 'declined' : ''}" id="v-${v.id}"><div class="vd-h"><h3><span class="seq">${v.seq}</span>${esc(v.name)}<small>${esc(v.en)}</small>${m.first ? ' <span class="st mid">우선 선접촉</span>' : ''}</h3>

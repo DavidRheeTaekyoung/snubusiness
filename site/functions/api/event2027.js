@@ -57,6 +57,15 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true });
   }
 
+  if (b.r === 'vendor_new') { // 추천 업체 추가 — 오너(PM)·에이전트만
+    if (!['owner', 'agent'].includes(s.role)) return err('업체 추가는 PM만 할 수 있습니다', 403);
+    const id = clean(b.id, 30).replace(/[^a-z0-9-]/g, ''); if (!id || !clean(b.name, 60)) return err('id, name required');
+    const mx = await db.prepare('SELECT COALESCE(MAX(seq),0) AS m FROM ev_vendors').first();
+    await db.prepare('INSERT INTO ev_vendors (id, seq, name, en, phone, phone2, email, address, url, contact, direct, rfp_email, note, updated_by, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING')
+      .bind(id, mx.m + 1, clean(b.name, 60), clean(b.en, 60), clean(b.phone, 30), clean(b.phone2, 60), clean(b.email, 120), clean(b.address, 200), clean(b.url, 200), clean(b.contact, 60), clean(b.direct, 60), clean(b.rfp_email, 120), clean(b.note, 600), s.name, now).run();
+    return json({ ok: true, seq: mx.m + 1 });
+  }
+
   if (b.r === 'score') { // 평가자 본인 점수만 저장
     const vendor = clean(b.vendor, 30); const sc = {}; for (const [k, v] of Object.entries(b.scores || {})) { const n = Number(v); if (Number.isFinite(n)) sc[clean(k, 20)] = n; }
     await db.prepare('INSERT INTO ev_scores (vendor, evaluator, scores, comment, updated_at) VALUES (?,?,?,?,?) ON CONFLICT(vendor, evaluator) DO UPDATE SET scores=excluded.scores, comment=excluded.comment, updated_at=excluded.updated_at')
