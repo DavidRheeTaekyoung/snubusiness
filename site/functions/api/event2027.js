@@ -9,7 +9,7 @@ const VENDORS = [
   ['unione', 2, '유니원커뮤니케이션즈', 'UNIONE', '02-550-2693', '대표 02-550-2500', 'project@unione.co.kr', '서울 서초구 서운로 42, 유니원빌딩', 'https://www.unione.co.kr/main/contact/index.php'],
   ['fm', 3, '에프엠커뮤니케이션즈', 'FM', '02-3498-0800', '', 'contact@promotion.co.kr', '서울 서초구 반포대로22길 34', 'https://www.promotion.co.kr/'],
   ['planworks', 4, '플랜웍스엔터프라이즈', 'PLANWORKS', '02-422-6200', '', 'pwe@pwe.co.kr', '서울 강남구 봉은사로63길 23, 플랜웍스빌딩', 'https://www.pwe.co.kr/page/contact.html'],
-  ['ezpmp', 5, '이즈피엠피', 'EZPMP', '02-3475-2600', '02-2153-0760은 본사 번호 아님', 'ezpmp@ezpmp.co.kr', '서울 서초구 남부순환로 2465, 혜준빌딩 2~6층', 'https://ezpmp.co.kr/o2meet/siteCreateInfo.do'],
+  ['ezpmp', 5, '이즈피엠피', 'EZPMP', '02-3475-2600', '', 'ezpmp@ezpmp.co.kr', '서울 서초구 남부순환로 2465, 혜준빌딩 2~6층', 'https://ezpmp.co.kr/o2meet/siteCreateInfo.do'],
   ['peoplex', 6, '피플엑스', 'People-X', '02-566-6031', '02-566-6067', 'pco1@people-x.com', '서울 강남구 역삼로17길 16, 해오름빌딩 1층', 'https://people-x.co.kr/xe/px_contact'],
   ['ido', 7, '이도플래닝', 'IDO Planning', '070-4006-8520', '이메일·주소 전화 재확인 필수', 'ido@idoplanning.co.kr', '서울 영등포구 양산로 57-5, 이노플렉스 403호 (2026 채용공고 기준)', 'http://www.idoplanning.co.kr/'],
 ];
