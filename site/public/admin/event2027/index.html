@@ -5,7 +5,7 @@
 <title>창립총회 행사기획 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261020b"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14.5px;padding:11px 15px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -80,7 +80,7 @@
         <div class="k"><div class="v" id="k-docs">—</div><div class="l">자료 수령</div></div>
         <div class="k"><div class="v" id="k-mail">—</div><div class="l">발송한 메일</div></div>
       </div>
-      <div class="tabs" id="tabs"><button data-t="call" class="on">전화 · 업체</button><button data-t="mail">메일 · RFP</button><button data-t="score">채점표</button><button data-t="brief">행사 개요 · 예산</button><button data-t="files">엑셀 · 자료</button></div>
+      <div class="tabs" id="tabs"><button data-t="call" class="on">전화 · 업체</button><button data-t="mail">RFP 메일 · 기록</button><button data-t="score">채점표</button><button data-t="brief">행사 개요 · 예산</button><button data-t="files">엑셀 · 자료</button></div>
 
       <!-- 전화 · 업체 -->
       <div class="pane on" id="p-call">
@@ -109,21 +109,23 @@
 
       <!-- 메일 · RFP -->
       <div class="pane" id="p-mail">
-        <div class="warn" id="mail-warn"></div>
-        <div class="panel"><div class="panel-head"><h2>메일 작성 · 발송</h2><span class="muted" style="font-size:13px">보내는 주소: pm@snubusiness.com · 답장도 pm@ 으로 옵니다</span></div>
+        <div class="panel"><div class="panel-head"><h2>발송용 메일 — 아웃룩에 붙여 넣기</h2><div class="mbar"><a class="btn sm gold" href="/admin/event2027/files/snu2027_rfp_response_form.xlsx">첨부 엑셀 내려받기</a></div></div>
+          <div class="warn"><b>아웃룩 단체 발송 요령</b> — 업체 주소는 <b>숨은참조(BCC)</b>에 넣어 서로 보이지 않게, 받는 사람에는 pm@snubusiness.com, 회신 주소는 본문대로 pm@snubusiness.com. 엑셀 첨부 잊지 마세요. 보낸 뒤 아래 "보낸 메일 기록"에 남겨 주세요.</div>
           <div class="mailbox">
-            <div class="row2"><div><label>양식</label><select id="m-kind"><option value="rfp">정식 RFP 발송 (회신 양식 첨부)</option><option value="first">첫 연락 — 참여 의사 확인</option></select></div>
-              <div><label>업체</label><select id="m-vendor"></select></div></div>
-            <div class="row2"><div><label>단체 명칭 (메일·전화 멘트에 반영)</label><select id="m-org"><option value="총동문회">서울대학교 경영대학 총동문회</option><option value="동문회">서울대학교 경영대학 동문회</option></select></div>
-              <div><label>회신 기한</label><input id="m-due" value="10월 23일(금) 18:00"></div></div>
-            <div><label>받는 사람</label><input id="m-to"></div>
-            <div><label>참조 (쉼표로 여러 명)</label><input id="m-cc" placeholder="예: 공동 기획 리더 이메일"></div>
-            <div><label>제목</label><input id="m-subject"></div>
-            <div><label>본문 (자유롭게 고친 뒤 보내세요)</label><textarea id="m-text"></textarea></div>
-            <label style="display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink)"><input type="checkbox" id="m-attach" checked style="width:18px;height:18px;accent-color:var(--navy-800)"> 회신 양식 엑셀 첨부 (snu2027_vendor_response_form.xlsx)</label>
-            <div class="mbar"><button class="btn" id="m-send">pm@snubusiness.com 으로 보내기</button><button class="btn ghost" id="m-copy">본문 복사</button><button class="btn ghost" id="m-reset">양식 다시 채우기</button><span class="muted" id="m-msg" style="font-size:13px"></span></div>
+            <div><label>숨은참조(BCC) 주소 — 불참 업체 제외</label><div class="mbar"><input id="m-bcc" readonly><button class="btn sm ghost" id="c-bcc">주소 복사</button></div></div>
+            <div><label>제목</label><div class="mbar"><input id="m-subject"><button class="btn sm ghost" id="c-subj">제목 복사</button></div></div>
+            <div><label>본문 (고친 뒤 복사)</label><textarea id="m-text"></textarea></div>
+            <div class="mbar"><button class="btn" id="c-body">본문 복사</button><button class="btn ghost" id="m-reset">처음 문안으로</button><span class="muted" style="font-size:13px">단체 명칭 <select id="m-org" style="font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line-2)"><option value="총동문회">총동문회</option><option value="동문회">동문회</option></select></span></div>
           </div></div>
-        <div class="panel"><div class="panel-head"><h2>발송 기록</h2></div><div style="overflow-x:auto"><table class="table board" id="maillog"></table></div></div>
+        <div class="panel"><div class="panel-head"><h2>보낸 메일 기록</h2><span class="muted" style="font-size:13px">아웃룩으로 보낸 뒤 무슨 메일을 누구에게 보냈는지 남깁니다</span></div>
+          <div class="mailbox">
+            <div class="row2"><div><label>보낸 일시</label><input id="l-at" type="datetime-local"></div><div><label>구분</label><select id="l-kind"><option value="rfp">RFP (엑셀 첨부)</option><option value="followup">후속 · 안내</option><option value="reply">회신 · 답장</option><option value="etc">기타</option></select></div></div>
+            <div><label>받은 업체</label><div id="l-vendors" style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px"></div></div>
+            <div><label>제목</label><input id="l-subject"></div>
+            <div><label>본문 (위 발송용 본문이 기본으로 들어갑니다)</label><textarea id="l-text" style="min-height:160px"></textarea></div>
+            <div class="mbar"><button class="btn sm" id="l-save">기록 저장</button><span class="muted" id="l-msg" style="font-size:13px"></span></div>
+          </div>
+          <div style="overflow-x:auto;margin-top:16px"><table class="table board" id="maillog"></table></div></div>
       </div>
 
       <!-- 채점표 -->
@@ -183,14 +185,14 @@
       <!-- 자료 -->
       <div class="pane" id="p-files">
         <div class="panel files"><h2>엑셀</h2>
-          <p style="font-size:14px;line-height:1.8"><a class="btn sm" href="/admin/event2027/files/snu2027_vendor_response_form.xlsx">업체 회신 양식</a></p>
-          <p class="muted" style="font-size:13.5px;line-height:1.8"><b>업체 회신 양식</b> (메일 첨부 → 업체 작성 회신 → 비교 취합용) — 0 작성안내 · 1 기본정보·참여의사 · 2 수행실적 · 3 투입인력 (1차 회신) / 4 역량·조건 확인 · 5 견적(700명, 수량×단가 자동 합계, PM비·외주비·수수료·VAT 자동 분리) · 6 인원 증감·옵션 (정식 제안 때).</p></div>
+          <p style="font-size:14px;line-height:1.8"><a class="btn sm" href="/admin/event2027/files/snu2027_rfp_response_form.xlsx">업체 회신 양식 (RFP 첨부용)</a></p>
+          <p class="muted" style="font-size:13.5px;line-height:1.8"><b>업체 회신 양식</b> — 0 작성안내(예산 상한·평가 기준·호텔 조건) · 1 참여의사·담당자(10/23 회신) · 2 수행실적 · 3 투입인력 · 4 역량·조건 · 5 견적(700명, 상한 1.3억 자동 체크, 굿즈 별도) · 6 인원 증감 · 7 같은 예산으로 더 멋지게(AI 영상 등).</p></div>
         <div class="panel"><h2>원본 문서</h2><p class="muted" style="font-size:13.5px;line-height:1.8">행사대행사 7개사 접촉·선정 인수인계(2026.10.20), 행사기획팀 구성 및 대행사 선정 브리핑 v10, 예산 검토안 — 이 페이지의 내용은 세 문서를 기준으로 정리했습니다. 호텔 계약서 원본은 이 페이지에 올리지 않습니다.</p></div>
       </div>
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261020b"></script><script src="/assets/js/admin.js?v=20261020b"></script>
+<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261020c"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
@@ -227,12 +229,12 @@
           <div><label>참여 여부</label><select data-f="intent">${INTENT.map(x => `<option ${x === v.intent ? 'selected' : ''}>${x}</option>`).join('')}</select></div><div><label>실적·PM 자료</label><select data-f="docs">${DOCS.map(x => `<option ${x === v.docs ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
           <div class="full"><label>후속 예정</label><input data-f="next_step" value="${esc(v.next_step)}" placeholder="예: 10/21 오전 담당자 회신 예정"></div>
           <div class="full"><label>통화 메모 (실적·인력·호텔 경험·예산 등)</label><textarea data-f="note">${esc(v.note)}</textarea></div>
-          <div class="vd-foot"><button class="btn sm" data-called="${v.id}">${v.called_at ? '통화 다시 기록' : '통화 완료로 표시'}</button><button class="btn sm ghost" data-mail="${v.id}">메일 쓰기</button><span>${v.updated_by ? '최근 수정 ' + esc(v.updated_by) + ' · ' + (v.updated_at || '').slice(5, 16).replace('T', ' ') : ''}</span></div>
+          <div class="vd-foot"><button class="btn sm" data-called="${v.id}">${v.called_at ? '통화 다시 기록' : '통화 완료로 표시'}</button><button class="btn sm ghost" data-mail="${v.id}">RFP 메일 보기</button><span>${v.updated_by ? '최근 수정 ' + esc(v.updated_by) + ' · ' + (v.updated_at || '').slice(5, 16).replace('T', ' ') : ''}</span></div>
         </div></div></div>`; }).join('');
     // 메일
-    q('#mail-warn').innerHTML = S.mail_ready ? '<b>발송 전 확인</b> — 업체 카드의 "RFP 받을 이메일"이 확인된 주소면 그 주소로, 아니면 공개 이메일로 채워집니다. 이도플래닝은 이메일을 전화로 먼저 확인하세요. 발송 내역은 팀 전체가 봅니다.' : '<b>메일 발송 설정이 아직 없습니다.</b> 복사해서 아웃룩으로 보내세요.';
-    const cur = q('#m-vendor').value; q('#m-vendor').innerHTML = V.map(v => `<option value="${v.id}">${v.seq}. ${esc(v.name)}${v.intent === '불참' ? ' (불참)' : ''}</option>`).join(''); if (cur) q('#m-vendor').value = cur;
-    q('#maillog').innerHTML = `<thead><tr><th>시각</th><th>업체</th><th>받는 사람</th><th>제목</th><th>상태</th><th>보낸 사람</th></tr></thead><tbody>${S.mail.map(m => `<tr><td>${(m.sent_at || '').slice(5, 16).replace('T', ' ')}</td><td>${esc((V.find(v => v.id === m.vendor) || {}).name || '')}</td><td>${esc(m.to_addr)}${m.cc ? '<br><span class="muted">참조 ' + esc(m.cc) + '</span>' : ''}</td><td>${esc(m.subject)}</td><td><span class="st ${m.status === 'sent' ? 'ok' : 'no'}">${m.status === 'sent' ? '발송' : '실패'}</span>${m.error ? '<br><span class="muted" style="font-size:12px">' + esc(m.error) + '</span>' : ''}</td><td>${esc(m.sent_by || '')}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 보낸 메일이 없습니다.</td></tr>'}</tbody>`;
+    q('#m-bcc').value = V.filter(v => v.intent !== '불참').map(v => v.rfp_email || v.email).filter(Boolean).join('; ');
+    const chk = new Set([...document.querySelectorAll('#l-vendors input:checked')].map(i => i.value)); q('#l-vendors').innerHTML = V.map(v => `<label style="display:flex;gap:5px;align-items:center"><input type="checkbox" value="${v.id}" ${chk.size ? (chk.has(v.id) ? 'checked' : '') : (v.intent !== '불참' ? 'checked' : '')}> ${esc(v.name)}</label>`).join('');
+    q('#maillog').innerHTML = `<thead><tr><th>보낸 일시</th><th>구분</th><th>받은 곳</th><th>제목</th><th>기록</th><th></th></tr></thead><tbody>${S.mail.map(m => `<tr><td>${(m.sent_at || '').replace('T', ' ').slice(0, 16)}</td><td>${esc({ rfp: 'RFP', followup: '후속', reply: '회신', etc: '기타', outlook: '아웃룩', first: '첫 연락', test: '테스트' }[m.kind] || m.kind || '')}</td><td>${esc(m.to_addr)}</td><td>${esc(m.subject)}</td><td>${esc(m.sent_by || '')}</td><td><button class="pill" data-view="${m.id}">본문</button></td></tr><tr id="mv-${m.id}" hidden><td colspan="6"><div class="pre" style="background:var(--ivory);padding:12px 14px"></div></td></tr>`).join('') || '<tr><td colspan="6" class="muted">아직 기록이 없습니다.</td></tr>'}</tbody>`;
     renderScores();
   }
 
@@ -244,102 +246,58 @@
   q('#vendors').addEventListener('click', async e => {
     const c = e.target.closest('[data-called]'); if (c) { const id = c.dataset.called; const box = q(`[data-v="${id}"]`); const body = { r: 'vendor', id, called: true }; box.querySelectorAll('[data-f]').forEach(el => body[el.dataset.f] = el.value);
       try { await api('/event2027', { method: 'POST', body }); toast('통화 기록'); await load(); q('#v-' + id)?.scrollIntoView({ block: 'center' }); } catch (err) { toast('실패: ' + err.message); } return; }
-    const m = e.target.closest('[data-mail]'); if (m) { q('#tabs [data-t=mail]').click(); q('#m-vendor').value = m.dataset.mail; fillMail(); window.scrollTo({ top: 0 }); }
+    const m = e.target.closest('[data-mail]'); if (m) { q('#tabs [data-t=mail]').click(); window.scrollTo({ top: 0 }); }
   });
   document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(q('#' + b.dataset.copy).innerText, '멘트를 복사했습니다')));
   async function copy(t, msg) { try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(msg); }
 
-  // 메일 양식
-  function fillMail() {
-    const v = S.vendors.find(x => x.id === q('#m-vendor').value) || {}; const kind = q('#m-kind').value; const org = '서울대학교 경영대학 ' + q('#m-org').value; const due = q('#m-due').value;
-    const who = v.contact ? v.contact.split(/[ ,·]/)[0] + ' 님' : '담당자님';
-    q('#m-to').value = v.rfp_email || v.email || '';
-    if (kind === 'first') {
-      q('#m-subject').value = `[${org}] 2027.4.16 창립총회 행사대행사 제안 참여 의사 확인`;
-      q('#m-text').value = `${v.name || ''} ${who}께,
+  // 메일 — 단체 발송용 문안 (업체명 없이)
+  function body() { const org = '서울대학교 경영대학 ' + q('#m-org').value;
+    q('#m-subject').value = `[${org}] 2027 창립총회 행사 대행 제안 요청 (회신 양식 첨부)`;
+    q('#m-text').value = `제안 담당자님께,
 
 안녕하세요. ${org} 창립총회 행사기획팀 프로젝트 리더 이태경입니다.
+전화로 안내드린 2027 창립총회 행사 대행 제안을 요청드립니다. 제안 담당자께 전달 부탁드립니다.
 
-2027년 4월 16일(금) 18:00~21:00, 그랜드 하얏트 서울 Grand Ballroom에서 약 700명(600~800명 예상)이 참석하는 창립총회를 개최할 예정입니다. 창립총회, 만찬, 특별 초청 강연, 기념 프로그램, 동문 네트워킹을 아우르는 첫 공식 행사를 품격 있고 창의적으로 기획하고자 합니다.
+1. 행사
+ - 2027년 4월 16일(금) 18:00~21:00, 그랜드 하얏트 서울 Grand Ballroom (계약 확정)
+ - 약 700명 (600~800명)
+ - 창립총회 + 만찬 + 특별 강연·대담 1세션(연사 미정) + 창립 세리머니 + 동문 네트워킹
+ - 새 총동문회의 정체성과 비전을 보여주는 첫 공식 행사
 
-행사 기획·연출·제작·운영을 총괄할 전문 대행사를 선정하고 있어 귀사의 제안 참여 가능 여부를 우선 확인하고자 합니다. 호텔 식음료를 제외한 대행사 총괄 기획·제작·운영 잠정 예산은 부가세 포함 약 1억 2,000만~1억 3,000만원입니다.
+2. 과업
+ - 콘셉트·프로그램·진행 시나리오, 무대·LED·음향·조명, 영상, 공연, 디자인·사인물·포토존
+ - 초청·등록·좌석·VIP 의전, 호텔·AV 협의, 리허설·현장 운영, 사진·영상 기록
+ - 사회(MC)는 동문 아나운서 섭외를 검토 중입니다. 전문 MC 포함안은 선택 항목으로 견적해 주십시오.
+ - 참석자 기념품은 제작하지 않습니다. 대신 동문회 굿즈를 사전 신청·선입금으로 판매할 계획이어서, 굿즈 기획·제작 방안은 선택 제안으로 받습니다.
 
-참여 의사가 있으시면 ${due}까지 아래 자료를 회신해 주시기 바랍니다.
- (1) 회사소개서
- (2) 최근 5년 관련 행사 2~3건의 수행 실적 (인원·장소·업무 범위 포함)
- (3) 배정 가능한 총괄 PM 및 주요 인력
- (4) 제안 담당자 연락처
+3. 예산 — 부가세 포함 1억 3,000만원 이내 (호텔 식음료 제외)
+ 저희가 가장 중요하게 보는 것은 같은 예산으로 얼마나 품격 있고 인상적으로 보이게 하느냐입니다. AI를 활용한 고품질·저비용 영상 제작, 효율적인 무대·LED 구성처럼 예산 안에서 시각적 완성도를 높이는 귀사만의 방법을 구체적으로 제안해 주십시오.
+ 오프닝 영상은 귀사 제작안과, 동문회가 직접 만든 영상을 상영·편집 지원만 하는 경우를 구분해 견적해 주십시오.
 
-첨부한 회신 양식(엑셀)의 시트 1~3을 작성해 주시면 비교 검토에 큰 도움이 됩니다. 참여 가능 업체에는 정식 RFP와 일정을 별도로 안내드리겠습니다.
+4. 회신 — 첨부 엑셀에 작성해 pm@snubusiness.com 으로
+ - 10월 23일(금) 18:00: 참여 의사와 제안 담당자 연락처 (엑셀 시트 1)
+ - 11월 6일(금) 18:00: 제안서 + 엑셀 전체 작성본
+ - 11월 둘째 주: 3~4개사 프레젠테이션 (개별 안내)
 
-감사합니다.
-
-이태경 드림
-${org} 창립총회 행사기획팀 · 프로젝트 리더
-pm@snubusiness.com`;
-    } else {
-      q('#m-subject').value = `[${org}] 2027 창립총회 행사 기획·연출·운영 대행 제안요청서(RFP)`;
-      q('#m-text').value = `${v.name || ''} ${who}께,
-
-오늘 전화로 안내드린 ${org} 2027 창립총회 행사 기획·연출·운영 대행 제안요청서(RFP)를 보내 드립니다. 제안 담당자께 전달 부탁드립니다.
-
-1. 행사 개요
- - 일시: 2027년 4월 16일(금) 18:00~21:00
- - 장소: 그랜드 하얏트 서울 Grand Ballroom (계약 확정)
- - 인원: 최소 600명 / 목표 700명 / 최대 800명
- - 구성: 창립총회(의결) + 만찬 + 특별 초청 강연·대담 1세션(연사 미정) + 창립 세리머니 + 동문 네트워킹
- - 목표: 단순 친목 만찬이 아니라 새 동문회의 정체성과 미래 비전을 보여주는 첫 공식 행사
-
-2. 과업 범위
- - 행사 콘셉트·전체 프로그램·진행 시나리오, 특별 강연 세션의 구성·연출 방식
- - 무대·LED·음향·조명, 오프닝 영상, 공연·MC, 로비·포토존·사인물의 기획·제작
- - 초청·RSVP·등록·좌석·VIP 의전, 호텔·AV 협의, 리허설·안전·현장 운영, 사진·영상 기록
- - 동문회 담당: 창립 취지, 총회 의결, 연사·VIP 최종 선정과 접촉, 핵심 후원, 주요 승인
-
-3. 예산
- - 호텔 식음료를 제외한 기획·제작·운영 총괄 부가세 포함 약 1억 2,000만~1억 3,000만원 (700명 기준, 대행 수수료 총액이 아님)
- - 견적은 공급가액과 부가세를 구분하고, 부가세 포함 총액으로 비교합니다
- - 기획·PM비와 외부 제작·운영비, 외주비, 대행 수수료, 호텔 관련 외부 비용(Encore 감독비 등)을 구분
- - 항목별 수량·단가·산출 근거, 필수/선택 항목 구분, 600명·800명 변경 시 증감액 별도 제시
- - 초청 연사 강연료·여비, 고급 기념품은 견적에서 제외 (특별 강연의 진행·연출·운영은 포함)
-
-4. 호텔 조건 (반드시 반영)
- - 행사장 입장·설치는 당일 15:00부터. 무대 설치·리허설 시간 확보 방안 제시 (조기 설치는 호텔 협의 필요)
- - 외부 AV 사용 시 호텔 파트너 Encore의 지도·감독 및 감독비 발생 가능
- - 외부 대행사 정보는 행사 최소 60일 전 호텔 서면 통보, 외부 설치물·전기는 호텔/Encore 사전 승인
-
-5. 제출물
- - 제안서 (콘셉트, 프로그램·분 단위 시나리오 개요, 연출·디자인 시안, 운영 계획)
- - 첨부 회신 양식(엑셀) 시트 1~6 전체: 기본정보, 수행실적, 투입인력, 역량·조건 확인, 견적(700명), 인원 증감·옵션
- - 실제 투입할 총괄 PM과 핵심 인력의 이력 및 투입률 (제안서 기재 인력의 실투입 확약)
-
-6. 일정 (안)
- - 참여 의사 및 제안 담당자(성함·직통·이메일) 회신: ${due}까지, pm@snubusiness.com
- - 제안서 제출: 2026년 11월 6일(금) 18:00까지, pm@snubusiness.com
- - 프레젠테이션: 11월 둘째 주 중 3~4개사 (일정 개별 안내)
- - 우선협상 및 계약: 11월 중순
-
-7. 평가 기준 (100점)
- 행사 콘셉트·창의성 25 / 유사 행사 실적 20 / 프로그램·스토리텔링 15 / 실제 투입 PM·팀 15 / 등록·VIP·현장 운영 10 / 예산 합리성·투명성 10 / 디자인·영상 5
-
-문의는 이 메일(pm@snubusiness.com)로 회신 주시면 답변드리겠습니다.
+호텔 조건(15:00 셋업, Encore AV 감독, 60일 전 통보), 견적 작성 기준, 평가 기준은 첨부 엑셀 '0 작성안내'에 정리했습니다.
 
 감사합니다.
 
 이태경 드림
 ${org} 창립총회 행사기획팀 · 프로젝트 리더
-pm@snubusiness.com`;
-    }
-  }
-  ['#m-kind', '#m-vendor', '#m-org'].forEach(s => q(s).addEventListener('change', () => { fillMail(); document.querySelectorAll('.orgshort').forEach(x => x.textContent = q('#m-org').value); }));
-  q('#m-due').addEventListener('change', fillMail); q('#m-reset').addEventListener('click', fillMail);
-  q('#m-copy').addEventListener('click', () => copy('제목: ' + q('#m-subject').value + '\n\n' + q('#m-text').value, '제목과 본문을 복사했습니다'));
-  q('#m-send').addEventListener('click', async () => { const to = q('#m-to').value.trim(); if (!to) { toast('받는 사람을 입력하세요'); return; }
-    const v = S.vendors.find(x => x.id === q('#m-vendor').value) || {};
-    if (!confirm(`${v.name || ''} (${to}) 에게 pm@snubusiness.com 명의로 보냅니다.\n제목: ${q('#m-subject').value}\n\n보낼까요?`)) return;
-    q('#m-send').disabled = true; q('#m-msg').textContent = '보내는 중…';
-    try { await api('/event2027', { method: 'POST', body: { r: 'send', vendor: v.id, kind: q('#m-kind').value, to, cc: q('#m-cc').value, subject: q('#m-subject').value, text: q('#m-text').value, attach: q('#m-attach').checked ? ['snu2027_vendor_response_form.xlsx'] : [] } });
-      q('#m-msg').textContent = '보냈습니다'; toast('발송 완료'); await load(); } catch (err) { q('#m-msg').textContent = '실패: ' + err.message; } finally { q('#m-send').disabled = false; } });
+pm@snubusiness.com`; q('#l-subject').value = q('#m-subject').value; q('#l-text').value = q('#m-text').value; }
+  q('#m-org').addEventListener('change', () => { body(); document.querySelectorAll('.orgshort').forEach(x => x.textContent = q('#m-org').value); });
+  q('#m-reset').addEventListener('click', body);
+  q('#c-bcc').addEventListener('click', () => copy(q('#m-bcc').value, '업체 주소를 복사했습니다 — 숨은참조에 붙여 넣으세요'));
+  q('#c-subj').addEventListener('click', () => copy(q('#m-subject').value, '제목을 복사했습니다'));
+  q('#c-body').addEventListener('click', () => { copy(q('#m-text').value, '본문을 복사했습니다'); q('#l-subject').value = q('#m-subject').value; q('#l-text').value = q('#m-text').value; });
+  const pad = n => String(n).padStart(2, '0'); const nowLocal = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  q('#l-save').addEventListener('click', async () => { const ids = [...document.querySelectorAll('#l-vendors input:checked')].map(i => i.value);
+    const names = S.vendors.filter(v => ids.includes(v.id)).map(v => v.name).join(', ');
+    try { await api('/event2027', { method: 'POST', body: { r: 'log', kind: q('#l-kind').value, vendors: ids.join(','), to: names, subject: q('#l-subject').value, text: q('#l-text').value, sent_at: q('#l-at').value || nowLocal() } }); q('#l-msg').textContent = '기록했습니다'; toast('메일 기록 저장'); await load(); } catch (err) { q('#l-msg').textContent = '실패: ' + err.message; } });
+  q('#maillog').addEventListener('click', async e => { const b = e.target.closest('[data-view]'); if (!b) return; const tr = q('#mv-' + b.dataset.view); if (!tr.hidden) { tr.hidden = true; return; }
+    try { const r = await api('/event2027', { method: 'POST', body: { r: 'mailbody', id: b.dataset.view } }); tr.querySelector('.pre').textContent = r.mail.body || '(본문 없음)'; tr.hidden = false; } catch (err) { toast('실패: ' + err.message); } });
 
   // 채점
   const RUB = [
@@ -373,7 +331,7 @@ pm@snubusiness.com`;
 
   // 탭
   q('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); });
-  await load(); fillMail();
+  q('#l-at').value = nowLocal(); await load(); body();
   const h0 = location.hash.slice(1); if (h0) q(`#tabs [data-t="${h0}"]`)?.click();
 })();
 </script>

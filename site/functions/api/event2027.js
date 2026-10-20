@@ -73,6 +73,14 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true });
   }
 
+  if (b.r === 'log') { // 아웃룩 등 외부에서 보낸 메일 기록
+    const subject = clean(b.subject, 200), body = String(b.text || '').slice(0, 20000), to = clean(b.to, 1000);
+    if (!subject || !to) return err('받는 곳과 제목을 적어 주세요');
+    await db.prepare('INSERT INTO ev_mail (vendor, kind, to_addr, cc, subject, body, status, sent_by, sent_at) VALUES (?,?,?,?,?,?,?,?,?)').bind(clean(b.vendors, 300), clean(b.kind, 20) || 'outlook', to, clean(b.cc, 500), subject, body, 'outlook', s.name, clean(b.sent_at, 30) || now).run();
+    return json({ ok: true });
+  }
+  if (b.r === 'mailbody') { const id = Number(b.id); const row = await db.prepare('SELECT * FROM ev_mail WHERE id = ?').bind(id).first(); return row ? json({ mail: row }) : err('not found', 404); }
+
   if (b.r === 'send') {
     if (!mailReady(env)) return err('메일 발송 설정(RESEND_API_KEY)이 없습니다', 503);
     const to = String(b.to || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(x));
