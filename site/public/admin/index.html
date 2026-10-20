@@ -6,17 +6,18 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261020a"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020b"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 </head>
 <body>
 <div class="admin-shell">
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><h1>대시보드</h1><div class="sub">마스터 개발계획을 늘 상기하며 — 오늘의 상태</div></div>
-      <div class="actions"><a class="btn sm gold" href="/admin/golf/">골프 운영</a><a class="btn sm ghost" href="/admin/meeting/?m=committee">회의록</a><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
+      <div class="actions"><a class="btn sm gold" href="/admin/event2027/" data-ev hidden>창립총회</a><a class="btn sm ghost" href="/admin/golf/">골프 운영</a><a class="btn sm ghost" href="/admin/meeting/?m=committee">회의록</a><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
     <div class="admin-body">
       <div class="meet-cards">
-        <a class="meet-card hot" href="/admin/golf/"><div class="tag">다음 행사 · 10월 24일(토)</div><h3>준비모임 골프 운영</h3><div class="when">힐마루 골프앤리조트 포천 · 14팀 · 참가 55명</div><div class="desc">참가자 명단 · 조편성(자동/수동) · 스코어 · 정산 · 사진</div><span class="go">골프 운영 열기 →</span></a>
+        <a class="meet-card hot" href="/admin/event2027/" data-ev hidden><div class="tag">2027. 4. 16.(금) · 행사기획팀 전용</div><h3>창립총회 행사기획</h3><div class="when">그랜드 하얏트 서울 Grand Ballroom · 약 700명 · PM 이태경</div><div class="desc">대행사 8곳 연락·전화 멘트 · RFP 메일(pm@snubusiness.com) · 채점 · 예산</div><span class="go">창립총회 열기 →</span></a>
+        <a class="meet-card" href="/admin/golf/"><div class="tag">다음 행사 · 10월 24일(토)</div><h3>준비모임 골프 운영</h3><div class="when">힐마루 골프앤리조트 포천 · 14팀 · 참가 55명</div><div class="desc">참가자 명단 · 조편성(자동/수동) · 스코어 · 정산 · 사진</div><span class="go">골프 운영 열기 →</span></a>
         <a class="meet-card" href="/admin/meeting/?m=committee"><div class="tag">회의록 확정 · 서기 이태경</div><h3>9/29 준비위원회 회의</h3><div class="when">9월 29일(화) 22:00 온라인 · 의결 7건 · 창립총회 논의 3건</div><div class="desc">명칭 총동문회 · 회비 기본 방향 · 창립총회 그랜드 하얏트(2027.4.16) 예산·VIP·대행사 논의</div><span class="go">회의록 보기 →</span></a>
         <a class="meet-card" href="/admin/meeting/"><div class="tag">지난 회의 · 결정 완료</div><h3>9/9 조찬 회의</h3><div class="when">9월 9일(화) 조찬 · 결정 11건 저장</div><div class="desc">1장 입력 12건 · 2장 의사결정 15건 — 결정 결과와 인쇄본</div><span class="go">회의 기록 보기 →</span></a>
       </div>
@@ -48,7 +49,7 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261020a"></script><script src="/assets/js/admin.js?v=20261020a"></script>
+<script src="/assets/js/site.js?v=20261020b"></script><script src="/assets/js/admin.js?v=20261020b"></script>
 <script>
 (async () => {
   const esc = SNU.esc;
@@ -74,4 +75,5 @@
   catch (e) { document.getElementById('k-open').textContent = '—'; document.getElementById('recent-threads').innerHTML = '<div class="empty">API에 연결되지 않았습니다 (로컬 미리보기 또는 D1 미바인딩).</div>'; }
 })();
 </script>
+<script>fetch("/api/me",{cache:"no-store"}).then(r=>r.json()).then(m=>{if(m.role==="owner"||m.role==="agent"||(m.perms||[]).includes("event2027"))document.querySelectorAll("[data-ev]").forEach(e=>e.hidden=false)}).catch(()=>{})</script>
 </body></html>
