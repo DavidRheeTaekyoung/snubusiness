@@ -46,6 +46,7 @@ details[open]>.vd-h{border-bottom:1px solid var(--line)}
 .ce{min-height:22px;outline:0;line-height:1.6;white-space:pre-wrap}
 .ce:focus{background:#FBF4E6}
 .ce:empty::before{content:attr(data-ph);color:var(--ink-3)}
+.items{table-layout:fixed;min-width:640px}.items th{white-space:nowrap}.items .pill{white-space:nowrap;padding:4px 9px}
 .items select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line-2);background:var(--paper);width:100%}
 .mailbox{display:grid;grid-template-columns:1fr;gap:10px}
 .mailbox .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -200,13 +201,13 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel{display:n
   const telHref = p => 'tel:' + String(p).replace(/[^0-9+]/g, '');
   const stCls = v => v === '참여' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
   const STAGE = ['참여 의사', '대기 · 확인 중', '불참'], stageOf = v => v.intent === '참여' ? 0 : v.intent === '불참' ? 2 : 1;
-  function summary() { const d = new Date(), V = S.vendors, line = v => '- ' + v.name + (v.contact ? ' (' + v.contact + ')' : '') + (v.next_step ? ': ' + v.next_step : '');
+  function summary() { const d = new Date(), V = S.vendors, line = v => '- ' + v.name + (v.contact ? ' · ' + v.contact : '') + (v.next_step ? ': ' + v.next_step : '');
     const groups = [0, 1, 2].map(i => V.filter(v => stageOf(v) === i)), open = (S.items || []).filter(i => i.title && i.status !== '결정 완료');
     return ['창립총회 대행사 선정 현황 (' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 기준)', '후보 ' + V.length + '곳: 참여 의사 ' + groups[0].length + ', 대기·확인 중 ' + groups[1].length + ', 불참 ' + groups[2].length + ' / 제안서 접수 ' + V.filter(v => v.docs === '수령 완료').length,
       ...groups.flatMap((g, i) => g.length ? ['', STAGE[i], ...g.map(line)] : []), ...(open.length ? ['', '논의 · 결정 필요', ...open.map(i => '- ' + i.title + (i.owner ? ' (' + i.owner + ')' : ''))] : [])].join('\n'); }
   const ITEM_ST = ['논의 필요', '진행 중', '결정 완료'];
   function renderItems() { const ce = (i, f, ph) => '<div class="ce" contenteditable="plaintext-only" data-i="' + f + '" data-ph="' + ph + '">' + esc(i[f]) + '</div>';
-    q('#items').innerHTML = '<thead><tr><th>안건</th><th style="width:96px">담당</th><th style="width:110px">기한</th><th style="width:108px">상태</th><th>결정 · 메모</th><th class="no-print" style="width:44px"></th></tr></thead><tbody>' + ((S.items || []).map(i => '<tr data-it="' + i.id + '" class="' + (i.status === '결정 완료' ? 'dim' : '') + '"><td>' + ce(i, 'title', '안건 입력') + '</td><td>' + ce(i, 'owner', '담당') + '</td><td>' + ce(i, 'due', '기한') + '</td><td><select data-i="status">' + ITEM_ST.map(x => '<option ' + (x === i.status ? 'selected' : '') + '>' + x + '</option>').join('') + '</select></td><td>' + ce(i, 'memo', '결정 내용 기록') + '</td><td class="no-print"><button class="pill" data-del="' + i.id + '" title="삭제">삭제</button></td></tr>').join('') || '<tr><td colspan="6" class="muted">등록된 안건이 없습니다.</td></tr>') + '</tbody>'; }
+    q('#items').innerHTML = '<thead><tr><th style="width:30%">안건</th><th style="width:11%">담당</th><th style="width:11%">기한</th><th style="width:16%">상태</th><th>결정 · 메모</th><th class="no-print" style="width:66px"></th></tr></thead><tbody>' + ((S.items || []).map(i => '<tr data-it="' + i.id + '" class="' + (i.status === '결정 완료' ? 'dim' : '') + '"><td>' + ce(i, 'title', '안건 입력') + '</td><td>' + ce(i, 'owner', '담당') + '</td><td>' + ce(i, 'due', '기한') + '</td><td><select data-i="status">' + ITEM_ST.map(x => '<option ' + (x === i.status ? 'selected' : '') + '>' + x + '</option>').join('') + '</select></td><td>' + ce(i, 'memo', '결정 내용 기록') + '</td><td class="no-print"><button class="pill" data-del="' + i.id + '" title="삭제">삭제</button></td></tr>').join('') || '<tr><td colspan="6" class="muted">등록된 안건이 없습니다.</td></tr>') + '</tbody>'; }
   async function saveItem(tr) { const it = S.items.find(x => x.id === Number(tr.dataset.it)); if (!it) return; const next = { ...it };
     tr.querySelectorAll('[data-i]').forEach(el => next[el.dataset.i] = el.tagName === 'SELECT' ? el.value : el.textContent.trim());
     if (['title', 'owner', 'due', 'status', 'memo'].every(f => next[f] === it[f])) return;
