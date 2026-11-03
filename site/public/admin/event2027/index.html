@@ -17,26 +17,14 @@
 .warn{background:#FFF6E5;border-left:3px solid var(--warn);padding:12px 16px;font-size:13.5px;line-height:1.75;margin-bottom:16px}
 .warn b{color:#8A5A00}
 .team td{font-size:14px}
-.script{background:var(--navy-800);color:var(--paper);padding:20px 24px;font-size:15px;line-height:1.85;border-top:3px solid var(--gold-400);position:relative}
-.script .t{font-family:var(--display);letter-spacing:.14em;font-size:12px;color:var(--gold-300);text-transform:uppercase;margin-bottom:6px}
-.script .copy{position:absolute;right:14px;top:14px;font:inherit;font-size:12px;padding:4px 10px;border:1px solid rgba(255,255,255,.35);background:none;color:var(--paper);border-radius:999px;cursor:pointer}
-.scripts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-@media (max-width:860px){.scripts{grid-template-columns:1fr}}
-.script.light{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-top:3px solid var(--navy-700)}
-.script.light .t{color:var(--gold-500)}.script.light .copy{border-color:var(--line-2);color:var(--ink-3)}
-.checks{counter-reset:c;list-style:none;padding:0;margin:0;font-size:14px;line-height:1.7}
-.checks li{counter-increment:c;padding:7px 0 7px 34px;position:relative;border-bottom:1px dashed var(--line)}
-.checks li::before{content:counter(c);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--ivory);color:var(--navy-800);font-family:var(--display);font-weight:700;display:grid;place-items:center;font-size:14px}
-.checks b{color:var(--navy-800)}
-.vendors{display:grid;gap:14px}
+.vendors{display:grid;gap:8px}
 .vd{background:var(--paper);border:1px solid var(--line);border-left:4px solid var(--navy-700)}
 .vd.called{border-left-color:var(--success)}.vd.declined{opacity:.6;border-left-color:var(--ink-3)}
-.vd-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
-.vd-h h3{font-family:var(--serif);font-size:19px;color:var(--navy-800);margin:0}
-.vd-h h3 small{font-family:var(--display);font-size:13px;color:var(--ink-3);letter-spacing:.06em;margin-left:6px}
-.vd-h .seq{font-family:var(--display);font-size:22px;color:var(--gold-500);font-weight:700;margin-right:8px}
-.tel{display:inline-flex;align-items:center;gap:6px;font-size:17px;font-weight:700;color:var(--paper);background:var(--navy-800);padding:9px 16px;border-radius:999px;font-variant-numeric:tabular-nums}
-.tel.sub{background:var(--paper);color:var(--navy-800);border:1px solid var(--navy-800);font-size:14px;padding:7px 12px}
+.vd-h{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;flex-wrap:wrap;cursor:pointer;list-style:none}
+.vd-h::-webkit-details-marker{display:none}
+details[open]>.vd-h{border-bottom:1px solid var(--line)}
+.vd-h h3{font-family:var(--serif);font-size:16px;color:var(--navy-800);margin:0}
+.vd-h h3 small{font-family:var(--display);font-size:12px;color:var(--ink-3);letter-spacing:.06em;margin-left:6px}
 .vd-b{display:grid;grid-template-columns:1.1fr 1fr;gap:0}
 @media (max-width:900px){.vd-b{grid-template-columns:1fr}}
 .vd-info{padding:14px 18px;font-size:13.5px;line-height:1.75;border-right:1px solid var(--line)}
@@ -51,7 +39,14 @@
 .vd-foot{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--ink-3)}
 .st{display:inline-block;font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--ivory-2);color:var(--ink-3)}
 .st.ok{background:#E3F1EA;color:var(--success)}.st.no{background:#F8E3E0;color:var(--danger)}.st.mid{background:#FFF1DD;color:var(--warn)}
-.board td{font-size:13px;padding:8px 10px}
+.board td{font-size:13px;padding:8px 10px;vertical-align:top}
+.board .grp td{background:var(--ivory);font-weight:600;color:var(--navy-800)}
+.board .dim td{color:var(--ink-3)}
+.summary{background:var(--ivory);padding:14px 18px;font-size:13.5px;line-height:1.75}
+.ce{min-height:22px;outline:0;line-height:1.6;white-space:pre-wrap}
+.ce:focus{background:#FBF4E6}
+.ce:empty::before{content:attr(data-ph);color:var(--ink-3)}
+.items select{font:inherit;font-size:13px;padding:4px 6px;border:1px solid var(--line-2);background:var(--paper);width:100%}
 .mailbox{display:grid;grid-template-columns:1fr;gap:10px}
 .mailbox .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mailbox input,.mailbox select,.mailbox textarea{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line-2);border-radius:2px;width:100%;background:var(--paper)}
@@ -64,7 +59,8 @@
 .sc td,.sc th{padding:6px 8px;font-size:13px}
 .files a.btn{margin-right:8px;margin-bottom:8px}
 .pre{white-space:pre-wrap;font-size:14px;line-height:1.8}
-@media print{.admin-side,.admin-top .actions,.tabs,.no-print{display:none!important}.pane{display:block!important;break-after:page}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}}
+@media print{.admin-side,.admin-top .actions,.tabs,.no-print{display:none!important}.pane{display:block!important;break-after:page}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}
+body.print-report .pane:not(#p-report),body.print-report .vendor-panel{display:none!important}.items select{appearance:none;border:0;background:none;padding:0}.board tr{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -75,36 +71,34 @@
       <div class="actions"><span class="muted" style="font-size:13px">접속: <b id="me">—</b></span></div></div>
     <div class="admin-body" id="body">
       <div class="kpi">
-        <div class="k"><div class="v" id="k-called">—</div><div class="l">통화 완료</div></div>
-        <div class="k gold"><div class="v" id="k-yes">—</div><div class="l">참여 의사 확인</div></div>
-        <div class="k"><div class="v" id="k-docs">—</div><div class="l">자료 수령</div></div>
-        <div class="k"><div class="v" id="k-mail">—</div><div class="l">발송한 메일</div></div>
+        <div class="k gold"><div class="v" id="k-yes">—</div><div class="l">참여 의사</div></div>
+        <div class="k"><div class="v" id="k-wait">—</div><div class="l">대기 · 확인 중</div></div>
+        <div class="k"><div class="v" id="k-no">—</div><div class="l">불참</div></div>
+        <div class="k"><div class="v" id="k-docs">—</div><div class="l">제안서 접수</div></div>
       </div>
-      <div class="tabs" id="tabs"><button data-t="call" class="on">전화 · 업체</button><button data-t="mail">RFP 메일 · 기록</button><button data-t="score">채점표</button><button data-t="brief">행사 개요 · 예산</button><button data-t="files">엑셀 · 자료</button></div>
+      <div class="tabs" id="tabs"><button data-t="report" class="on">현황 보고</button><button data-t="mail">RFP 메일 · 기록</button><button data-t="score">채점표</button><button data-t="brief">행사 개요 · 예산</button><button data-t="files">엑셀 · 자료</button></div>
 
-      <!-- 전화 · 업체 -->
-      <div class="pane on" id="p-call">
-        <div class="warn"><b>통화 원칙</b> — 인터컴 먼저(정보 확보용, 선정 내정 아님), 나머지 6곳은 1~2일 안에 같은 조건으로. 공개된 이메일은 "담당자 지정 완료"가 아니므로 <b>담당자 성함·직통·실제 수신 이메일·제안 가능 일정</b>을 전화로 받아 아래 칸에 적습니다. 호텔 계약서 전체·내부 연사 후보·개인정보는 말하지 않습니다(강연은 "연사 미정").</div>
-        <div class="scripts">
-          <div class="script"><div class="t">① 첫 인사 · 30초</div><button class="copy" data-copy="s1">복사</button><div id="s1">안녕하세요. 서울대 경영대학 <span class="orgshort">총동문회</span> 창립총회 준비팀의 이태경입니다. 내년 4월 16일 그랜드 하얏트에서 약 700명 규모 창립총회를 개최하는데, 행사 전체 기획·연출·운영 대행사를 검토하고 있습니다. 제안 참여가 가능하신지 확인하고 관련 실적 자료를 요청드리려고 연락했습니다. 제안 담당자 연결을 부탁드립니다.</div></div>
-          <div class="script light"><div class="t">② 대표번호·교환에서</div><button class="copy" data-copy="s2">복사</button><div id="s2">행사 대행 제안 건으로 연락드렸습니다. MICE·기업 행사 제안을 담당하시는 분과 통화하고 싶습니다. 지금 연결이 어려우시면 담당자 성함과 직통 번호, 제안서를 받으실 이메일을 알려 주시겠어요? 제 연락처는 pm@snubusiness.com 이고, 오늘 중 메일로 개요를 보내 드리겠습니다.</div></div>
-          <div class="script light"><div class="t">③ 마무리</div><button class="copy" data-copy="s3">복사</button><div id="s3">감사합니다. 오늘 중으로 pm@snubusiness.com 에서 행사 개요와 회신 양식을 보내 드리겠습니다. 이번 주 금요일까지 회사소개서, 최근 5년 유사 행사 2~3건 실적, 배정 가능한 총괄 PM 정보를 회신해 주시면 참여 업체에 정식 RFP와 일정을 안내드리겠습니다.</div></div>
-          <div class="script light"><div class="t">④ 부재 · 콜백 요청</div><button class="copy" data-copy="s4">복사</button><div id="s4">서울대 경영대학 <span class="orgshort">총동문회</span> 창립총회 준비팀 이태경입니다. 2027년 4월 16일 그랜드 하얏트 약 700명 규모 창립총회의 행사대행 제안 참여 여부를 여쭙고자 연락드렸습니다. 회신은 pm@snubusiness.com 으로 부탁드리며, 담당자분 성함과 직통 번호를 남겨 주시면 다시 연락드리겠습니다.</div></div>
-        </div>
-        <div class="panel"><div class="panel-head"><h2>담당자 연결 후 — 공통 확인 8가지</h2><span class="muted" style="font-size:13px">첫 통화에서 다 못 들으면 자료로 요청</span></div>
-          <ol class="checks">
-            <li><b>참여 의사·일정</b> — 2027.4.16(금) 현장 운영 가능? 11월 RFP·PT 일정 대응 가능?</li>
-            <li><b>실제 수행 실적</b> — 최근 5년 500~1,000명 규모 갈라·창립기념식·VIP 만찬 2~3건: 연도·장소·규모·수행 범위</li>
-            <li><b>실제 인력</b> — 총괄 PM·크리에이티브 디렉터·현장 운영책임자 이름·직책·대표 실적·투입률</li>
-            <li><b>호텔 경험</b> — 그랜드 하얏트 서울 Grand Ballroom 직접 경험, 설치·철거, 호텔 Encore 협의 경험</li>
-            <li><b>프로그램 역량</b> — 총회 의결+만찬+특별 강연+세리머니+네트워킹을 3시간 안에 균형 있게 설계하는 방법</li>
-            <li><b>제작·외주</b> — 오프닝 영상·무대·AV·공연을 사내 제작하는지, 재하도급인지</li>
-            <li><b>등록·동문 정보</b> — 동문회 회원·RSVP·QR 등록 연계, 개인정보 관리 방식</li>
-            <li><b>예산·계약</b> — 총괄 1.2~1.3억원(VAT 여부 필수) 안에서 기획·PM / 직접 제작비 / 외주비 / 관리비 분리 가능?</li>
-          </ol></div>
-        <div class="panel"><div class="panel-head"><h2>업체 진행 현황</h2><span class="muted" style="font-size:13px">카드에 적으면 바로 저장 · 팀 전체가 같은 현황을 봅니다</span></div>
+      <!-- 현황 보고 -->
+      <div class="pane on" id="p-report">
+        <div class="panel"><div class="panel-head"><h2>현황 요약</h2><div class="mbar no-print"><button class="btn sm" id="r-copy">보고 문구 복사</button><button class="btn sm ghost" id="r-print">회의자료 인쇄</button></div></div>
+          <div class="pre summary" id="r-summary"></div></div>
+        <div class="panel"><div class="panel-head"><h2>안건 · 결정 사항</h2><button class="btn sm ghost no-print" id="it-add">안건 추가</button></div>
+          <div style="overflow-x:auto"><table class="table board items" id="items"></table></div></div>
+        <div class="panel"><div class="panel-head"><h2>업체 현황</h2></div>
           <div class="wrap" style="overflow-x:auto"><table class="table board" id="board"></table></div></div>
-        <div class="vendors" id="vendors"></div>
+        <div class="panel"><div class="panel-head"><h2>일정</h2><span class="muted" style="font-size:13px">기존안의 PT·우선협상 시점은 재설정이 필요합니다</span></div>
+          <table class="table board"><tbody>
+            <tr><td style="width:150px"><b>10/20</b></td><td>1차 7개사 RFP 발송</td><td style="width:70px"><span class="st ok">완료</span></td></tr>
+            <tr><td><b>10/30</b></td><td>1차 업체 재통화, 불참 다수 확인</td><td><span class="st ok">완료</span></td></tr>
+            <tr><td><b>11/2~11/3</b></td><td>신규 후보 문의 (민플랜·스타로드·나인엠씨·다이렉트), 스타로드·다이렉트 RFP 발송</td><td><span class="st ok">완료</span></td></tr>
+            <tr><td><b>11/10(화) 18:00</b></td><td>다이렉트엔터테인먼트 제안서·엑셀 마감</td><td><span class="st mid">진행</span></td></tr>
+            <tr><td><b>재설정 필요</b></td><td>PT (기존안 11월 둘째 주) · 우선협상 (기존안 11월 중순)</td><td><span class="st no">미정</span></td></tr>
+            <tr><td><b>12월~3월</b></td><td>콘셉트·프로그램·콘텐츠 제작, 초청·등록, 호텔 기술 협의</td><td><span class="st">예정</span></td></tr>
+            <tr><td><b>2027. 2. 15.까지</b></td><td>외부 대행사 정보 호텔 서면 통보 (행사 60일 전)</td><td><span class="st">예정</span></td></tr>
+            <tr><td><b>2027년 4월</b></td><td>최종 좌석·리허설·행사 운영 및 정산·기록</td><td><span class="st">예정</span></td></tr>
+          </tbody></table></div>
+        <div class="panel vendor-panel"><div class="panel-head"><h2>업체 상세 · 기록 수정</h2><span class="muted" style="font-size:13px">업체를 눌러 펼치면 바로 수정하고 저장됩니다</span></div>
+          <div class="vendors" id="vendors"></div></div>
       </div>
 
       <!-- 메일 · RFP -->
@@ -170,16 +164,6 @@
             <li>계약 만찬 13만원/인, 예산 가정 16만원/인 — 메뉴·변경 서면 합의 전까지 16만원을 계약 확정가로 설명하지 않음</li>
             <li>대행사에는 호텔 계약 확정과 필수 기술 제약만 전달. <b>호텔 전체 계약서·개인정보는 별도 승인 없이 배포 금지</b></li>
           </ul></div>
-        <div class="panel"><h2>추진 일정 (제안)</h2>
-          <table class="table"><tbody>
-            <tr><td style="width:140px"><b>10/20~10/22</b></td><td>인터컴 선접촉, 7개사 전체 참여 의사·담당자 연락처 확보</td></tr>
-            <tr><td><b>10/22~10/26</b></td><td>공동 기획 리더와 RFP 최종 검토·발송 (참여 업체 공통 조건)</td></tr>
-            <tr><td><b>11월 첫째 주</b></td><td>서면 제안서 접수 · PM 실적/견적 사전 검증</td></tr>
-            <tr><td><b>11월 둘째 주</b></td><td>3~4개사 PT · 공동 기획 리더/관련 위원 참여</td></tr>
-            <tr><td><b>11월 중순</b></td><td>우선협상, 핵심 인력 확약·외주비·호텔 기술비·계약 책임 확인</td></tr>
-            <tr><td><b>12월~3월</b></td><td>콘셉트·프로그램·콘텐츠 제작, 초청·등록, 호텔 기술 협의</td></tr>
-            <tr><td><b>2027년 4월</b></td><td>최종 좌석·리허설·행사 운영 및 정산·기록</td></tr>
-          </tbody></table></div>
       </div>
 
       <!-- 자료 -->
@@ -215,22 +199,45 @@
   async function load() { S = await api('/event2027'); render(); }
   const telHref = p => 'tel:' + String(p).replace(/[^0-9+]/g, '');
   const stCls = v => v === '참여' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
+  const STAGE = ['참여 의사', '대기 · 확인 중', '불참'], stageOf = v => v.intent === '참여' ? 0 : v.intent === '불참' ? 2 : 1;
+  function summary() { const d = new Date(), V = S.vendors, line = v => '- ' + v.name + (v.contact ? ' (' + v.contact + ')' : '') + (v.next_step ? ': ' + v.next_step : '');
+    const groups = [0, 1, 2].map(i => V.filter(v => stageOf(v) === i)), open = (S.items || []).filter(i => i.title && i.status !== '결정 완료');
+    return ['창립총회 대행사 선정 현황 (' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 기준)', '후보 ' + V.length + '곳: 참여 의사 ' + groups[0].length + ', 대기·확인 중 ' + groups[1].length + ', 불참 ' + groups[2].length + ' / 제안서 접수 ' + V.filter(v => v.docs === '수령 완료').length,
+      ...groups.flatMap((g, i) => g.length ? ['', STAGE[i], ...g.map(line)] : []), ...(open.length ? ['', '논의 · 결정 필요', ...open.map(i => '- ' + i.title + (i.owner ? ' (' + i.owner + ')' : ''))] : [])].join('\n'); }
+  const ITEM_ST = ['논의 필요', '진행 중', '결정 완료'];
+  function renderItems() { const ce = (i, f, ph) => '<div class="ce" contenteditable="plaintext-only" data-i="' + f + '" data-ph="' + ph + '">' + esc(i[f]) + '</div>';
+    q('#items').innerHTML = '<thead><tr><th>안건</th><th style="width:96px">담당</th><th style="width:110px">기한</th><th style="width:108px">상태</th><th>결정 · 메모</th><th class="no-print" style="width:44px"></th></tr></thead><tbody>' + ((S.items || []).map(i => '<tr data-it="' + i.id + '" class="' + (i.status === '결정 완료' ? 'dim' : '') + '"><td>' + ce(i, 'title', '안건 입력') + '</td><td>' + ce(i, 'owner', '담당') + '</td><td>' + ce(i, 'due', '기한') + '</td><td><select data-i="status">' + ITEM_ST.map(x => '<option ' + (x === i.status ? 'selected' : '') + '>' + x + '</option>').join('') + '</select></td><td>' + ce(i, 'memo', '결정 내용 기록') + '</td><td class="no-print"><button class="pill" data-del="' + i.id + '" title="삭제">삭제</button></td></tr>').join('') || '<tr><td colspan="6" class="muted">등록된 안건이 없습니다.</td></tr>') + '</tbody>'; }
+  async function saveItem(tr) { const it = S.items.find(x => x.id === Number(tr.dataset.it)); if (!it) return; const next = { ...it };
+    tr.querySelectorAll('[data-i]').forEach(el => next[el.dataset.i] = el.tagName === 'SELECT' ? el.value : el.textContent.trim());
+    if (['title', 'owner', 'due', 'status', 'memo'].every(f => next[f] === it[f])) return;
+    try { await api('/event2027', { method: 'POST', body: { r: 'item', ...next } }); Object.assign(it, next); tr.classList.toggle('dim', it.status === '결정 완료'); q('#r-summary').textContent = summary(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } }
+  q('#items').addEventListener('focusout', e => { if (e.target.classList.contains('ce')) saveItem(e.target.closest('tr')); });
+  q('#items').addEventListener('change', e => { if (e.target.tagName === 'SELECT') saveItem(e.target.closest('tr')); });
+  q('#items').addEventListener('click', async e => { const b = e.target.closest('[data-del]'); if (!b || !confirm('이 안건을 삭제할까요?')) return;
+    try { await api('/event2027', { method: 'POST', body: { r: 'item_del', id: b.dataset.del } }); await load(); } catch (err) { toast('실패: ' + err.message); } });
+  q('#it-add').addEventListener('click', async () => { try { const r = await api('/event2027', { method: 'POST', body: { r: 'item', title: '' } }); await load(); q('[data-it="' + r.id + '"] [data-i=title]')?.focus(); } catch (err) { toast('실패: ' + err.message); } });
+  q('#r-copy').addEventListener('click', () => copy(summary(), '보고 문구를 복사했습니다'));
+  q('#r-print').addEventListener('click', () => { document.body.classList.add('print-report'); window.print(); });
+  window.addEventListener('afterprint', () => document.body.classList.remove('print-report'));
   function render() {
     const V = S.vendors;
-    q('#k-called').textContent = V.filter(v => v.called_at).length + ' / ' + V.length; q('#k-yes').textContent = V.filter(v => v.intent === '참여').length; q('#k-docs').textContent = V.filter(v => v.docs === '수령 완료').length; q('#k-mail').textContent = S.mail.filter(m => m.status === 'sent').length;
-    q('#board').innerHTML = `<thead><tr><th>#</th><th>업체</th><th>담당자 / 직통·수신처</th><th>참여 여부</th><th>실적·PM 자료</th><th>후속 예정</th><th>통화</th></tr></thead><tbody>${V.map(v => `<tr><td>${v.seq}</td><td><b>${esc(v.name)}</b></td><td>${esc([v.contact, v.direct, v.rfp_email].filter(Boolean).join(' · ')) || '<span class="muted">미확인</span>'}</td><td><span class="st ${stCls(v.intent)}">${esc(v.intent)}</span></td><td><span class="st ${stCls(v.docs)}">${esc(v.docs)}</span></td><td>${esc(v.next_step) || '<span class="muted">전화 후 기록</span>'}</td><td class="muted">${v.called_at ? v.called_at.slice(5, 16).replace('T', ' ') : ''}</td></tr>`).join('')}</tbody>`;
-    q('#vendors').innerHTML = V.map(v => { const m = META[v.id] || {};
-      return `<div class="vd ${v.called_at ? 'called' : ''} ${v.intent === '불참' ? 'declined' : ''}" id="v-${v.id}"><div class="vd-h"><h3><span class="seq">${v.seq}</span>${esc(v.name)}<small>${esc(v.en)}</small>${m.first ? ' <span class="st mid">우선 선접촉</span>' : ''}</h3>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="tel" href="${telHref(v.phone)}">전화 ${esc(v.phone)}</a>${/\d{2,}-\d{3,}/.test(v.phone2) && !/아님|확인/.test(v.phone2) ? `<a class="tel sub" href="${telHref(v.phone2.match(/[\d-]{9,}/)[0])}">${esc(v.phone2)}</a>` : (v.phone2 ? `<span class="muted" style="font-size:12px;align-self:center">${esc(v.phone2)}</span>` : '')}</div></div>
-        <div class="vd-b"><div class="vd-info"><p><b>이메일</b> <a href="mailto:${esc(v.email)}">${esc(v.email)}</a></p><p><b>주소</b> ${esc(v.address)}</p><p><b>공식 경로</b> <a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.url)}</a></p><p><b>선정 관점</b> ${esc(m.view || '')}</p><p><b>확인된 단서</b> ${esc(m.clue || '')}</p><p class="muted" style="font-size:12.5px">연락처 검증: ${esc(m.verify || '')}</p><div class="q"><b>첫 통화 질문</b> — ${esc(m.ask || '')}</div></div>
+    const stages = [0, 1, 2].map(i => V.filter(v => stageOf(v) === i));
+    q('#k-yes').textContent = stages[0].length; q('#k-wait').textContent = stages[1].length; q('#k-no').textContent = stages[2].length; q('#k-docs').textContent = V.filter(v => v.docs === '수령 완료').length;
+    q('#r-summary').textContent = summary();
+    renderItems();
+    q('#board').innerHTML = `<thead><tr><th>업체</th><th>담당자 · 연락처</th><th>참여</th><th>제안서 · 자료</th><th>경과 · 다음 단계</th></tr></thead><tbody>${stages.map((list, i) => list.length ? `<tr class="grp"><td colspan="5">${STAGE[i]} ${list.length}곳</td></tr>${list.map(v => `<tr class="${i === 2 ? 'dim' : ''}"><td><b>${esc(v.name)}</b></td><td>${esc([v.contact, v.direct].filter(Boolean).join(' · ')) || '<span class="muted">미확인</span>'}</td><td><span class="st ${stCls(v.intent)}">${esc(v.intent)}</span></td><td>${i === 2 ? '<span class="muted">—</span>' : `<span class="st ${stCls(v.docs)}">${esc(v.docs)}</span>`}</td><td>${esc(v.next_step) || '<span class="muted">—</span>'}</td></tr>`).join('')}` : '').join('')}</tbody>`;
+    const open = new Set([...document.querySelectorAll('#vendors details[open]')].map(d => d.dataset.id));
+    q('#vendors').innerHTML = stages.flat().map(v => { const m = META[v.id] || {}; const row = (k, x) => x ? `<p><b>${k}</b> ${x}</p>` : '';
+      return `<details class="vd ${v.called_at ? 'called' : ''} ${v.intent === '불참' ? 'declined' : ''}" id="v-${v.id}" data-id="${v.id}" ${open.has(v.id) ? 'open' : ''}><summary class="vd-h"><h3>${esc(v.name)}<small>${esc(v.en)}</small></h3><span class="st ${stCls(v.intent)}">${esc(v.intent)}</span></summary>
+        <div class="vd-b"><div class="vd-info">${row('전화', v.phone ? `<a href="${telHref(v.phone)}">${esc(v.phone)}</a>${v.phone2 ? ' · ' + esc(v.phone2) : ''}` : '')}${row('이메일', v.email ? `<a href="mailto:${esc(v.email)}">${esc(v.email)}</a>` : '')}${row('주소', esc(v.address))}${row('공식 경로', v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.url)}</a>` : '')}${row('선정 관점', esc(m.view || ''))}${row('확인된 단서', esc(m.clue || ''))}${row('확인 질문', esc(m.ask || ''))}${m.verify ? `<p class="muted" style="font-size:12.5px">연락처 검증: ${esc(m.verify)}</p>` : ''}</div>
         <div class="vd-form" data-v="${v.id}">
           <div><label>담당자 성함·직책</label><input data-f="contact" value="${esc(v.contact)}"></div><div><label>직통 · 휴대전화</label><input data-f="direct" value="${esc(v.direct)}"></div>
           <div class="full"><label>RFP 받을 이메일 (확인된 실제 수신처)</label><input data-f="rfp_email" value="${esc(v.rfp_email)}" placeholder="${esc(v.email)}"></div>
-          <div><label>참여 여부</label><select data-f="intent">${INTENT.map(x => `<option ${x === v.intent ? 'selected' : ''}>${x}</option>`).join('')}</select></div><div><label>실적·PM 자료</label><select data-f="docs">${DOCS.map(x => `<option ${x === v.docs ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
-          <div class="full"><label>후속 예정</label><input data-f="next_step" value="${esc(v.next_step)}" placeholder="예: 10/21 오전 담당자 회신 예정"></div>
-          <div class="full"><label>통화 메모 (실적·인력·호텔 경험·예산 등)</label><textarea data-f="note">${esc(v.note)}</textarea></div>
-          <div class="vd-foot"><button class="btn sm" data-called="${v.id}">${v.called_at ? '통화 다시 기록' : '통화 완료로 표시'}</button><button class="btn sm ghost" data-mail="${v.id}">RFP 메일 보기</button><span>${v.updated_by ? '최근 수정 ' + esc(v.updated_by) + ' · ' + (v.updated_at || '').slice(5, 16).replace('T', ' ') : ''}</span></div>
-        </div></div></div>`; }).join('');
+          <div><label>참여 여부</label><select data-f="intent">${INTENT.map(x => `<option ${x === v.intent ? 'selected' : ''}>${x}</option>`).join('')}</select></div><div><label>제안서 · 자료</label><select data-f="docs">${DOCS.map(x => `<option ${x === v.docs ? 'selected' : ''}>${x}</option>`).join('')}</select></div>
+          <div class="full"><label>경과 · 다음 단계 (현황표에 표시)</label><input data-f="next_step" value="${esc(v.next_step)}" placeholder="예: 11/10 제안서 마감"></div>
+          <div class="full"><label>통화 · 회신 메모</label><textarea data-f="note">${esc(v.note)}</textarea></div>
+          <div class="vd-foot"><button class="btn sm" data-called="${v.id}">${v.called_at ? '통화 다시 기록' : '통화 기록'}</button><button class="btn sm ghost" data-mail="${v.id}">RFP 메일 보기</button><span>${v.updated_by ? '최근 수정 ' + esc(v.updated_by) + ' · ' + (v.updated_at || '').slice(5, 16).replace('T', ' ') : ''}</span></div>
+        </div></div></details>`; }).join('');
     // 메일
     q('#m-bcc').value = V.filter(v => v.intent !== '불참').map(v => v.rfp_email || v.email).filter(Boolean).join('; ');
     const chk = new Set([...document.querySelectorAll('#l-vendors input:checked')].map(i => i.value)); q('#l-vendors').innerHTML = V.map(v => `<label style="display:flex;gap:5px;align-items:center"><input type="checkbox" value="${v.id}" ${chk.size ? (chk.has(v.id) ? 'checked' : '') : (v.intent !== '불참' ? 'checked' : '')}> ${esc(v.name)}</label>`).join('');
@@ -248,7 +255,6 @@
       try { await api('/event2027', { method: 'POST', body }); toast('통화 기록'); await load(); q('#v-' + id)?.scrollIntoView({ block: 'center' }); } catch (err) { toast('실패: ' + err.message); } return; }
     const m = e.target.closest('[data-mail]'); if (m) { q('#tabs [data-t=mail]').click(); window.scrollTo({ top: 0 }); }
   });
-  document.querySelectorAll('[data-copy]').forEach(b => b.addEventListener('click', () => copy(q('#' + b.dataset.copy).innerText, '멘트를 복사했습니다')));
   async function copy(t, msg) { try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } toast(msg); }
 
   // 메일 — 단체 발송용 문안 (업체명 없이)
@@ -290,7 +296,7 @@ pm@snubusiness.com 은 행사기획팀 공식 접수 주소입니다. 이 주소
 이태경 드림
 ${org} 창립총회 행사기획팀 · 프로젝트 리더
 pm@snubusiness.com`; q('#l-subject').value = q('#m-subject').value; q('#l-text').value = q('#m-text').value; }
-  q('#m-org').addEventListener('change', () => { body(); document.querySelectorAll('.orgshort').forEach(x => x.textContent = q('#m-org').value); });
+  q('#m-org').addEventListener('change', body);
   q('#m-reset').addEventListener('click', body);
   q('#c-bcc').addEventListener('click', () => copy(q('#m-bcc').value, '업체 주소를 복사했습니다 — 숨은참조에 붙여 넣으세요'));
   q('#c-subj').addEventListener('click', () => copy(q('#m-subject').value, '제목을 복사했습니다'));

@@ -20,6 +20,7 @@ async function ensure(db) {
       contact TEXT NOT NULL DEFAULT '', direct TEXT NOT NULL DEFAULT '', rfp_email TEXT NOT NULL DEFAULT '', intent TEXT NOT NULL DEFAULT '미확인', docs TEXT NOT NULL DEFAULT '미수령', next_step TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', called_at TEXT, updated_by TEXT, updated_at TEXT)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_mail (id INTEGER PRIMARY KEY AUTOINCREMENT, vendor TEXT, kind TEXT, to_addr TEXT NOT NULL, cc TEXT NOT NULL DEFAULT '', subject TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL, provider_id TEXT, error TEXT, sent_by TEXT, sent_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')))`),
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_scores (vendor TEXT NOT NULL, evaluator TEXT NOT NULL, scores TEXT NOT NULL DEFAULT '{}', comment TEXT NOT NULL DEFAULT '', updated_at TEXT, PRIMARY KEY (vendor, evaluator))`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS ev_items (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT '', owner TEXT NOT NULL DEFAULT '', due TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT '논의 필요', memo TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
   ]);
   const n = await db.prepare('SELECT COUNT(*) AS n FROM ev_vendors').first();
   if (!n.n) await db.batch(VENDORS.map(v => db.prepare('INSERT INTO ev_vendors (id, seq, name, en, phone, phone2, email, address, url) VALUES (?,?,?,?,?,?,?,?,?)').bind(...v)));
@@ -34,12 +35,13 @@ async function guard(request, env, db) {
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db); if (e) return e;
-  const [vendors, mail, scores] = await Promise.all([
+  const [vendors, mail, scores, items] = await Promise.all([
     db.prepare('SELECT * FROM ev_vendors ORDER BY seq').all().then(r => r.results),
     db.prepare('SELECT id, vendor, kind, to_addr, cc, subject, status, error, sent_by, sent_at FROM ev_mail ORDER BY id DESC LIMIT 200').all().then(r => r.results),
     db.prepare('SELECT * FROM ev_scores').all().then(r => r.results.map(x => ({ ...x, scores: JSON.parse(x.scores || '{}') }))),
+    db.prepare('SELECT * FROM ev_items ORDER BY id').all().then(r => r.results),
   ]);
-  return json({ vendors, mail, scores, me: s.name, role: s.role, mail_ready: mailReady(env) });
+  return json({ vendors, mail, scores, items, me: s.name, role: s.role, mail_ready: mailReady(env) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -65,6 +67,14 @@ export async function onRequestPost({ request, env }) {
       .bind(id, mx.m + 1, clean(b.name, 60), clean(b.en, 60), clean(b.phone, 30), clean(b.phone2, 60), clean(b.email, 120), clean(b.address, 200), clean(b.url, 200), clean(b.contact, 60), clean(b.direct, 60), clean(b.rfp_email, 120), clean(b.note, 600), s.name, now).run();
     return json({ ok: true, seq: mx.m + 1 });
   }
+
+  if (b.r === 'item') { // 회의 안건·결정 사항
+    const v = [clean(b.title, 300), clean(b.owner, 60), clean(b.due, 40), clean(b.status, 20) || '논의 필요', clean(b.memo, 1000), s.name, now];
+    if (b.id) { await db.prepare('UPDATE ev_items SET title=?, owner=?, due=?, status=?, memo=?, updated_by=?, updated_at=? WHERE id=?').bind(...v, Number(b.id)).run(); return json({ ok: true, id: Number(b.id) }); }
+    const r = await db.prepare('INSERT INTO ev_items (title, owner, due, status, memo, updated_by, updated_at) VALUES (?,?,?,?,?,?,?)').bind(...v).run();
+    return json({ ok: true, id: r.meta.last_row_id });
+  }
+  if (b.r === 'item_del') { await db.prepare('DELETE FROM ev_items WHERE id=?').bind(Number(b.id)).run(); return json({ ok: true }); }
 
   if (b.r === 'score') { // 평가자 본인 점수만 저장
     const vendor = clean(b.vendor, 30); const sc = {}; for (const [k, v] of Object.entries(b.scores || {})) { const n = Number(v); if (Number.isFinite(n)) sc[clean(k, 20)] = n; }
