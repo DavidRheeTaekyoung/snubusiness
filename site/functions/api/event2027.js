@@ -76,6 +76,13 @@ export async function onRequestPost({ request, env }) {
   }
   if (b.r === 'item_del') { await db.prepare('DELETE FROM ev_items WHERE id=?').bind(Number(b.id)).run(); return json({ ok: true }); }
 
+  if (b.r === 'vendor_del') { // 잘못 등록한 업체 삭제 — 오너(PM)·에이전트만
+    if (!['owner', 'agent'].includes(s.role)) return err('업체 삭제는 PM만 할 수 있습니다', 403);
+    const id = clean(b.id, 30);
+    await db.batch([db.prepare('DELETE FROM ev_vendors WHERE id=?').bind(id), db.prepare('DELETE FROM ev_scores WHERE vendor=?').bind(id)]);
+    return json({ ok: true });
+  }
+
   if (b.r === 'score') { // 평가자 본인 점수만 저장
     const vendor = clean(b.vendor, 30); const sc = {}; for (const [k, v] of Object.entries(b.scores || {})) { const n = Number(v); if (Number.isFinite(n)) sc[clean(k, 20)] = n; }
     await db.prepare('INSERT INTO ev_scores (vendor, evaluator, scores, comment, updated_at) VALUES (?,?,?,?,?) ON CONFLICT(vendor, evaluator) DO UPDATE SET scores=excluded.scores, comment=excluded.comment, updated_at=excluded.updated_at')
