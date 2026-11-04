@@ -111,7 +111,7 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
       <div class="pane" id="p-minutes">
         <div class="panel"><div class="panel-head"><h2 id="mt-title-h">회의록</h2><div class="mbar no-print"><select id="mt-sel" style="font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line-2);max-width:220px"></select><button class="btn sm ghost" id="mt-new">새 회의록</button><button class="btn sm" id="mt-copy">회의록 복사</button><button class="btn sm ghost" id="mt-print">인쇄</button></div></div>
           <div class="mt-meta" id="mt-meta"></div>
-          <p class="muted no-print" style="font-size:12.5px;margin:10px 0 0">칸을 눌러 쓰면 칸을 벗어날 때 저장됩니다. 다른 참석자가 쓴 내용은 15초마다 반영됩니다.</p></div>
+          <p class="muted no-print" style="font-size:12.5px;margin:10px 0 0">쓰면 바로 자동 저장됩니다. 다른 참석자가 쓴 내용은 15초마다 반영됩니다. <b id="mt-stat"></b></p></div>
         <div id="mt-body"></div>
         <div class="no-print" style="margin-bottom:20px"><button class="btn sm ghost" id="mt-add-sec">안건 추가</button></div>
       </div>
@@ -243,7 +243,7 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
       '<tr style="background:var(--navy-800);color:var(--paper);font-weight:700"><td colspan="5" style="color:inherit">부가세 포함 총액</td><td class="amt" id="bud-total" style="color:inherit"></td><td class="no-print"></td></tr></tbody></table></div><div class="no-print" style="margin-top:8px"><button class="btn sm ghost" id="bud-add">항목 추가</button></div><div id="mt-calc-out"></div>'; }
   function budRefresh() { BUD.rows.forEach((r, i) => { const el = q('[data-amt="' + i + '"]'); if (el) el.textContent = won(budAmt(r)); }); BUD_G.forEach(g => { const el = document.querySelector('[data-sub="' + g + '"]'); if (el) el.textContent = won(BUD.rows.filter(r => r.g === g).reduce((a, r) => a + budAmt(r), 0)); }); document.querySelectorAll('[data-qty]').forEach(x => x.textContent = BUD.n); q('#bud-total').textContent = won(budTotal()); q('#mt-calc-out').innerHTML = budOut(); }
   function budRender() { const box = q('#bud-box'); if (!box) return; box.innerHTML = budgetHtml(); budRefresh(); }
-  async function budSave() { const h = budHead(); if (!h) return; const s = JSON.stringify(BUD); try { await mtPost({ r: 'min', id: h.id, field: 'note', value: s }); h.note = BUDSRC = s; toast('저장'); } catch (err) { toast('실패: ' + err.message); } }
+  async function budSave() { clearTimeout(budTimer); budTimer = null; const h = budHead(); if (!h) return; const s = JSON.stringify(BUD); mtStat('저장 중…'); try { await mtSave({ r: 'min', id: h.id, field: 'note', value: s }); const cur = budHead(); if (cur) cur.note = s; BUDSRC = s; mtSaved(); } catch (err) { mtStat('저장 실패: ' + err.message); toast('저장 실패: ' + err.message); } }
   function blockHtml(r) {
     if (r.block === 'vendors') return '<div class="mt-block"><div class="pre summary" id="mt-vendors">' + esc(vendorBrief()) + '</div><div class="no-print" style="margin-top:6px"><button class="btn sm ghost" id="mt-go-report">현황 보고 탭 열기</button></div></div>';
     if (r.block === 'budget') return '<div class="mt-block" id="bud-box"></div>';
@@ -263,11 +263,19 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
     box.querySelectorAll('[data-mt]').forEach(el => { const v = curMt()[el.dataset.mt] ?? ''; if (el !== active && el.textContent !== v) el.textContent = v; }); }
   const mtPost = body => api('/event2027', { method: 'POST', body });
   q('#p-minutes').addEventListener('focusin', e => { if (e.target.classList.contains('ce')) e.target.dataset.orig = e.target.textContent; });
-  q('#p-minutes').addEventListener('focusout', async e => { const el = e.target; if (!el.classList.contains('ce')) return; const v = el.textContent.trim(); if (v === (el.dataset.orig ?? '').trim()) return;
-    try { if (el.dataset.mt) { await mtPost({ r: 'meet', id: mtId, field: el.dataset.mt, value: v }); curMt()[el.dataset.mt] = v; if (el.dataset.mt === 'title') q('#mt-sel').selectedOptions[0].textContent = v || '제목 없음'; }
-      else { const f = el.dataset.m, r = S.minutes.find(x => x.id === Number(el.closest('[data-row]').dataset.row)); await mtPost({ r: 'min', id: r.id, field: f, value: v }); r[f] = f === 'mins' ? (parseInt(v, 10) || 0) : v; if (f === 'mins') { const t = sections().reduce((a, s) => a + (s.head.mins || 0), 0); q('#mt-title-h').textContent = '회의록' + (t ? ' · 총 ' + t + '분' : ''); } }
-      toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
-  q('#p-minutes').addEventListener('input', e => { const t = e.target, k = t.dataset.bud, f = t.dataset.bf; if (k) BUD[k] = Number(t.value) || 0; else if (f && t.tagName === 'INPUT') { const r = BUD.rows[Number(t.closest('[data-br]').dataset.br)]; r[f] = f === 'name' ? t.value : (Number(t.value) || 0); } else return; budRefresh(); });
+  // 입력 자동 저장 — 쓰는 동안 0.7초 뒤 저장, 칸을 벗어나면 바로 저장, 페이지를 떠나면 남은 것을 전송
+  let mtSaving = 0, mtSeq = 0, budTimer = null; const mtTimers = new Map();
+  const mtStat = t => { q('#mt-stat').textContent = t; }, mtSaved = () => { const d = new Date(); mtStat('저장됨 ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0')); };
+  async function mtSave(body) { mtSaving++; mtSeq++; try { return await mtPost(body); } finally { mtSaving--; mtSeq++; } }
+  const cePayload = el => { const value = el.textContent.trim(); return el.dataset.mt ? { r: 'meet', id: mtId, field: el.dataset.mt, value } : { r: 'min', id: Number(el.closest('[data-row]').dataset.row), field: el.dataset.m, value }; };
+  async function saveCe(el) { clearTimeout(mtTimers.get(el)); mtTimers.delete(el); const body = cePayload(el), v = body.value, prev = el.dataset.orig ?? ''; if (v === prev.trim()) return; el.dataset.orig = v; mtStat('저장 중…');
+    try { await mtSave(body);
+      if (el.dataset.mt) { curMt()[el.dataset.mt] = v; if (el.dataset.mt === 'title') q('#mt-sel').selectedOptions[0].textContent = v || '제목 없음'; }
+      else { const r = S.minutes.find(x => x.id === body.id); if (r) r[body.field] = body.field === 'mins' ? (parseInt(v, 10) || 0) : v; if (body.field === 'mins') { const t = sections().reduce((a, s) => a + (s.head.mins || 0), 0); q('#mt-title-h').textContent = '회의록' + (t ? ' · 총 ' + t + '분' : ''); } }
+      mtSaved(); } catch (err) { el.dataset.orig = prev; mtStat('저장 실패: ' + err.message); toast('저장 실패: ' + err.message); } }
+  q('#p-minutes').addEventListener('focusout', e => { if (e.target.classList.contains('ce')) saveCe(e.target); });
+  window.addEventListener('pagehide', () => { const send = b => fetch('/api/event2027', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) }); mtTimers.forEach((t, el) => { clearTimeout(t); send(cePayload(el)); }); mtTimers.clear(); const h = budHead(); if (budTimer && h) { clearTimeout(budTimer); budTimer = null; send({ r: 'min', id: h.id, field: 'note', value: JSON.stringify(BUD) }); } });
+  q('#p-minutes').addEventListener('input', e => { const t = e.target, k = t.dataset.bud, f = t.dataset.bf; if (t.classList.contains('ce')) { clearTimeout(mtTimers.get(t)); mtTimers.set(t, setTimeout(() => saveCe(t), 700)); return; } if (k) BUD[k] = Number(t.value) || 0; else if (f && t.tagName === 'INPUT') { const r = BUD.rows[Number(t.closest('[data-br]').dataset.br)]; r[f] = f === 'name' ? t.value : (Number(t.value) || 0); } else return; budRefresh(); clearTimeout(budTimer); budTimer = setTimeout(budSave, 700); });
   q('#p-minutes').addEventListener('change', e => { const t = e.target; if (t.tagName === 'SELECT' && t.dataset.bf) { BUD.rows[Number(t.closest('[data-br]').dataset.br)][t.dataset.bf] = t.value; budRender(); budSave(); } else if (t.dataset.bud || t.dataset.bf) budSave(); });
   q('#p-minutes').addEventListener('click', async e => {
     if (e.target.id === 'mt-go-report') { q('#tabs [data-t=report]').click(); window.scrollTo({ top: 0 }); return; }
@@ -283,7 +291,7 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
   q('#mt-new').addEventListener('click', async () => { try { const r = await mtPost({ r: 'meet', title: '새 회의록', rows: [{ kind: 'section', mins: 10, topic: '1. 안건' }, { kind: 'topic' }] }); mtId = r.id; await load(); } catch (err) { toast('실패: ' + err.message); } });
   q('#mt-print').addEventListener('click', () => { document.body.classList.add('print-minutes'); window.print(); });
   q('#mt-copy').addEventListener('click', () => { const m = curMt(); if (!m) return; const L = [m.title, '일시: ' + m.held_at, '장소: ' + m.place, '참석: ' + m.attendees]; sections().forEach(s => { L.push('', s.head.topic + (s.head.mins ? ' (' + s.head.mins + '분)' : '')); s.topics.forEach(t => { L.push('- ' + t.topic); if (t.note) L.push('  논의: ' + t.note); if (t.decision) L.push('  결정·후속: ' + t.decision); }); }); copy(L.join('\n'), '회의록을 복사했습니다'); });
-  setInterval(async () => { if (document.hidden || !q('#p-minutes').classList.contains('on')) return; try { const n = await api('/event2027'); S.meetings = n.meetings; S.minutes = n.minutes; syncMinutes(); } catch (e) {} }, 15000);
+  setInterval(async () => { if (document.hidden || !q('#p-minutes').classList.contains('on')) return; try { const seq = mtSeq, n = await api('/event2027'); if (seq !== mtSeq || mtSaving || mtTimers.size || budTimer) return; S.meetings = n.meetings; S.minutes = n.minutes; syncMinutes(); } catch (e) {} }, 15000);
 
   function render() {
     const V = S.vendors;
