@@ -21,6 +21,8 @@ async function ensure(db) {
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_mail (id INTEGER PRIMARY KEY AUTOINCREMENT, vendor TEXT, kind TEXT, to_addr TEXT NOT NULL, cc TEXT NOT NULL DEFAULT '', subject TEXT NOT NULL, body TEXT NOT NULL, status TEXT NOT NULL, provider_id TEXT, error TEXT, sent_by TEXT, sent_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')))`),
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_scores (vendor TEXT NOT NULL, evaluator TEXT NOT NULL, scores TEXT NOT NULL DEFAULT '{}', comment TEXT NOT NULL DEFAULT '', updated_at TEXT, PRIMARY KEY (vendor, evaluator))`),
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_items (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT '', owner TEXT NOT NULL DEFAULT '', due TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT '논의 필요', memo TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS ev_meetings (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT '', held_at TEXT NOT NULL DEFAULT '', place TEXT NOT NULL DEFAULT '', attendees TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS ev_minutes (id INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id INTEGER NOT NULL, kind TEXT NOT NULL DEFAULT 'topic', block TEXT NOT NULL DEFAULT '', seq REAL NOT NULL DEFAULT 0, mins INTEGER NOT NULL DEFAULT 0, topic TEXT NOT NULL DEFAULT '', prep TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', decision TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
   ]);
   const n = await db.prepare('SELECT COUNT(*) AS n FROM ev_vendors').first();
   if (!n.n) await db.batch(VENDORS.map(v => db.prepare('INSERT INTO ev_vendors (id, seq, name, en, phone, phone2, email, address, url) VALUES (?,?,?,?,?,?,?,?,?)').bind(...v)));
@@ -35,13 +37,15 @@ async function guard(request, env, db) {
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db); if (e) return e;
-  const [vendors, mail, scores, items] = await Promise.all([
+  const [vendors, mail, scores, items, meetings, minutes] = await Promise.all([
     db.prepare('SELECT * FROM ev_vendors ORDER BY seq').all().then(r => r.results),
     db.prepare('SELECT id, vendor, kind, to_addr, cc, subject, status, error, sent_by, sent_at FROM ev_mail ORDER BY id DESC LIMIT 200').all().then(r => r.results),
     db.prepare('SELECT * FROM ev_scores').all().then(r => r.results.map(x => ({ ...x, scores: JSON.parse(x.scores || '{}') }))),
     db.prepare('SELECT * FROM ev_items ORDER BY id').all().then(r => r.results),
+    db.prepare('SELECT * FROM ev_meetings ORDER BY id DESC').all().then(r => r.results),
+    db.prepare('SELECT * FROM ev_minutes ORDER BY meeting_id, seq, id').all().then(r => r.results),
   ]);
-  return json({ vendors, mail, scores, items, me: s.name, role: s.role, mail_ready: mailReady(env) });
+  return json({ vendors, mail, scores, items, meetings, minutes, me: s.name, role: s.role, mail_ready: mailReady(env) });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -75,6 +79,22 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, id: r.meta.last_row_id });
   }
   if (b.r === 'item_del') { await db.prepare('DELETE FROM ev_items WHERE id=?').bind(Number(b.id)).run(); return json({ ok: true }); }
+
+  if (b.r === 'meet') { // 회의 — id·field 있으면 그 칸만 저장, id 없으면 새 회의와 rows 함께 생성
+    if (b.id) { if (!['title', 'held_at', 'place', 'attendees'].includes(b.field)) return err('bad field');
+      await db.prepare(`UPDATE ev_meetings SET ${b.field} = ?, updated_by = ?, updated_at = ? WHERE id = ?`).bind(clean(b.value, 300), s.name, now, Number(b.id)).run(); return json({ ok: true }); }
+    const r = await db.prepare('INSERT INTO ev_meetings (title, held_at, place, attendees, updated_by, updated_at) VALUES (?,?,?,?,?,?)').bind(clean(b.title, 300), clean(b.held_at, 300), clean(b.place, 300), clean(b.attendees, 300), s.name, now).run();
+    const id = r.meta.last_row_id, rows = Array.isArray(b.rows) ? b.rows : [];
+    if (rows.length) await db.batch(rows.map((x, i) => db.prepare('INSERT INTO ev_minutes (meeting_id, kind, block, seq, mins, topic, prep, updated_by, updated_at) VALUES (?,?,?,?,?,?,?,?,?)').bind(id, x.kind === 'section' ? 'section' : 'topic', clean(x.block, 20), i + 1, Number(x.mins) || 0, clean(x.topic, 300), clean(x.prep, 4000), s.name, now)));
+    return json({ ok: true, id });
+  }
+  if (b.r === 'min') { // 회의록 행 — 칸 단위 저장이라 여럿이 동시에 써도 다른 칸을 덮어쓰지 않음
+    if (!b.id) { const r = await db.prepare('INSERT INTO ev_minutes (meeting_id, kind, seq, mins, updated_by, updated_at) VALUES (?,?,?,?,?,?)').bind(Number(b.meeting_id), b.kind === 'section' ? 'section' : 'topic', Number(b.seq) || 0, Number(b.mins) || 0, s.name, now).run(); return json({ ok: true, id: r.meta.last_row_id }); }
+    if (!['topic', 'prep', 'note', 'decision', 'mins'].includes(b.field)) return err('bad field');
+    await db.prepare(`UPDATE ev_minutes SET ${b.field} = ?, updated_by = ?, updated_at = ? WHERE id = ?`).bind(b.field === 'mins' ? (parseInt(b.value, 10) || 0) : clean(b.value, 4000), s.name, now, Number(b.id)).run();
+    return json({ ok: true });
+  }
+  if (b.r === 'min_del') { const ids = (Array.isArray(b.ids) ? b.ids : []).map(Number).filter(Boolean); if (ids.length) await db.batch(ids.map(id => db.prepare('DELETE FROM ev_minutes WHERE id=?').bind(id))); return json({ ok: true }); }
 
   if (b.r === 'vendor_del') { // 잘못 등록한 업체 삭제 — 오너(PM)·에이전트만
     if (!['owner', 'agent'].includes(s.role)) return err('업체 삭제는 PM만 할 수 있습니다', 403);
