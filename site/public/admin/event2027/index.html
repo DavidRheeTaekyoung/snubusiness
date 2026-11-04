@@ -41,7 +41,7 @@ details[open]>.vd-h{border-bottom:1px solid var(--line)}
 .st.ok{background:#E3F1EA;color:var(--success)}.st.no{background:#F8E3E0;color:var(--danger)}.st.mid{background:#FFF1DD;color:var(--warn)}
 .board td{font-size:13px;padding:8px 10px;vertical-align:top}
 .board .grp td{background:var(--ivory);font-weight:600;color:var(--navy-800)}
-.board .dim td{color:var(--ink-3)}
+.board .dim td{color:var(--ink-3)}.board .st{white-space:nowrap}
 .summary{background:var(--ivory);padding:14px 18px;font-size:13.5px;line-height:1.75}
 .ce{min-height:22px;outline:0;line-height:1.6;white-space:pre-wrap}
 .ce:focus{background:#FBF4E6}
@@ -206,7 +206,7 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
     chris: { view: '추천 업체 — 이장원 위원이 직접 확인(김이경 공동 리더 경유). "가능하고 잘할 수 있다"는 1차 회신. 7개사와 같은 기준으로 비교.', clue: '공식 홈페이지·실적 미확인. 담당이 대표 본인 — 첫 통화에서 회사 규모·상시 인력·유사 실적부터 확인.', ask: '최근 5년 500~1,000명 호텔 갈라·창립 행사 직접 총괄 실적과, 실제 투입될 PM·제작 인력(사내/외주)은?', verify: '이장원 위원 전달(2026.10.20) — 대표 휴대전화·개인 이메일. 회사 공식 연락처·사업자 정보 추가 확인 필요' },
     ido: { view: '부티크 대안: 실제 갈라 행사 실적 근거로 비교. 최신 연락처 재확인 필요.', clue: '한국MICE협회 2023 디렉터리에 2022 AMCHAM Inaugural Ball 실적 명시 (2026년 AMCHAM 행사 수행을 뜻하지 않음).', ask: '2022 AMCHAM에서 담당한 기획·제작·운영 범위와 최근 3년 유사 행사·투입 가능한 팀은?', verify: '전화·이메일은 2023 협회 자료, 주소는 2026 공고 — 이메일/주소 모두 사전 전화 재확인 필요' },
   };
-  const INTENT = ['미확인', '참여', '검토 중', '불참', '부재·콜백'], DOCS = ['미수령', '요청함', '일부 수령', '수령 완료'];
+  const INTENT = ['미확인', '참여 희망', '검토 중', '불참', '부재·콜백'], DOCS = ['미수령', '요청함', '일부 수령', '수령 완료'];
   let S = { vendors: [], mail: [], scores: [] };
   const me = await api('/me').catch(() => ({}));
   if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('event2027'))) { q('#body').innerHTML = '<div style="padding:60px;text-align:center;color:var(--ink-3)">행사기획팀만 볼 수 있는 페이지입니다.</div>'; return; }
@@ -214,8 +214,8 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
 
   async function load() { S = await api('/event2027'); render(); }
   const telHref = p => 'tel:' + String(p).replace(/[^0-9+]/g, '');
-  const stCls = v => v === '참여' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
-  const STAGE = ['참여 의사', '대기 · 확인 중', '불참'], stageOf = v => v.intent === '참여' ? 0 : v.intent === '불참' ? 2 : 1;
+  const stCls = v => v === '참여 희망' || v === '수령 완료' ? 'ok' : v === '불참' ? 'no' : (v === '미확인' || v === '미수령') ? '' : 'mid';
+  const STAGE = ['참여 의사', '대기 · 확인 중', '불참'], stageOf = v => v.intent === '참여 희망' ? 0 : v.intent === '불참' ? 2 : 1;
   function summary() { const d = new Date(), V = S.vendors, line = v => '- ' + v.name + (v.contact ? ' · ' + v.contact : '') + (v.next_step ? ': ' + v.next_step : '');
     const groups = [0, 1, 2].map(i => V.filter(v => stageOf(v) === i)), open = (S.items || []).filter(i => i.title && i.status !== '결정 완료');
     return ['창립총회 대행사 선정 현황 (' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 기준)', '후보 ' + V.length + '곳: 참여 의사 ' + groups[0].length + ', 대기·확인 중 ' + groups[1].length + ', 불참 ' + groups[2].length + ' / 제안서 접수 ' + V.filter(v => v.docs === '수령 완료').length,
@@ -257,7 +257,7 @@ body.print-report .pane:not(#p-report),body.print-report .vendor-panel,body.prin
     q('#mt-title-h').textContent = '회의록' + (total ? ' · 총 ' + total + '분' : '');
     q('#mt-meta').innerHTML = [['title', '회의명'], ['held_at', '일시'], ['place', '장소'], ['attendees', '참석자']].map(([f, l]) => '<label>' + l + '</label><div ' + mceAttr('data-mt', f, l + ' 입력') + '>' + esc(m[f]) + '</div>').join('');
     q('#mt-body').innerHTML = secs.map(s => '<div class="panel" data-row="' + s.head.id + '"><div class="panel-head"><div class="mt-h"><h2><span ' + mceAttr('data-m', 'topic', '안건명') + '>' + esc(s.head.topic) + '</span></h2><span class="muted" style="font-size:13px"><span ' + mceAttr('data-m', 'mins', '0') + '>' + (s.head.mins || '') + '</span>분</span></div><div class="mbar no-print"><button class="btn sm ghost" data-add-topic="' + s.head.id + '">주제 추가</button><button class="pill" data-del-sec="' + s.head.id + '">삭제</button></div></div>' + blockHtml(s.head) +
-      (s.topics.length ? '<div style="overflow-x:auto"><table class="table board mins"><thead><tr><th style="width:19%">주제</th><th style="width:27%">사전 정리</th><th style="width:28%">논의 내용</th><th>결정 · 후속 (담당·기한)</th><th class="no-print" style="width:66px"></th></tr></thead><tbody>' + s.topics.map(t => '<tr data-row="' + t.id + '"><td><b>' + mce(t, 'topic', '주제') + '</b></td><td class="pr">' + mce(t, 'prep', '') + '</td><td>' + mce(t, 'note', '논의 내용') + '</td><td>' + mce(t, 'decision', '결정 · 후속') + '</td><td class="no-print"><button class="pill" data-del-topic="' + t.id + '">삭제</button></td></tr>').join('') + '</tbody></table></div>' : '') + '</div>').join(''); }
+      (s.topics.length ? '<div style="overflow-x:auto"><table class="table board mins"><thead><tr><th style="width:19%">주제</th><th style="width:27%">논점 · 사전 정리</th><th style="width:28%">토론 내용</th><th>결정 · 후속 (담당·기한)</th><th class="no-print" style="width:66px"></th></tr></thead><tbody>' + s.topics.map(t => '<tr data-row="' + t.id + '"><td><b>' + mce(t, 'topic', '주제') + '</b></td><td class="pr">' + mce(t, 'prep', '') + '</td><td>' + mce(t, 'note', '토론 내용') + '</td><td>' + mce(t, 'decision', '결정 · 후속') + '</td><td class="no-print"><button class="pill" data-del-topic="' + t.id + '">삭제</button></td></tr>').join('') + '</tbody></table></div>' : '') + '</div>').join(''); }
   function syncMinutes() { const box = q('#p-minutes'), active = document.activeElement, sig = el => [...el.querySelectorAll('[data-row]')].map(x => x.dataset.row).join(), want = () => { const o = []; sections().forEach(s => { o.push(s.head.id); s.topics.forEach(t => o.push(t.id)); }); return o.join(); };
     if (sig(q('#mt-body')) !== want() || !curMt()) { if (!box.contains(active) || active === document.body) renderMinutes(); return; }
     box.querySelectorAll('[data-m]').forEach(el => { if (el === active) return; const r = S.minutes.find(x => x.id === Number(el.closest('[data-row]').dataset.row)); const v = el.dataset.m === 'mins' ? String(r.mins || '') : (r[el.dataset.m] ?? ''); if (el.textContent !== v) el.textContent = v; });
