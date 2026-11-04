@@ -62,7 +62,8 @@ details[open]>.vd-h{border-bottom:1px solid var(--line)}
 .rub td{font-size:13px;vertical-align:top}
 .rub .big td{background:#FBF8F2;font-weight:700;color:var(--navy-800)}
 .sc input{width:56px;font:inherit;font-size:14px;padding:5px;text-align:center;border:1px solid var(--line-2)}
-.sc td,.sc th{padding:6px 8px;font-size:13px}
+.sc td,.sc th{padding:6px 8px;font-size:13px}.sc th{white-space:nowrap}.sc td:first-child{white-space:nowrap}
+#myscore td:nth-child(2){min-width:220px}#myscore td:nth-child(3){white-space:nowrap}#avgscore td:first-child{min-width:200px}
 .files a.btn{margin-right:8px;margin-bottom:8px}
 .pre{white-space:pre-wrap;font-size:14px;line-height:1.8}
 @media print{.admin-side,.admin-top .actions,.tabs,.no-print{display:none!important}.pane{display:block!important;break-after:page}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}
@@ -385,8 +386,9 @@ pm@snubusiness.com`; q('#l-subject').value = q('#m-subject').value; q('#l-text')
   ];
   const SUBS = RUB.flatMap(([b, p, s]) => s.map(x => ({ big: b, code: x[0], name: x[1], max: x[2] })));
   q('#rubric').innerHTML = `<thead><tr><th>코드</th><th>세부 항목</th><th class="amt">배점</th><th>상 (만점 근처)</th><th>중 (절반 안팎)</th><th>하 (0~하위)</th></tr></thead><tbody>${RUB.map(([b, p, s]) => `<tr class="big"><td colspan="2">${b}</td><td class="amt">${p}</td><td colspan="3"></td></tr>` + s.map(x => `<tr><td>${x[0]}</td><td><b>${x[1]}</b></td><td class="amt">${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${x[5]}</td></tr>`).join('')).join('')}<tr class="big"><td colspan="2">합계</td><td class="amt">100</td><td colspan="3"></td></tr><tr><td colspan="6" class="muted" style="font-size:12.5px">결격 확인 (점수와 별도): G1 2027.4.16 현장 운영 가능 · G2 호텔 60일 전 통보·사전 승인 이행 · G3 VAT 포함·별도 금액 모두 제출 · G4 핵심 인력 실투입 확약 · G5 개인정보 처리 방안 제출</td></tr></tbody>`;
+  const scoreVendors = () => S.vendors.filter(v => v.intent !== '불참');
   function renderScores() {
-    const V = S.vendors; const mine = Object.fromEntries(S.scores.filter(s => s.evaluator === me.name).map(s => [s.vendor, s.scores]));
+    const V = scoreVendors(); const mine = Object.fromEntries(S.scores.filter(s => s.evaluator === me.name).map(s => [s.vendor, s.scores]));
     q('#myscore').innerHTML = `<thead><tr><th>코드</th><th>세부 항목</th><th>배점</th>${V.map(v => `<th style="text-align:center">${esc(v.name.replace(/커뮤니케이션즈|엔터프라이즈/, ''))}</th>`).join('')}</tr></thead><tbody>${SUBS.map(x => `<tr><td>${x.code}</td><td>${x.name}</td><td style="text-align:center">${x.max}</td>${V.map(v => `<td style="text-align:center"><input type="number" min="0" max="${x.max}" step="0.5" data-sv="${v.id}" data-sc="${x.code}" value="${(mine[v.id] || {})[x.code] ?? ''}"></td>`).join('')}</tr>`).join('')}<tr><td></td><td><b>총점</b></td><td style="text-align:center"><b>100</b></td>${V.map(v => `<td style="text-align:center"><b data-tot="${v.id}">${Object.values(mine[v.id] || {}).reduce((a, b) => a + b, 0) || ''}</b></td>`).join('')}</tr></tbody>`;
     const by = {}; S.scores.forEach(s => { const t = Object.values(s.scores || {}).reduce((a, b) => a + b, 0); if (!t) return; (by[s.vendor] ||= []).push({ who: s.evaluator, t, s: s.scores }); });
     const avg = v => by[v] ? by[v].reduce((a, x) => a + x.t, 0) / by[v].length : null;
@@ -396,7 +398,7 @@ pm@snubusiness.com`; q('#l-subject').value = q('#m-subject').value; q('#l-text')
   q('#myscore').addEventListener('input', e => { const i = e.target; if (!i.dataset.sv) return; const x = SUBS.find(s => s.code === i.dataset.sc); if (Number(i.value) > x.max) i.value = x.max; if (Number(i.value) < 0) i.value = 0;
     const v = i.dataset.sv; const t = [...document.querySelectorAll(`[data-sv="${v}"]`)].reduce((a, el) => a + (Number(el.value) || 0), 0); q(`[data-tot="${v}"]`).textContent = t || ''; });
   q('#sc-save').addEventListener('click', async () => { q('#sc-msg').textContent = '저장 중…';
-    try { for (const v of S.vendors) { const sc = {}; document.querySelectorAll(`[data-sv="${v.id}"]`).forEach(el => { if (el.value !== '') sc[el.dataset.sc] = Number(el.value); }); if (Object.keys(sc).length || S.scores.find(s => s.vendor === v.id && s.evaluator === me.name)) await api('/event2027', { method: 'POST', body: { r: 'score', vendor: v.id, scores: sc } }); }
+    try { for (const v of scoreVendors()) { const sc = {}; document.querySelectorAll(`[data-sv="${v.id}"]`).forEach(el => { if (el.value !== '') sc[el.dataset.sc] = Number(el.value); }); if (Object.keys(sc).length || S.scores.find(s => s.vendor === v.id && s.evaluator === me.name)) await api('/event2027', { method: 'POST', body: { r: 'score', vendor: v.id, scores: sc } }); }
       q('#sc-msg').textContent = '저장했습니다'; await load(); } catch (err) { q('#sc-msg').textContent = '실패: ' + err.message; } });
 
   // 예산표
