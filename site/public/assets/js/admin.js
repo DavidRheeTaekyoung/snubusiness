@@ -64,7 +64,8 @@
     const ok = me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('event2027');
     if (me.role === 'guest') { nav.innerHTML = '<div class="group">행사기획팀</div>' + (ok ? '<a href="/admin/event2027/" class="active"><span class="n">E</span>2027 창립총회</a>' : '') + '<a href="/api/logout"><span class="n">↩</span>나가기</a>'; return; }
     if (!ok) return; const anchor = [...nav.children].find(el => el.textContent === '바로가기');
-    const g = document.createElement('div'); g.className = 'group'; g.textContent = '행사기획팀'; const l = document.createElement('a'); l.href = '/admin/event2027/'; l.className = location.pathname.startsWith('/admin/event2027') ? 'active' : ''; l.innerHTML = '<span class="n">E</span>2027 창립총회'; nav.insertBefore(g, anchor); nav.insertBefore(l, anchor); } catch (e) {} }
+    const g = document.createElement('div'); g.className = 'group'; g.textContent = '행사기획팀'; const l = document.createElement('a'); l.href = '/admin/event2027/'; l.className = location.pathname.startsWith('/admin/event2027') ? 'active' : ''; l.innerHTML = '<span class="n">E</span>2027 창립총회'; nav.insertBefore(g, anchor); nav.insertBefore(l, anchor);
+    const v = document.createElement('a'); v.href = '/admin/vip/'; v.className = location.pathname.startsWith('/admin/vip') ? 'active' : ''; v.innerHTML = '<span class="n">V</span>VIP 동문 발굴'; nav.insertBefore(v, anchor); } catch (e) {} }
   function mount() {
     const s = document.getElementById('admin-side'); if (s) s.outerHTML = side(); financeMenu(); eventMenu();
     document.querySelector('[data-admin-menu]')?.addEventListener('click', () => document.querySelector('.admin-side').classList.toggle('open'));
