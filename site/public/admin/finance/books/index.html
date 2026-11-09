@@ -100,7 +100,7 @@
           <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;font-size:13.5px">구분 <select id="j-kind" style="font:inherit;padding:6px 8px;border:1px solid var(--line-2)"><option value="adjust">수정 분개</option><option value="opening">기초잔액</option></select></div>
           <div class="jl" style="font-size:12px;color:var(--ink-3)"><span>계정</span><span>차변</span><span>대변</span><span>메모</span><span></span></div>
           <div id="j-lines"></div>
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sm ghost" id="j-add">줄 추가</button><button class="btn sm" id="j-save">분개 저장</button><span id="j-bal" style="font-size:13.5px"></span></div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sm ghost" id="j-add">줄 추가</button><button class="btn sm" id="j-save">분개 저장</button><button class="btn sm ghost" id="j-cancel" hidden>수정 취소</button><span id="j-bal" style="font-size:13.5px"></span><span id="j-editing" class="muted" style="font-size:13px"></span></div>
         </div>
         <div class="panel"><div class="panel-head"><h2>수동 분개 목록</h2></div><div class="wrap"><table class="fs jr" id="adj-list"></table></div></div>
       </div>
@@ -233,7 +233,7 @@
 
     // 분개장 — 번호 · 증빙 배지(호버/탭으로 미리보기)
     const nm = c => (C[c] ? c + ' ' + C[c].name : c);
-    const jrow = j => `<tr><td style="white-space:nowrap"><span class="code" style="display:block;color:var(--navy-800);font-weight:600">${esc(j.no || '')}</span>${j.date}<br><span class="tagk ${j.kind}">${j.kind === 'auto' ? '자동' : j.kind === 'opening' ? '기초' : '수정'}</span></td><td>${esc(j.memo)}<div class="lines" style="margin-top:6px">${j.lines.map(l => `<span class="${l.cr ? 'cr' : ''}">${l.cr ? '(대) ' : '(차) '}${esc(nm(l.code))}</span><span class="amt">${l.dr ? won(l.dr) : ''}</span><span class="amt">${l.cr ? won(l.cr) : ''}</span>`).join('')}</div></td><td class="no-print" style="white-space:nowrap">${j.refKind ? EV.badge(j.refKind, j.refId, j.no, j.memo) : ''}${j.id && canWrite ? ` <button class="pill" data-jdel="${j.id}">삭제</button>` : ''}</td></tr>`;
+    const jrow = j => `<tr><td style="white-space:nowrap"><span class="code" style="display:block;color:var(--navy-800);font-weight:600">${esc(j.no || '')}</span>${j.date}<br><span class="tagk ${j.kind}">${j.kind === 'auto' ? '자동' : j.kind === 'opening' ? '기초' : '수정'}</span></td><td>${esc(j.memo)}<div class="lines" style="margin-top:6px">${j.lines.map(l => `<span class="${l.cr ? 'cr' : ''}">${l.cr ? '(대) ' : '(차) '}${esc(nm(l.code))}</span><span class="amt">${l.dr ? won(l.dr) : ''}</span><span class="amt">${l.cr ? won(l.cr) : ''}</span>`).join('')}</div></td><td class="no-print" style="white-space:nowrap">${j.refKind ? EV.badge(j.refKind, j.refId, j.no, j.memo) : ''}${j.id && canWrite ? ` <button class="pill" data-jedit="${j.id}">수정</button> <button class="pill" data-jdel="${j.id}">삭제</button>` : ''}</td></tr>`;
     q('#jr').innerHTML = `<thead><tr><th style="width:120px">번호 · 일자</th><th>적요 · 분개</th><th class="no-print">증빙</th></tr></thead><tbody>${R.inPeriod.map(jrow).join('') || '<tr><td colspan="3" class="muted">이 기간의 분개가 없습니다.</td></tr>'}</tbody>`;
     q('#adj-list').innerHTML = `<tbody>${B.journal.map(j => jrow({ ...j, refKind: 'journal', refId: j.id })).join('') || '<tr><td class="muted">수동 분개가 없습니다.</td></tr>'}</tbody>`;
 
@@ -272,12 +272,20 @@
   // 수동 분개
   const jl = () => `<div class="jl"><select data-j="code">${B.coa.filter(c => c.active).map(c => `<option value="${c.code}">${c.code} ${esc(c.name)}</option>`).join('')}</select><input data-j="dr" inputmode="numeric" placeholder="0"><input data-j="cr" inputmode="numeric" placeholder="0"><input data-j="memo"><button type="button" data-jx>×</button></div>`;
   const jbal = () => { let d = 0, c = 0; document.querySelectorAll('#j-lines .jl').forEach(r => { d += Number(r.querySelector('[data-j=dr]').value.replace(/[^0-9]/g, '')) || 0; c += Number(r.querySelector('[data-j=cr]').value.replace(/[^0-9]/g, '')) || 0; }); q('#j-bal').innerHTML = d === c && d ? `<span class="chk ok">차변 ${d.toLocaleString()} = 대변 ${c.toLocaleString()}</span>` : `<span class="chk bad">차변 ${d.toLocaleString()} / 대변 ${c.toLocaleString()}</span>`; };
-  const resetJ = () => { q('#j-lines').innerHTML = jl() + jl(); q('#j-date').value = new Date().toISOString().slice(0, 10); q('#j-memo').value = ''; jbal(); };
+  let editId = 0; // 수정 중인 수동 분개 id (0 이면 새 분개)
+  const resetJ = () => { editId = 0; q('#j-lines').innerHTML = jl() + jl(); q('#j-date').value = new Date().toISOString().slice(0, 10); q('#j-memo').value = ''; q('#j-kind').value = 'adjust'; q('#j-editing').textContent = ''; q('#j-cancel').hidden = true; q('#j-save').textContent = '분개 저장'; jbal(); };
+  // 기존 분개를 폼에 불러와 수정 (API 는 b.id 로 갱신)
+  const editJ = id => { const j = B.journal.find(x => x.id === id); if (!j) return; editId = id; q('#j-date').value = j.date; q('#j-memo').value = j.memo; q('#j-kind').value = j.kind === 'opening' ? 'opening' : 'adjust';
+    q('#j-lines').innerHTML = j.lines.map(() => jl()).join(''); [...document.querySelectorAll('#j-lines .jl')].forEach((r, i) => { const l = j.lines[i]; r.querySelector('[data-j=code]').value = l.code; r.querySelector('[data-j=dr]').value = l.dr || ''; r.querySelector('[data-j=cr]').value = l.cr || ''; r.querySelector('[data-j=memo]').value = l.memo || ''; });
+    q('#j-editing').textContent = `${j.no} 수정 중`; q('#j-cancel').hidden = false; q('#j-save').textContent = '수정 저장'; jbal(); q('#tabs [data-t=adj]').click(); q('#j-date').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   q('#j-add').addEventListener('click', () => { q('#j-lines').insertAdjacentHTML('beforeend', jl()); });
+  q('#j-cancel').addEventListener('click', resetJ);
   q('#j-lines').addEventListener('input', jbal); q('#j-lines').addEventListener('click', e => { if (e.target.closest('[data-jx]')) { e.target.closest('.jl').remove(); jbal(); } });
   q('#j-save').addEventListener('click', async () => { const lines = [...document.querySelectorAll('#j-lines .jl')].map(r => ({ code: r.querySelector('[data-j=code]').value, dr: r.querySelector('[data-j=dr]').value, cr: r.querySelector('[data-j=cr]').value, memo: r.querySelector('[data-j=memo]').value }));
-    try { await api('/books', { method: 'POST', body: { r: 'journal', date: q('#j-date').value, memo: q('#j-memo').value, kind: q('#j-kind').value, lines } }); toast('분개 저장'); await load(); resetJ(); } catch (err) { toast('실패: ' + err.message); } });
-  document.addEventListener('click', async e => { const b = e.target.closest('[data-jdel]'); if (!b) return; if (!confirm('이 분개를 삭제할까요?')) return; try { await api('/books?r=journal&id=' + b.dataset.jdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
+    try { await api('/books', { method: 'POST', body: { r: 'journal', id: editId || undefined, date: q('#j-date').value, memo: q('#j-memo').value, kind: q('#j-kind').value, lines } }); toast(editId ? '분개 수정' : '분개 저장'); await load(); resetJ(); } catch (err) { toast('실패: ' + err.message); } });
+  document.addEventListener('click', async e => {
+    const ed = e.target.closest('[data-jedit]'); if (ed) { editJ(Number(ed.dataset.jedit)); return; }
+    const b = e.target.closest('[data-jdel]'); if (!b) return; if (!confirm('이 분개를 삭제할까요?')) return; try { await api('/books?r=journal&id=' + b.dataset.jdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
   q('#m-save').addEventListener('click', async () => { try { await api('/books', { method: 'POST', body: { r: 'meta', meta: { org: q('#m-org').value, preparer: q('#m-preparer').value, auditor: q('#m-auditor').value, notes: q('#m-notes').value } } }); await load(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
 
   await load(); resetJ();

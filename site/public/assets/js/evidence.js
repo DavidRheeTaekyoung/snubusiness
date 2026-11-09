@@ -118,5 +118,5 @@
       } catch (err) { msg.textContent = '실패: ' + err.message; }
     };
   }
-  window.EV = { load, badge, of, openAdd, show, hideSoon, setup(o) { mount(); canUpload = !!o.canUpload; onChange = o.onChange || null; }, get list() { return list; }, host, fileUrl, when };
+  window.EV = { load, badge, of, openAdd, show, hideSoon, upload, shrink, setup(o) { mount(); canUpload = !!o.canUpload; onChange = o.onChange || null; }, get list() { return list; }, host, fileUrl, when };
 })();

@@ -7,13 +7,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
-.entry{display:grid;grid-template-columns:130px 96px 140px 1fr 130px 120px 140px;gap:10px;align-items:end}
-@media (max-width:1100px){.entry{grid-template-columns:1fr 1fr 1fr}}
-@media (max-width:600px){.entry{grid-template-columns:1fr 1fr}}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.panel.in{border-top:3px solid var(--success)}.panel.out{border-top:3px solid var(--danger)}
+.hint{font-size:13px;color:var(--ink-3);margin:-8px 0 14px;line-height:1.6}
+.entry{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:end}
+@media (max-width:560px){.entry{grid-template-columns:1fr 1fr}}
 .entry .field{margin:0}
 .entry .field input,.entry .field select{padding:10px 11px;font-size:14px}
-.entry .full{grid-column:1/-1;display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.entry .full .field{flex:1;min-width:180px}
+.entry .wide{grid-column:span 2}
+.entry .row3{grid-column:1/-1;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.entry .row3 .btn{justify-content:center}
+.entry .chk{display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap}
+.entry .chk input{width:18px;height:18px;accent-color:var(--navy-800)}
+.last{font-size:13px;color:var(--ink-2);background:var(--ivory);padding:8px 12px;border-left:3px solid var(--gold-400);margin-top:12px;display:none}
+.last b{font-family:var(--mono);font-size:12.5px;color:var(--navy-800)}
 .amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .inc{color:var(--success)}.exp{color:var(--danger)}
 .ledger td{font-size:13.5px;vertical-align:middle}
@@ -21,41 +29,99 @@
 .ledger .act button:hover{border-color:var(--navy-800);color:var(--navy-800)}
 .ledger tr.editing td{background:#FBF4E6}
 .ledger input,.ledger select{font:inherit;font-size:13px;padding:5px 7px;border:1px solid var(--line-2);width:100%;border-radius:2px}
+.ledger .acc-lab{font-size:11px;color:var(--ink-3);margin-top:5px;display:block}
 .summ{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 @media (max-width:900px){.summ{grid-template-columns:1fr}}
 .month td:first-child{font-family:var(--display);font-size:15px;color:var(--gold-500)}
-.bal{font-family:var(--display);font-size:38px;line-height:1;font-weight:600}
-.import{background:var(--ivory);border:1px dashed var(--line-2);padding:16px 18px;font-size:13.5px;color:var(--ink-2);margin-top:14px}
-.import textarea{width:100%;min-height:90px;font:12.5px var(--mono);margin-top:8px;padding:8px;border:1px solid var(--line-2)}
 .noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}
 .ledger td.no{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
-@media print{.admin-side,.admin-top .actions,#entry-panel,.import,.ledger .act,.pill-row{display:none!important}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}}
+/* 빠른 입력 */
+.qe{display:grid;grid-template-columns:1fr 280px;gap:16px}
+@media (max-width:900px){.qe{grid-template-columns:1fr}}
+.qe textarea{width:100%;min-height:120px;font:14px/1.6 var(--sans,inherit);padding:10px 12px;border:1px solid var(--line-2);border-radius:2px;background:var(--paper);resize:vertical}
+.drop{border:1px dashed var(--line-2);background:var(--ivory);padding:14px;font-size:13px;color:var(--ink-3);min-height:120px;display:flex;flex-direction:column;gap:8px;justify-content:center;text-align:center;cursor:pointer}
+.drop.on{border-color:var(--navy-800);background:#EEF2F8}
+.drop input{display:none}
+.drop .fl{text-align:left;font-size:12.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:3px}
+.drop .fl span{display:flex;justify-content:space-between;gap:8px}
+.drop .fl button{font:inherit;font-size:11px;border:0;background:none;color:var(--ink-3);cursor:pointer;text-decoration:underline}
+.qe-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.qe-bar .st{font-size:12.5px;color:var(--ink-3);margin-left:auto}
+.pv{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+.pv th{text-align:left;font-size:11.5px;letter-spacing:.06em;color:var(--ink-3);background:var(--ivory);padding:7px 8px;border-bottom:1px solid var(--line-2);font-weight:600;white-space:nowrap}
+.pv td{padding:4px 5px;border-bottom:1px solid var(--line);vertical-align:middle}
+.pv input,.pv select{font:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--line-2);border-radius:2px;width:100%;background:var(--paper);min-width:60px}
+.pv input.amt{text-align:right}
+.pv td.low input,.pv td.low select{background:#FFF4CC;border-color:#E6C96A}
+.pv .j{font-size:12px;color:var(--ink-2);white-space:nowrap;line-height:1.4}
+.pv .j b{font-family:var(--mono);font-size:11.5px;color:var(--navy-800)}
+.pv .ev{font-size:11.5px;color:var(--ink-3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv .x{font:inherit;font-size:12px;border:1px solid var(--line-2);background:var(--paper);border-radius:999px;padding:2px 8px;cursor:pointer;color:var(--ink-3)}
+.pv tfoot td{font-size:12.5px;color:var(--ink-3);padding:8px 5px}
+.lowkey{display:inline-block;width:12px;height:12px;background:#FFF4CC;border:1px solid #E6C96A;vertical-align:-2px;margin-right:4px}
+.wrap{overflow-x:auto}
+@media print{.admin-side,.admin-top .actions,#entry-panel,.ledger .act,.pill-row{display:none!important}.admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}}
 </style>
 </head>
 <body>
 <div class="admin-shell">
   <div id="admin-side"></div>
   <main class="admin-main">
-    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · 회계담당 · 자금관리자</span><h1>총동문회 회비 정산</h1><div class="sub">수입·지출 장부. 거래마다 분개 번호(연도-일련번호)가 붙고, 증빙은 그 번호로 관리합니다. 월별·항목별 집계와 잔액은 자동 계산.</div></div>
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · 회계담당 · 자금관리자</span><h1>총동문회 회비 정산</h1><div class="sub">수입·지출을 적으면 장부와 분개가 자동으로 만들어집니다. 거래마다 번호(연도-일련번호)가 붙고, 증빙은 그 번호로 관리합니다.</div></div>
       <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm gold" href="/admin/finance/books/">장부 · 결산서</a><a class="btn sm ghost" href="/admin/finance/treasury/">자금 · 증빙</a><a class="btn sm ghost" id="csv" href="/api/finance?export=csv">CSV(엑셀) 내려받기</a><button class="btn sm ghost" onclick="window.print()">인쇄</button></div></div>
     <div class="admin-body" id="body">
       <div class="kpi"><div class="k"><div class="v inc" id="k-in">—</div><div class="l">수입 합계</div></div><div class="k"><div class="v exp" id="k-out">—</div><div class="l">지출 합계</div></div><div class="k gold"><div class="v" id="k-bal">—</div><div class="l">당기 수지 (수입 − 지출)</div></div><div class="k"><div class="v" id="k-n">—</div><div class="l">예정 반영 후 수지</div></div></div>
 
-      <div class="panel" id="entry-panel"><div class="panel-head"><h2>거래 입력</h2><span class="muted" style="font-size:13px">입력자: <b id="me-name">—</b></span></div>
-        <form class="entry" id="entry" autocomplete="off">
-          <div class="field"><label>날짜</label><input type="date" id="e-date" required></div>
-          <div class="field"><label>구분</label><select id="e-type"><option value="income">수입</option><option value="expense">지출</option></select></div>
-          <div class="field"><label>항목</label><input id="e-cat" list="cats" placeholder="회비 / 행사비 …"></div>
-          <div class="field"><label>내용</label><input id="e-item" placeholder="예: 9월 조찬 회의 식대" required></div>
-          <div class="field"><label>금액 (원)</label><input id="e-amt" inputmode="numeric" placeholder="0" required></div>
-          <div class="field"><label>결제수단</label><input id="e-method" list="methods" placeholder="계좌이체 / 카드 …"></div>
-          <div class="field"><button class="btn" type="submit" style="width:100%;justify-content:center">저장</button></div>
-          <div class="full"><div class="field"><label>거래처 · 납부자</label><input id="e-cp" placeholder="예: 김○○ 위원, ○○식당"></div><div class="field"><label>행사</label><input id="e-event" list="events" placeholder="예: 9/9 조찬, 10/24 골프, 창립총회"></div><div class="field"><label>비고</label><input id="e-memo" placeholder="영수증 번호, 참고 사항"></div><label style="display:flex;gap:6px;align-items:center;font-size:14px;white-space:nowrap;padding-bottom:12px"><input type="checkbox" id="e-planned" style="width:18px;height:18px;accent-color:var(--navy-800)"> 예정 · 예산</label></div>
-        </form>
-        <datalist id="cats"><option value="회비"><option value="기부금"><option value="조찬식대입금"><option value="이자수익"><option value="기타수입"><option value="행사진행비"><option value="조찬식대"><option value="골프대회식대"><option value="송년회 식대"><option value="송년회 선물"><option value="강연료"><option value="공연료"><option value="통신비"><option value="소모품비"><option value="감사패비용"><option value="화환"><option value="분과지원비"><option value="외부찬조지급"><option value="장소 대관"><option value="인쇄·홍보"><option value="교통비"><option value="기타 지출"></datalist>
-        <datalist id="events"><option value="9/9 조찬"><option value="9/29 준비위원회"><option value="10/24 골프"><option value="11/10 준비위원회"><option value="11/26 송년회"><option value="2027 창립총회"><option value="운영 공통"></datalist>
-        <datalist id="methods"><option value="계좌이체"><option value="현금"><option value="카드"><option value="간편결제"></datalist>
-        <div class="import"><b>엑셀에서 가져오기</b> — 엑셀에서 <code>날짜, 구분(수입/지출), 항목, 내용, 금액, 결제수단, 거래처, 비고, 행사, 예정</code> 순서로 열을 맞춘 뒤 셀 범위를 복사해 아래에 붙여넣고 "가져오기"를 누르세요. 날짜는 2026-09-15 또는 2026.9.15 형식.<textarea id="paste" placeholder="2026-09-09	지출	식대	조찬 회의 식대	180000	카드	○○호텔	21명"></textarea><div style="margin-top:8px;display:flex;gap:8px;align-items:center"><button class="btn sm" type="button" id="do-import">가져오기</button><span class="muted" id="import-msg"></span></div></div>
+      <div id="entry-panel">
+        <div class="two">
+          <div class="panel in"><div class="panel-head"><h2>수입 적기</h2><span class="muted" style="font-size:13px">입력자: <b id="me-name">—</b></span></div>
+            <div class="hint">들어온 돈. 기부·회비·행사 참가비·이자. 누가 얼마를 보냈는지만 적으면 됩니다.</div>
+            <form class="entry" id="f-in" autocomplete="off">
+              <div class="field"><label>날짜</label><input type="date" data-f="date" required></div>
+              <div class="field"><label>항목</label><input data-f="category" list="cats-in" placeholder="기부금 / 회비 …"></div>
+              <div class="field"><label>금액 (원)</label><input data-f="amount" inputmode="numeric" placeholder="0" required></div>
+              <div class="field wide"><label>내용</label><input data-f="item" placeholder="예: 김○○ 기부, 9/9 조찬 식대 입금" required></div>
+              <div class="field"><label>납부자 (이름)</label><input data-f="counterparty" placeholder="예: 김○○"></div>
+              <div class="field"><label>입금 수단</label><input data-f="method" list="methods" placeholder="계좌이체 / 현금 …"></div>
+              <div class="field"><label>행사</label><input data-f="event" list="events" placeholder="(선택)"></div>
+              <div class="field"><button class="btn" type="submit" style="width:100%;justify-content:center">수입 저장</button></div>
+            </form>
+            <div class="last" id="last-in"></div>
+          </div>
+          <div class="panel out"><div class="panel-head"><h2>지출 적기</h2></div>
+            <div class="hint">나간 돈. 식대·행사비·강연료·통신비 등. 아직 안 나간 예산은 "예정"에 체크.</div>
+            <form class="entry" id="f-out" autocomplete="off">
+              <div class="field"><label>날짜</label><input type="date" data-f="date" required></div>
+              <div class="field"><label>항목</label><input data-f="category" list="cats-out" placeholder="행사진행비 / 식대 …"></div>
+              <div class="field"><label>금액 (원)</label><input data-f="amount" inputmode="numeric" placeholder="0" required></div>
+              <div class="field wide"><label>내용</label><input data-f="item" placeholder="예: 11/26 송년회 식대" required></div>
+              <div class="field"><label>거래처</label><input data-f="counterparty" placeholder="예: ○○호텔, ○○식당"></div>
+              <div class="field"><label>결제수단</label><input data-f="method" list="methods" placeholder="계좌이체 / 카드 …"></div>
+              <div class="field"><label>행사</label><input data-f="event" list="events" placeholder="예: 송년회, 골프대회"></div>
+              <div class="field"><label>비고</label><input data-f="memo" placeholder="영수증 번호, 참고"></div>
+              <div class="row3"><label class="chk"><input type="checkbox" data-f="planned"> 예정 · 예산 (아직 안 나간 돈)</label><button class="btn" type="submit" style="margin-left:auto">지출 저장</button></div>
+            </form>
+            <div class="last" id="last-out"></div>
+          </div>
+        </div>
+        <datalist id="cats-in"><option value="기부금"><option value="회비"><option value="행사참가비"><option value="조찬식대입금"><option value="이자수익"><option value="기타수입"></datalist>
+        <datalist id="cats-out"><option value="행사진행비"><option value="조찬식대"><option value="골프대회식대"><option value="송년회 식대"><option value="송년회 선물"><option value="강연료"><option value="공연료"><option value="통신비"><option value="기념품·상품권"><option value="장소 대관"><option value="경조사비"><option value="감사패비용"><option value="화환"><option value="분과지원비"><option value="외부찬조지급"><option value="소모품비"><option value="인쇄·홍보"><option value="교통비"><option value="기타 지출"></datalist>
+        <datalist id="events"><option value="조찬모임"><option value="골프대회"><option value="송년회"><option value="창립총회 준비"><option value="운영 공통"></datalist>
+        <datalist id="methods"><option value="계좌이체"><option value="현금"><option value="카드"><option value="자동이체"><option value="간편결제"></datalist>
+
+        <div class="panel"><div class="panel-head"><h2>빠른 입력 — 문장으로 적거나 자료만 올려도 됨</h2><span class="muted" style="font-size:13px" id="ai-st"></span></div>
+          <div class="hint">한 줄에 한 건. 예) <code>11/26 송년회 식대 드래곤시티 6,887,000원 카드</code> · <code>김광일 기부 1000만원 3/11</code> · 은행 거래내역이나 엑셀 셀을 그대로 붙여넣어도 됩니다. 영수증 사진·PDF 는 오른쪽에.</div>
+          <div class="qe">
+            <textarea id="q-text" placeholder="11/26 송년회 식대 드래곤시티 6,887,000원 카드&#10;김광일 기부 1000만원 3/11&#10;2026.9.14 9월9일 조찬 상품권 170만원 행사진행비"></textarea>
+            <label class="drop" id="drop"><input type="file" id="q-files" multiple accept="application/pdf,image/*"><span id="drop-msg">영수증 사진 · PDF 끌어다 놓기 또는 클릭 (여러 개 가능)</span><div class="fl" id="q-fl"></div></label>
+          </div>
+          <div class="qe-bar"><button class="btn sm" type="button" id="q-read">읽기 · 미리보기</button><button class="btn sm ghost" type="button" id="q-clear">지우기</button><span class="st" id="q-msg"></span></div>
+          <div class="wrap" id="pv-wrap" hidden>
+            <table class="pv" id="pv"><thead><tr><th>날짜</th><th>구분</th><th>항목</th><th>내용</th><th class="amt">금액</th><th>거래처 · 납부자</th><th>수단</th><th>행사</th><th>계정 (자동 분개)</th><th>증빙</th><th></th></tr></thead><tbody></tbody>
+              <tfoot><tr><td colspan="11"><span class="lowkey"></span>노란 칸은 추정값 — 확인 후 고치세요. 저장하면 번호가 붙고 분개가 만들어지며, 올린 파일은 증빙으로 붙습니다.</td></tr></tfoot></table>
+            <div class="qe-bar"><button class="btn" type="button" id="q-save">모두 저장</button><span class="st" id="q-sum"></span></div>
+          </div>
+        </div>
       </div>
 
       <div class="summ">
@@ -70,62 +136,146 @@
       <div class="panel"><div class="panel-head"><h2>예정된 지출 · 예산</h2><span class="muted" style="font-size:13px">"예정 · 예산"에 체크한 항목. 실제로 집행되면 내역에서 수정 → 체크 해제</span></div><table class="table" id="planned"><thead><tr><th>예정일</th><th>행사</th><th>항목</th><th>내용</th><th class="amt">금액</th></tr></thead><tbody></tbody></table></div>
 
       <div class="panel"><div class="panel-head"><h2>전체 내역</h2><div class="pill-row" id="tf"><button class="pill on" data-t="">전체</button><button class="pill" data-t="income">수입</button><button class="pill" data-t="expense">지출</button></div></div>
-        <table class="table ledger" id="ledger"><thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목</th><th>내용</th><th class="amt">금액</th><th>결제</th><th>거래처</th><th>행사</th><th>비고</th><th>증빙</th><th>입력</th><th class="act"></th></tr></thead><tbody></tbody></table></div>
+        <div class="hint">수정 모드에서 "계정"을 바꾸면 자동 분개 대신 그 계정으로 장부에 올라갑니다 (비우면 다시 자동).</div>
+        <div class="wrap"><table class="table ledger" id="ledger"><thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목</th><th>내용</th><th class="amt">금액</th><th>결제</th><th>거래처</th><th>행사</th><th>비고</th><th>증빙</th><th>입력</th><th class="act"></th></tr></thead><tbody></tbody></table></div></div>
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109b"></script>
+<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109c"></script><script src="/assets/js/quickentry.js?v=20261109c"></script>
 <script>
 (async () => {
-  const esc = SNU.esc, { api, toast } = WB, won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원'; const ymd = d => String(d || '').slice(2, 10).replace(/-/g, '/');
-  let year = String(new Date().getFullYear()), all = [], tfilter = '';
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s), won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원'; const ymd = d => String(d || '').slice(2, 10).replace(/-/g, '/');
+  const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  let year = String(new Date().getFullYear()), all = [], tfilter = '', coa = [], ai = false;
   const me = await api('/me').catch(() => ({}));
   const has = p => me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes(p);
-  if (!has('finance') && !has('treasury')) { document.getElementById('body').innerHTML = '<div class="noperm">결산·자금 관리 권한이 없습니다. 권한은 이태경 위원이 부여합니다.</div>'; return; }
+  if (!has('finance') && !has('treasury')) { q('#body').innerHTML = '<div class="noperm">결산·자금 관리 권한이 없습니다. 권한은 이태경 위원이 부여합니다.</div>'; return; }
   const canWrite = has('finance'); // 자금관리자(treasury)만 있으면 열람 + 증빙만
-  if (!canWrite) { document.getElementById('entry-panel').hidden = true; document.querySelector('.admin-top .sub').textContent = '자금(통장) 관리자 열람 모드 — 장부 입력·수정은 회계담당이 합니다. 증빙 추가는 이 화면의 증빙 칸에서.'; }
+  if (!canWrite) { q('#entry-panel').hidden = true; q('.admin-top .sub').textContent = '자금(통장) 관리자 열람 모드 — 장부 입력·수정은 회계담당이 합니다. 증빙 추가는 이 화면의 증빙 칸에서.'; }
   EV.setup({ canUpload: true, onChange: () => render() });
-  document.getElementById('me-name').textContent = me.name; document.getElementById('e-date').value = new Date().toISOString().slice(0, 10);
-  async function load() { const [d] = await Promise.all([api('/finance'), EV.load()]); all = d.entries; render(); }
+  q('#me-name').textContent = me.name; document.querySelectorAll('input[type=date][data-f=date]').forEach(i => i.value = today());
+  async function load() { const [d, b] = await Promise.all([api('/finance'), api('/books').catch(() => ({ coa: [] })), EV.load()]); all = d.entries; ai = !!d.ai; coa = b.coa || []; q('#ai-st').textContent = ai ? '사진·PDF 읽기: 켜짐 (Claude)' : '사진·PDF 읽기: 꺼짐 — 문장·붙여넣기만 자동 인식'; render(); }
+  const jtxt = e => { const j = QE.journal(e, coa); return `차 ${j.dr.code} ${j.dr.name} / 대 ${j.cr.code} ${j.cr.name}`; };
+  // 상대계정 선택지 — books 화면의 "거래별 계정 확인" 과 같은 목록 (101·102·순자산 제외, 같은 성격 먼저)
+  const accOpts = (type, val) => { const kind = type === 'income' ? 'revenue' : 'expense'; return coa.filter(c => c.active && c.code !== '101' && c.code !== '102' && c.kind !== 'net').sort((a, b) => (a.kind === kind ? 0 : 1) - (b.kind === kind ? 0 : 1) || a.code.localeCompare(b.code)).map(c => `<option value="${c.code}" ${c.code === (val || '') ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join(''); };
+
   function render() {
     const yrs = [...new Set(all.map(e => e.date.slice(0, 4)))].sort(); if (!yrs.includes(year)) yrs.push(year); yrs.sort();
-    document.getElementById('years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
-    document.getElementById('csv').href = '/api/finance?export=csv&year=' + year;
+    q('#years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
+    q('#csv').href = '/api/finance?export=csv&year=' + year;
     const yrows = all.filter(e => e.date.startsWith(year)); const plan = yrows.filter(e => e.planned); const rows = yrows.filter(e => !e.planned);
     const sum = (list, t) => list.filter(e => e.type === t).reduce((a, e) => a + e.amount, 0);
     const inc = sum(rows, 'income'), out = sum(rows, 'expense'), pin = sum(plan, 'income'), pout = sum(plan, 'expense');
-    document.getElementById('k-in').textContent = won(inc); document.getElementById('k-out').textContent = won(out); document.getElementById('k-bal').textContent = won(inc - out); document.getElementById('k-n').textContent = won(inc - out + pin - pout);
+    q('#k-in').textContent = won(inc); q('#k-out').textContent = won(out); q('#k-bal').textContent = won(inc - out); q('#k-n').textContent = won(inc - out + pin - pout);
     const pp = {}; rows.filter(e => e.type === 'income').forEach(e => { const k = (e.counterparty || '(미기재)').trim(); pp[k] ||= { s: 0, n: 0, d: '' }; pp[k].s += e.amount; pp[k].n++; if (e.date > pp[k].d) pp[k].d = e.date; });
-    document.querySelector('#by-person tbody').innerHTML = Object.entries(pp).sort((a, b) => b[1].s - a[1].s).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="amt inc">${won(v.s)}</td><td class="amt">${v.n}</td><td class="muted">${v.d}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">아직 수입 내역이 없습니다.</td></tr>';
+    q('#by-person tbody').innerHTML = Object.entries(pp).sort((a, b) => b[1].s - a[1].s).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="amt inc">${won(v.s)}</td><td class="amt">${v.n}</td><td class="muted">${v.d}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">아직 수입 내역이 없습니다.</td></tr>';
     const ev = {}; rows.forEach(e => { const k = e.event || '(행사 미지정)'; ev[k] ||= { i: 0, o: 0 }; ev[k][e.type === 'income' ? 'i' : 'o'] += e.amount; });
-    document.querySelector('#by-event tbody').innerHTML = Object.entries(ev).sort((a, b) => b[1].o - a[1].o).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="amt exp">${won(v.o)}</td><td class="amt inc">${won(v.i)}</td><td class="amt"><b>${won(v.i - v.o)}</b></td></tr>`).join('') || '<tr><td colspan="4" class="muted">아직 내역이 없습니다.</td></tr>';
-    document.querySelector('#planned tbody').innerHTML = plan.slice().sort((a, b) => a.date.localeCompare(b.date)).map(e => `<tr><td class="date">${ymd(e.date)}</td><td>${esc(e.event)}</td><td>${esc(e.category)}</td><td>${esc(e.item)}</td><td class="amt ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '−'}${won(e.amount)}</td></tr>`).join('') + (plan.length ? `<tr><td colspan="4"><b>예정 합계</b></td><td class="amt"><b>${won(pin - pout)}</b></td></tr>` : '<tr><td colspan="5" class="muted">예정 항목이 없습니다.</td></tr>');
+    q('#by-event tbody').innerHTML = Object.entries(ev).sort((a, b) => b[1].o - a[1].o).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="amt exp">${won(v.o)}</td><td class="amt inc">${won(v.i)}</td><td class="amt"><b>${won(v.i - v.o)}</b></td></tr>`).join('') || '<tr><td colspan="4" class="muted">아직 내역이 없습니다.</td></tr>';
+    q('#planned tbody').innerHTML = plan.slice().sort((a, b) => a.date.localeCompare(b.date)).map(e => `<tr><td class="date">${ymd(e.date)}</td><td>${esc(e.event)}</td><td>${esc(e.category)}</td><td>${esc(e.item)}</td><td class="amt ${e.type === 'income' ? 'inc' : 'exp'}">${e.type === 'income' ? '+' : '−'}${won(e.amount)}</td></tr>`).join('') + (plan.length ? `<tr><td colspan="4"><b>예정 합계</b></td><td class="amt"><b>${won(pin - pout)}</b></td></tr>` : '<tr><td colspan="5" class="muted">예정 항목이 없습니다.</td></tr>');
     const m = {}; rows.forEach(e => { const k = e.date.slice(0, 7); m[k] ||= { i: 0, o: 0 }; m[k][e.type === 'income' ? 'i' : 'o'] += e.amount; });
-    let run = 0; document.querySelector('#by-month tbody').innerHTML = Object.keys(m).sort().map(k => { run += m[k].i - m[k].o; return `<tr><td>${k.slice(0, 4)}.${k.slice(5)}</td><td class="amt inc">${won(m[k].i)}</td><td class="amt exp">${won(m[k].o)}</td><td class="amt"><b>${won(run)}</b></td></tr>`; }).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
+    let run = 0; q('#by-month tbody').innerHTML = Object.keys(m).sort().map(k => { run += m[k].i - m[k].o; return `<tr><td>${k.slice(0, 4)}.${k.slice(5)}</td><td class="amt inc">${won(m[k].i)}</td><td class="amt exp">${won(m[k].o)}</td><td class="amt"><b>${won(run)}</b></td></tr>`; }).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
     const c = {}; rows.forEach(e => { const k = (e.category || '(항목 없음)') + '|' + e.type; c[k] ||= { s: 0, n: 0, t: e.type, cat: e.category || '(항목 없음)' }; c[k].s += e.amount; c[k].n++; });
-    document.querySelector('#by-cat tbody').innerHTML = Object.values(c).sort((a, b) => a.t.localeCompare(b.t) || b.s - a.s).map(x => `<tr><td>${esc(x.cat)}</td><td><span class="status ${x.t === 'income' ? 'done' : 'fail'}">${x.t === 'income' ? '수입' : '지출'}</span></td><td class="amt">${won(x.s)}</td><td class="amt">${x.n}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
+    q('#by-cat tbody').innerHTML = Object.values(c).sort((a, b) => a.t.localeCompare(b.t) || b.s - a.s).map(x => `<tr><td>${esc(x.cat)}</td><td><span class="status ${x.t === 'income' ? 'done' : 'fail'}">${x.t === 'income' ? '수입' : '지출'}</span></td><td class="amt">${won(x.s)}</td><td class="amt">${x.n}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">내역이 없습니다.</td></tr>';
     const lr = yrows.filter(e => !tfilter || e.type === tfilter).slice().reverse();
-    document.querySelector('#ledger tbody').innerHTML = lr.map(e => `<tr data-id="${e.id}"><td class="no">${esc(e.no || '')}</td><td class="date">${ymd(e.date)}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc(e.category)}</td><td>${esc(e.item)}</td><td class="amt ${e.type === 'income' ? 'inc' : 'exp'}">${won(e.amount)}</td><td>${esc(e.method)}</td><td>${esc(e.counterparty)}</td><td>${esc(e.event || '')}</td><td class="muted">${e.planned ? '<span class="status wip">예정</span> ' : ''}${esc(e.memo)}</td><td>${EV.badge('ledger', e.id, e.no, [e.category, e.item].filter(Boolean).join(' · '))}</td><td class="muted">${esc(e.created_by || '')}</td><td class="act">${canWrite ? `<button data-edit="${e.id}">수정</button><button data-del="${e.id}">삭제</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="13" class="muted">아직 내역이 없습니다. 위에서 첫 거래를 입력하세요.</td></tr>';
+    q('#ledger tbody').innerHTML = lr.map(e => `<tr data-id="${e.id}"><td class="no">${esc(e.no || '')}</td><td class="date">${ymd(e.date)}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc(e.category)}${e.account ? `<span class="acc-lab" title="계정 직접 지정">계정 ${esc(e.account)}</span>` : ''}</td><td>${esc(e.item)}</td><td class="amt ${e.type === 'income' ? 'inc' : 'exp'}">${won(e.amount)}</td><td>${esc(e.method)}</td><td>${esc(e.counterparty)}</td><td>${esc(e.event || '')}</td><td class="muted">${e.planned ? '<span class="status wip">예정</span> ' : ''}${esc(e.memo)}</td><td>${EV.badge('ledger', e.id, e.no, [e.category, e.item].filter(Boolean).join(' · '))}</td><td class="muted">${esc(e.created_by || '')}</td><td class="act">${canWrite ? `<button data-edit="${e.id}">수정</button><button data-del="${e.id}">삭제</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="13" class="muted">아직 내역이 없습니다. 위에서 첫 거래를 입력하세요.</td></tr>';
   }
-  document.getElementById('years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
-  document.getElementById('tf').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; tfilter = b.dataset.t; [...b.parentElement.children].forEach(x => x.classList.toggle('on', x === b)); render(); });
-  document.getElementById('entry').addEventListener('submit', async e => { e.preventDefault(); const g = id => document.getElementById(id).value;
-    try { await api('/finance', { method: 'POST', body: { date: g('e-date'), type: g('e-type'), category: g('e-cat'), item: g('e-item'), amount: g('e-amt'), method: g('e-method'), counterparty: g('e-cp'), memo: g('e-memo'), event: g('e-event'), planned: document.getElementById('e-planned').checked ? 1 : 0 } }); toast('저장되었습니다'); ['e-item', 'e-amt', 'e-cp', 'e-memo'].forEach(id => document.getElementById(id).value = ''); document.getElementById('e-planned').checked = false; document.getElementById('e-item').focus(); await load(); } catch (err) { toast('실패: ' + err.message); } });
-  document.getElementById('ledger').addEventListener('click', async e => {
+  q('#years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
+  q('#tf').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; tfilter = b.dataset.t; [...b.parentElement.children].forEach(x => x.classList.toggle('on', x === b)); render(); });
+
+  // 수입 / 지출 폼 — 저장 직후 분개와 번호를 한 줄로 보여 준다
+  async function submitForm(form, type) {
+    const body = { type }; form.querySelectorAll('[data-f]').forEach(i => body[i.dataset.f] = i.type === 'checkbox' ? (i.checked ? 1 : 0) : i.value.trim());
+    const r = await api('/finance', { method: 'POST', body });
+    const no = r.rows && r.rows[0] ? r.rows[0].no : ''; const line = `저장됨 ${no} — 분개: ${jtxt(body)}`;
+    toast(line); const el = q(type === 'income' ? '#last-in' : '#last-out'); el.innerHTML = `<b>${esc(no)}</b> ${esc(body.item)} ${won(Number(String(body.amount).replace(/[^0-9]/g, '')))} · 분개: ${esc(jtxt(body))}`; el.style.display = 'block';
+    form.querySelectorAll('[data-f]').forEach(i => { if (i.dataset.f === 'date' || i.dataset.f === 'method') return; if (i.type === 'checkbox') i.checked = false; else i.value = ''; });
+    form.querySelector('[data-f=item]').focus(); if (year !== body.date.slice(0, 4)) year = body.date.slice(0, 4); await load();
+  }
+  q('#f-in').addEventListener('submit', async e => { e.preventDefault(); try { await submitForm(e.target, 'income'); } catch (err) { toast('실패: ' + err.message); } });
+  q('#f-out').addEventListener('submit', async e => { e.preventDefault(); try { await submitForm(e.target, 'expense'); } catch (err) { toast('실패: ' + err.message); } });
+
+  // 전체 내역 — 수정 모드에 계정 select (자동 분개가 틀린 거래를 여기서 바로 고친다)
+  q('#ledger').addEventListener('click', async e => {
     const del = e.target.closest('[data-del]'); if (del) { if (!confirm('이 거래를 삭제할까요?')) return; try { await api('/finance?id=' + del.dataset.del, { method: 'DELETE' }); toast('삭제되었습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
     const ed = e.target.closest('[data-edit]'); if (ed) { const id = Number(ed.dataset.edit), x = all.find(r => r.id === id), tr = ed.closest('tr'); tr.classList.add('editing');
-      tr.innerHTML = `<td class="no">${esc(x.no || '')}</td><td><input type="date" value="${x.date}" data-f="date"></td><td><select data-f="type"><option value="income" ${x.type === 'income' ? 'selected' : ''}>수입</option><option value="expense" ${x.type === 'expense' ? 'selected' : ''}>지출</option></select></td><td><input value="${esc(x.category)}" data-f="category" list="cats"></td><td><input value="${esc(x.item)}" data-f="item"></td><td><input value="${x.amount}" data-f="amount" inputmode="numeric"></td><td><input value="${esc(x.method)}" data-f="method" list="methods"></td><td><input value="${esc(x.counterparty)}" data-f="counterparty"></td><td><input value="${esc(x.event || '')}" data-f="event" list="events"></td><td><input value="${esc(x.memo)}" data-f="memo"><label style="font-size:12px;display:flex;gap:4px;margin-top:4px"><input type="checkbox" data-f="planned" ${x.planned ? 'checked' : ''} style="width:auto">예정</label></td><td>${EV.badge('ledger', x.id, x.no, x.item)}</td><td class="muted">${esc(x.created_by || '')}</td><td class="act"><button data-save="${id}">저장</button><button data-cancel="1">취소</button></td>`; return; }
-    const sv = e.target.closest('[data-save]'); if (sv) { const tr = sv.closest('tr'); const body = { id: Number(sv.dataset.save) }; tr.querySelectorAll('[data-f]').forEach(i => body[i.dataset.f] = i.type === 'checkbox' ? (i.checked ? 1 : 0) : i.value); try { await api('/finance', { method: 'PUT', body }); toast('수정되었습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
+      const auto = QE.journal({ ...x, account: '' }, coa); const autoName = x.type === 'income' ? auto.cr : auto.dr;
+      tr.innerHTML = `<td class="no">${esc(x.no || '')}</td><td><input type="date" value="${x.date}" data-f="date"></td><td><select data-f="type"><option value="income" ${x.type === 'income' ? 'selected' : ''}>수입</option><option value="expense" ${x.type === 'expense' ? 'selected' : ''}>지출</option></select></td><td><input value="${esc(x.category)}" data-f="category" list="${x.type === 'income' ? 'cats-in' : 'cats-out'}"><span class="acc-lab">계정</span><select data-f="account"><option value="">자동 (${esc(autoName.code + ' ' + autoName.name)})</option>${accOpts(x.type, x.account)}</select></td><td><input value="${esc(x.item)}" data-f="item"></td><td><input value="${x.amount}" data-f="amount" inputmode="numeric"></td><td><input value="${esc(x.method)}" data-f="method" list="methods"></td><td><input value="${esc(x.counterparty)}" data-f="counterparty"></td><td><input value="${esc(x.event || '')}" data-f="event" list="events"></td><td><input value="${esc(x.memo)}" data-f="memo"><label style="font-size:12px;display:flex;gap:4px;margin-top:4px"><input type="checkbox" data-f="planned" ${x.planned ? 'checked' : ''} style="width:auto">예정</label></td><td>${EV.badge('ledger', x.id, x.no, x.item)}</td><td class="muted">${esc(x.created_by || '')}</td><td class="act"><button data-save="${id}">저장</button><button data-cancel="1">취소</button></td>`; return; }
+    const sv = e.target.closest('[data-save]'); if (sv) { const tr = sv.closest('tr'); const body = { id: Number(sv.dataset.save) }; tr.querySelectorAll('[data-f]').forEach(i => body[i.dataset.f] = i.type === 'checkbox' ? (i.checked ? 1 : 0) : i.value); try { await api('/finance', { method: 'PUT', body }); toast('수정되었습니다 — 분개: ' + jtxt(body)); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
     if (e.target.closest('[data-cancel]')) render();
   });
-  document.getElementById('do-import').addEventListener('click', async () => {
-    const txt = document.getElementById('paste').value.trim(); if (!txt) return;
-    const norm = d => { const m = String(d).trim().match(/(\d{4})[.\-\/년\s]+(\d{1,2})[.\-\/월\s]+(\d{1,2})/); return m ? `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}` : ''; };
-    const rows = txt.split(/\r?\n/).map(l => l.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(s => s.replace(/^"|"$/g, '').trim())).filter(c => c.length >= 5 && norm(c[0]))
-      .map(c => ({ date: norm(c[0]), type: /수입|입금|income/i.test(c[1]) ? 'income' : 'expense', category: c[2] || '', item: c[3] || '', amount: c[4], method: c[5] || '', counterparty: c[6] || '', memo: c[7] || '', event: c[8] || '', planned: c[9] || '' }));
-    if (!rows.length) { document.getElementById('import-msg').textContent = '읽을 수 있는 행이 없습니다. 열 순서와 날짜 형식을 확인해 주세요.'; return; }
-    if (!confirm(rows.length + '건을 가져올까요?')) return;
-    try { const r = await api('/finance', { method: 'POST', body: { rows } }); document.getElementById('import-msg').textContent = r.inserted + '건 저장되었습니다.'; document.getElementById('paste').value = ''; await load(); } catch (err) { document.getElementById('import-msg').textContent = '실패: ' + err.message; }
+
+  // ───── 빠른 입력 ─────
+  let pv = [], qfiles = []; // pv: 미리보기 행, qfiles: [{file, name, mime}]
+  const drop = q('#drop');
+  const fileList = () => { q('#q-fl').innerHTML = qfiles.map((f, i) => `<span><span>${esc(f.name)} <span class="muted">(${(f.file.size / 1024).toFixed(0)} KB)</span></span><button type="button" data-fx="${i}">빼기</button></span>`).join(''); q('#drop-msg').textContent = qfiles.length ? `${qfiles.length}개 — 더 올리려면 클릭` : '영수증 사진 · PDF 끌어다 놓기 또는 클릭 (여러 개 가능)'; };
+  const addFiles = fs => { for (const f of fs) { if (!/^(application\/pdf|image\/)/.test(f.type)) { toast(f.name + ': PDF 또는 이미지만'); continue; } if (qfiles.length >= 8) { toast('한 번에 8개까지'); break; } qfiles.push({ file: f, name: f.name, mime: f.type }); } fileList(); };
+  q('#q-files').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('on'); }); drop.addEventListener('dragleave', () => drop.classList.remove('on')); drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('on'); addFiles(e.dataTransfer.files); });
+  drop.addEventListener('click', e => { const b = e.target.closest('[data-fx]'); if (b) { e.preventDefault(); qfiles.splice(Number(b.dataset.fx), 1); fileList(); } });
+  q('#q-clear').addEventListener('click', () => { q('#q-text').value = ''; qfiles = []; pv = []; fileList(); q('#pv-wrap').hidden = true; q('#q-msg').textContent = ''; });
+
+  const toB64 = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
+  const dateFromName = n => { const m = n.match(/(20\d{2})[-._]?(\d{2})[-._]?(\d{2})/); return m ? `${m[1]}-${m[2]}-${m[3]}` : ''; };
+  const digitsIn = n => (n.match(/\d[\d,]{3,}/g) || []).map(s => Number(s.replace(/,/g, '')));
+  async function read() {
+    const text = q('#q-text').value.trim(); if (!text && !qfiles.length) { q('#q-msg').textContent = '문장을 적거나 파일을 올려 주세요.'; return; }
+    q('#q-msg').textContent = '읽는 중…'; q('#q-read').disabled = true;
+    try {
+      const parsed = QE.parse(text, { coa, entries: all, today: today() });
+      let rows = parsed.rows.map(r => ({ ...r, file: -1 }));
+      let aiNote = '';
+      if (ai && (qfiles.length || text)) { // 키가 있으면 Claude 로 보강 — 규칙 결과와 합쳐 하나의 미리보기로
+        try {
+          const files = []; for (const f of qfiles) { const blob = /^image\//.test(f.mime) && f.mime !== 'image/gif' ? await EV.shrink(f.file) : f.file; files.push({ name: f.name, mime: /^image\//.test(f.mime) && f.mime !== 'image/gif' ? 'image/jpeg' : f.mime, data: await toB64(blob) }); }
+          const cats = [...new Set(all.map(e => e.category).filter(Boolean))].slice(0, 60), events = [...new Set(all.map(e => e.event).filter(Boolean))];
+          const r = await api('/finance', { method: 'POST', body: { r: 'parse', text, files, hints: { categories: cats, events } } });
+          const merged = [];
+          for (const t of r.transactions) {
+            const low = {}; if (t.confidence !== 'high') ['category', 'counterparty', 'event'].forEach(k => low[k] = true); if (t.confidence === 'low') ['date', 'amount', 'type'].forEach(k => low[k] = true); if (!t.date) { t.date = today(); low.date = true; }
+            const row = { ...t, memo: '', account: '', planned: 0, low };
+            // 같은 날짜·금액의 규칙 결과가 있으면 그 행에 Claude 값을 덮어쓰되 사람이 적은 내용은 유지
+            const i = rows.findIndex(x => x.amount === t.amount && (x.date === t.date || !t.date) && !x._m);
+            if (i >= 0) { const x = rows[i]; x._m = true; ['category', 'counterparty', 'method', 'event'].forEach(k => { if (t[k] && (!x[k] || x.low[k])) { x[k] = t[k]; if (t.confidence === 'high') delete x.low[k]; } }); if (!x.item || x.low.item) x.item = t.item || x.item; x.file = t.file; }
+            else merged.push(row);
+          }
+          rows = rows.concat(merged); aiNote = ` · Claude 보강 ${r.transactions.length}건`;
+        } catch (err) { aiNote = ' · Claude 읽기 실패: ' + err.message + ' (규칙 결과만 표시)'; }
+      }
+      // 파일만 있고 행이 없으면 파일마다 최소 행
+      if (!rows.length && qfiles.length) rows = qfiles.map((f, i) => ({ date: dateFromName(f.name) || today(), type: 'expense', category: '', item: f.name.replace(/\.[^.]+$/, ''), amount: 0, counterparty: '', method: '', event: '', memo: '', account: '', planned: 0, low: { date: !dateFromName(f.name), type: true, amount: true, category: true }, file: i }));
+      // 파일 ↔ 행 연결: Claude 가 알려 준 번호 → 파일명 속 금액 → 첫 행
+      qfiles.forEach((f, i) => { if (rows.some(r => r.file === i)) return; const ds = digitsIn(f.name); const j = rows.findIndex(r => ds.includes(r.amount)); (j >= 0 ? rows[j] : rows[0]).files = ((j >= 0 ? rows[j] : rows[0]).files || []).concat(i); });
+      rows.forEach(r => { r.files = r.files || []; if (r.file >= 0 && !r.files.includes(r.file)) r.files.push(r.file); delete r.file; delete r._m; });
+      pv = rows; renderPv();
+      q('#q-msg').textContent = rows.length ? `${rows.length}건 인식${parsed.skipped.length ? ` · 못 읽은 줄 ${parsed.skipped.length}: ${parsed.skipped.map(s => s.slice(0, 20)).join(' | ')}` : ''}${aiNote}` : '읽을 수 있는 거래가 없습니다. 금액과 날짜가 들어 있는지 확인해 주세요.' + aiNote;
+    } finally { q('#q-read').disabled = false; }
+  }
+  q('#q-read').addEventListener('click', read);
+  const jHtml = r => { const j = QE.journal(r, coa); return `차 <b>${j.dr.code}</b> ${esc(j.dr.name)}<br>대 <b>${j.cr.code}</b> ${esc(j.cr.name)}`; };
+  const fnames = r => (r.files || []).map(k => qfiles[k] && qfiles[k].name).filter(Boolean).join(', ');
+  function rowHtml(i) { const r = pv[i]; const cell = (f, inner) => `<td class="${r.low[f] ? 'low' : ''}">${inner}</td>`;
+    return `<tr data-i="${i}">${cell('date', `<input type="date" value="${r.date}" data-f="date">`)}${cell('type', `<select data-f="type"><option value="income" ${r.type === 'income' ? 'selected' : ''}>수입</option><option value="expense" ${r.type === 'expense' ? 'selected' : ''}>지출</option></select>`)}${cell('category', `<input value="${esc(r.category)}" data-f="category" list="${r.type === 'income' ? 'cats-in' : 'cats-out'}">`)}${cell('item', `<input value="${esc(r.item)}" data-f="item" style="min-width:160px">`)}${cell('amount', `<input class="amt" value="${r.amount ? r.amount.toLocaleString('ko-KR') : ''}" data-f="amount" inputmode="numeric" placeholder="필수">`)}${cell('counterparty', `<input value="${esc(r.counterparty)}" data-f="counterparty">`)}${cell('method', `<input value="${esc(r.method)}" data-f="method" list="methods" style="min-width:80px">`)}${cell('event', `<input value="${esc(r.event)}" data-f="event" list="events" style="min-width:80px">`)}<td><select data-f="account"><option value="">자동</option>${accOpts(r.type, r.account)}</select><div class="j">${jHtml(r)}</div></td><td class="ev" title="${esc(fnames(r))}">${esc(fnames(r)) || '<span class="muted">—</span>'}${r.planned ? ' <span class="status wip">예정</span>' : ''}</td><td><button type="button" class="x" data-rm="${i}">빼기</button></td></tr>`; }
+  function pvSum() { const inc = pv.filter(r => r.type === 'income').reduce((a, r) => a + (r.amount || 0), 0), out = pv.filter(r => r.type === 'expense').reduce((a, r) => a + (r.amount || 0), 0); q('#q-sum').textContent = `${pv.length}건 · 수입 ${won(inc)} · 지출 ${won(out)}`; q('#pv-wrap').hidden = !pv.length; }
+  function renderPv() { q('#pv tbody').innerHTML = pv.map((r, i) => rowHtml(i)).join(''); pvSum(); }
+  // 칸을 고치면 그 행의 분개만 다시 계산 (표 전체를 다시 그리면 타이핑 중 포커스가 빠진다)
+  q('#pv').addEventListener('input', e => { const tr = e.target.closest('tr[data-i]'), f = e.target.dataset.f; if (!tr || !f) return; const i = Number(tr.dataset.i), r = pv[i];
+    r[f] = f === 'amount' ? Math.round(Number(e.target.value.replace(/[^0-9.]/g, ''))) || 0 : e.target.value; delete r.low[f]; e.target.closest('td').classList.remove('low');
+    if (f === 'type') { tr.outerHTML = rowHtml(i); pvSum(); return; }
+    if (f === 'amount') pvSum(); else tr.querySelector('.j').innerHTML = jHtml(r); });
+  q('#pv').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; pv.splice(Number(b.dataset.rm), 1); renderPv(); });
+  q('#q-save').addEventListener('click', async () => {
+    const bad = pv.filter(r => !r.amount || !r.date || !r.item); if (bad.length) { toast(`날짜·내용·금액이 비어 있는 행이 ${bad.length}건 있습니다`); return; }
+    if (!confirm(`${pv.length}건을 저장할까요? 저장하면 번호가 붙고 자동 분개됩니다.`)) return;
+    q('#q-save').disabled = true; q('#q-msg').textContent = '저장 중…';
+    try {
+      const r = await api('/finance', { method: 'POST', body: { rows: pv.map(x => ({ date: x.date, type: x.type, category: x.category, item: x.item, amount: x.amount, method: x.method, counterparty: x.counterparty, memo: x.memo || '', event: x.event, planned: x.planned ? 1 : 0, account: x.account || '' })) } });
+      const ids = r.rows || []; let evn = 0, evFail = 0;
+      for (let i = 0; i < pv.length && i < ids.length; i++) for (const k of (pv[i].files || [])) { const f = qfiles[k]; if (!f) continue; try { await EV.upload('ledger', ids[i].id, f.file, '빠른 입력에서 올림'); evn++; } catch (err) { evFail++; } }
+      toast(`${r.inserted}건 저장 (${ids[0] ? ids[0].no : ''}${ids.length > 1 ? ' ~ ' + ids[ids.length - 1].no : ''})${evn ? ` · 증빙 ${evn}건 첨부` : ''}`);
+      q('#q-msg').textContent = `${r.inserted}건 저장되었습니다${evn ? `, 증빙 ${evn}건 첨부` : ''}${evFail ? `, 증빙 ${evFail}건 실패(아래 내역의 증빙 칸에서 다시 올리세요)` : ''}. 번호: ${ids.map(x => x.no).join(', ')}`;
+      pv = []; qfiles = []; q('#q-text').value = ''; fileList(); q('#pv-wrap').hidden = true; await load();
+    } catch (err) { toast('실패: ' + err.message); q('#q-msg').textContent = '실패: ' + err.message; }
+    finally { q('#q-save').disabled = false; }
   });
   await load();
 })();

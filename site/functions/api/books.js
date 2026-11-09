@@ -99,7 +99,11 @@ export async function onRequestPost({ request, env }) {
     const dr = lines.reduce((a, l) => a + l.dr, 0), cr = lines.reduce((a, l) => a + l.cr, 0);
     if (lines.length < 2 || dr !== cr || !dr) return err(`차변(${dr.toLocaleString()})과 대변(${cr.toLocaleString()}) 합계가 같아야 합니다`);
     const kind = ['adjust', 'opening', 'closing'].includes(b.kind) ? b.kind : 'adjust';
-    if (b.id) await db.prepare('UPDATE journal SET date=?, memo=?, lines=?, kind=? WHERE id=?').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, Number(b.id)).run();
+    if (b.id) { // 수정 — 연도가 바뀌면 그 연도의 새 번호
+      const old = await db.prepare('SELECT date FROM journal WHERE id = ?').bind(Number(b.id)).first(); if (!old) return err('not found', 404);
+      if (old.date.slice(0, 4) !== date.slice(0, 4)) await db.prepare('UPDATE journal SET date=?, memo=?, lines=?, kind=?, seq=(SELECT COALESCE(MAX(seq),0)+1 FROM journal WHERE substr(date,1,4)=?) WHERE id=?').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, date.slice(0, 4), Number(b.id)).run();
+      else await db.prepare('UPDATE journal SET date=?, memo=?, lines=?, kind=? WHERE id=?').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, Number(b.id)).run();
+    }
     else await db.prepare('INSERT INTO journal (date, memo, lines, kind, created_by, seq) VALUES (?,?,?,?,?,(SELECT COALESCE(MAX(seq),0)+1 FROM journal WHERE substr(date,1,4)=?))').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, s.name, date.slice(0, 4)).run();
     return json({ ok: true });
   }
@@ -115,7 +119,12 @@ export async function onRequestDelete({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db, true); if (e) return e;
   const u = new URL(request.url); const r = u.searchParams.get('r');
-  if (r === 'journal') { await db.prepare('DELETE FROM journal WHERE id = ?').bind(Number(u.searchParams.get('id'))).run(); return json({ ok: true }); }
+  if (r === 'journal') {
+    const id = Number(u.searchParams.get('id')); if (!id) return err('id required');
+    const ev = await db.prepare("SELECT COUNT(*) AS n FROM evidence WHERE ref_kind='journal' AND ref_id=?").bind(id).first().catch(() => ({ n: 0 }));
+    if (ev && ev.n) return err('증빙이 붙어 있는 분개는 삭제할 수 없습니다. 증빙을 먼저 지우거나 내용을 수정하세요');
+    await db.prepare('DELETE FROM journal WHERE id = ?').bind(id).run(); return json({ ok: true });
+  }
   if (r === 'coa') { // 사용 중인 계정은 비활성만
     const code = clean(u.searchParams.get('code'), 6);
     const used = await db.prepare('SELECT COUNT(*) AS n FROM ledger WHERE account = ?').bind(code).first();
