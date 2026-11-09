@@ -277,9 +277,9 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, id });
   }
   if (b.r === 'people') { // 붙여넣기 일괄 추가 (SNU Biz 앱 자료 등)
-    const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => clean(x.name, 40)).slice(0, 500);
+    const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => clean(x.name, 40)).slice(0, 1000); // 수집 결과를 통째로 옮길 때도 쓴다 (출처 링크 포함)
     for (let i = 0; i < rows.length; i += 50) await db.batch(rows.slice(i, i + 50).map(x => db.prepare(`INSERT INTO vip_people (${FIELDS.join(', ')}, sources, updated_by, updated_at) VALUES (${FIELDS.map(() => '?').join(',')},?,?,?)`)
-      .bind(...FIELDS.map(f => f === 'status' ? (clean(x.status, 20) || '후보') : clean(x[f], f === 'memo' ? 2000 : 200)), JSON.stringify(x.src ? [{ title: clean(x.src, 200), url: '', from: 'paste' }] : []), s.name, now)));
+      .bind(...FIELDS.map(f => f === 'status' ? (clean(x.status, 20) || '후보') : clean(x[f], f === 'memo' ? 2000 : 200)), JSON.stringify(Array.isArray(x.sources) ? x.sources.slice(0, 5).map(o => ({ title: clean(o.title, 200), url: clean(o.url, 500), from: clean(o.from, 20) || 'hits' })) : x.src ? [{ title: clean(x.src, 200), url: '', from: 'paste' }] : []), s.name, now)));
     return json({ ok: true, inserted: rows.length });
   }
   if (b.r === 'person_del') { await db.prepare('DELETE FROM vip_people WHERE id = ?').bind(Number(b.id)).run(); return json({ ok: true }); }
