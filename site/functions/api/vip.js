@@ -47,15 +47,15 @@ async function migrate(db) { // 나중에 붙인 칸 — 한 번 조회해서 �
 // 기사 문장에서 이름 뒤의 소속·직위, 출신 고교, 출생연도를 뽑는다 (자동 추출이라 사람이 확인)
 const HS_STOP = /^(최|광|보|참|경|재|사|원|공|제|비|신|중|등|고|마|창|노|폐|잔|하|모|휴|권|선|숙|탈|전|정|연)고$/;
 export function profile(h) {
-  const text = h.title + ' ' + h.snippet, name = h.names?.[0] || '', y = Number((h.date || '').slice(0, 4)) || new Date().getFullYear();
+  const text = h.title + ' ' + h.snippet, name = h.names?.[0] || '', nm = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), y =Number((h.date || '').slice(0, 4)) || new Date().getFullYear();
   let org = h.org || '', position = h.position || '', hs = '', birth = '';
-  if (name && !org) { const m = text.match(new RegExp(name + `(?![가-힣])(?:·[가-힣]{2,3})*\\s?(?:\\([^)]{1,12}\\)\\s?)?((?:${ORGW}\\s){0,2}?)${PRE}(${TITLES})`)); if (m) { org = m[1].trim(); position = m[2]; } }
-  if (name && new RegExp(name + '\\s서울대(?:학교)?\\s경영(?:학과|대학?)?\\s(?:석좌|명예|객원)?교수').test(text)) { org = '서울대 경영대학'; position = '교수'; }
+  if (name && !org) { const m = text.match(new RegExp(nm +`(?![가-힣])(?:·[가-힣]{2,3})*\\s?(?:\\([^)]{1,12}\\)\\s?)?((?:${ORGW}\\s){0,2}?)${PRE}(${TITLES})`)); if (m) { org = m[1].trim(); position = m[2]; } }
+  if (name && new RegExp(nm +'\\s서울대(?:학교)?\\s경영(?:학과|대학?)?\\s(?:석좌|명예|객원)?교수').test(text)) { org = '서울대 경영대학'; position = '교수'; }
   if (name && (!org || /서울대|연세대|고려대/.test(org) && position !== '교수')) org = nearOrg(text, name);
-  if (name && !position) { const p = text.match(new RegExp(name + '[^.…]{0,30}?(' + TITLES + ')')); if (p) position = p[1]; }
+  if (name && !position) { const p = text.match(new RegExp(nm +'[^.…]{0,30}?(' + TITLES + ')')); if (p) position = p[1]; }
   for (const m of text.matchAll(/([가-힣]{1,6}(?:고등학교|여고|고))\s*(?:와|과|,|·|를|및|△|졸업|졸|\s)*\s*(?:서울대|연세대|고려대)/g)) if (!HS_STOP.test(m[1]) && !/(?:하|되|했|였|이|며|었|았|받|맡|쳐|나)고$/.test(m[1])) { hs = m[1]; break; }
   const b1 = text.match(/(19[3-9]\d|200\d)년생/) || text.match(/출생\s?(19[3-9]\d|200\d)/); if (b1) birth = b1[1];
-  else if (name) { const a = text.match(new RegExp(name + '[^()]{0,30}\\((\\d{2})[·)]')); if (a && +a[1] >= 30 && +a[1] <= 90) birth = (y - +a[1]) + '?'; }
+  else if (name) { const a = text.match(new RegExp(nm +'[^()]{0,30}\\((\\d{2})[·)]')); if (a && +a[1] >= 30 && +a[1] <= 90) birth = (y - +a[1]) + '?'; }
   return { org, position, hs, birth };
 }
 
@@ -167,7 +167,7 @@ export async function onRequestPost({ request, env }) {
   // OpenDART는 해외(클라우드) 접속을 오류 페이지로 돌려보내므로, 스캔은 국내 PC에서 tools/dart-scan.mjs 로 돌리고 결과만 여기로 보낸다
   if (b.r === 'dart_todo') { const { results } = await db.prepare('SELECT corp_code, name FROM vip_corps WHERE scanned_at IS NULL ORDER BY corp_code').all(); return json({ ok: true, corps: results }); }
   if (b.r === 'dart_import') {
-    const hits = (Array.isArray(b.hits) ? b.hits : []).slice(0, 300).map(h => ({ ...h, source: 'dart', matched: 1, query: 'DART 임원현황', names: [clean(h.name, 20)] }));
+    const hits = (Array.isArray(b.hits) ? b.hits : []).slice(0, 300).map(h => ({ ...h, source: 'dart', matched: 1, query: 'DART 임원현황', names: [clean(String(h.name || '').replace(/\(.*?\)/g, '').replace(/\s+/g, ''), 20)] })); // 공시 이름의 각주 표시 "(*2)" 제거
     const done = (Array.isArray(b.done) ? b.done : []).filter(d => /^\d{8}$/.test(d[0])).slice(0, 300);
     const added = await saveHits(db, hits, now);
     if (done.length) await db.batch(done.map(([cc, n]) => db.prepare('UPDATE vip_corps SET scanned_at = ?, found = ? WHERE corp_code = ?').bind(now, Number(n) || 0, cc)));
@@ -195,7 +195,7 @@ export async function onRequestPost({ request, env }) {
     const from = Number(b.from) || 0, lim = Math.min(Number(b.n) || 300, 500); // 한 번에 다 돌리면 워커 시간 초과 — 나눠서
     const { results } = await db.prepare("SELECT id, source, title, snippet, date, names, org, position FROM vip_hits WHERE id > ? ORDER BY id LIMIT ?").bind(from, lim).all();
     for (let i = 0; i < results.length; i += 50) await db.batch(results.slice(i, i + 50).map(h => { const dart = h.source === 'dart';
-      h.names = dart ? JSON.parse(h.names || '[]') : guessNames(h.title + ' ' + h.snippet); if (!dart) { h.org = ''; h.position = ''; } const pf = profile(h);
+      h.names = dart ? JSON.parse(h.names || '[]').map(n => String(n).replace(/\(.*?\)/g, '').replace(/\s+/g, '')).filter(Boolean) : guessNames(h.title + ' ' + h.snippet); if (!dart) { h.org = ''; h.position = ''; } const pf = profile(h);
       return db.prepare('UPDATE vip_hits SET names = ?, org = ?, position = ?, hs = ?, birth = ? WHERE id = ?').bind(JSON.stringify(h.names), clean(pf.org, 120), clean(pf.position, 120), clean(pf.hs, 40), clean(pf.birth, 10), h.id); }));
     return json({ ok: true, n: results.length, last: results.length ? results[results.length - 1].id : null });
   }
