@@ -46,7 +46,7 @@
 .table td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
 .table code{font-family:var(--mono);font-size:12.5px;background:var(--ivory-2);padding:2px 6px;border-radius:3px;color:var(--navy-800)}
 .table tr:hover td{background:#FCFBF8}
-.status{display:inline-block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;font-weight:700;font-family:var(--display)}
+.status{display:inline-block;white-space:nowrap;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;font-weight:700;font-family:var(--display)}
 .status.done{background:#E3F1EA;color:var(--success)}
 .status.wip{background:#FFF1DD;color:var(--warn)}
 .status.todo{background:var(--ivory-2);color:var(--ink-3)}
@@ -141,3 +141,5 @@
 .log li{grid-template-columns:150px 92px minmax(0,1fr)}
 @container (max-width:900px){.grid.c2{grid-template-columns:1fr}}
 @container (max-width:560px){.log li{grid-template-columns:1fr;gap:4px 12px}.log .t,.log .k{display:inline-block;padding-top:0}.log .k{margin-left:10px}.log .m{grid-column:1/-1}}
+
+.table td.date{white-space:nowrap;font-variant-numeric:tabular-nums}

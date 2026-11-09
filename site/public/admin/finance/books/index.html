@@ -5,7 +5,7 @@
 <title>장부 · 결산서 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px;border-bottom:1px solid var(--line)}
 .tabs button{font:inherit;font-size:14px;padding:10px 14px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
@@ -135,7 +135,7 @@
 <script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109b"></script>
 <script>
 (async () => {
-  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s); const ymd = d => String(d || '').slice(2, 10).replace(/-/g, '/');
   const won = n => { n = Math.round(n || 0); return n === 0 ? '—' : (n < 0 ? '(' + Math.abs(n).toLocaleString('ko-KR') + ')' : n.toLocaleString('ko-KR')); };
   const KIND = { asset: '자산', liability: '부채', net: '순자산', revenue: '수익', expense: '비용' };
   const me = await api('/me').catch(() => ({}));
@@ -228,7 +228,7 @@
     sel.innerHTML = B.coa.map(c => `<option value="${c.code}" ${c.code === cur ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join('');
     const code = sel.value, ck = (C[code] || {}).kind, dnat = ['asset', 'expense'].includes(ck);
     let run = (R.acc[code] || {}).open || 0; if (ck === 'revenue' || ck === 'expense') run = 0;
-    const glRows = R.inPeriod.flatMap(j => j.lines.filter(l => l.code === code).map(l => { run += l.dr - l.cr; return `<tr><td class="code" style="white-space:nowrap">${esc(j.no || '')}</td><td>${j.date}</td><td>${esc(j.memo)}</td><td class="amt">${won(l.dr)}</td><td class="amt">${won(l.cr)}</td><td class="amt"><b>${won(dnat ? run : -run)}</b></td></tr>`; })).join('');
+    const glRows = R.inPeriod.flatMap(j => j.lines.filter(l => l.code === code).map(l => { run += l.dr - l.cr; return `<tr><td class="code" style="white-space:nowrap">${esc(j.no || '')}</td><td class="date">${ymd(j.date)}</td><td>${esc(j.memo)}</td><td class="amt">${won(l.dr)}</td><td class="amt">${won(l.cr)}</td><td class="amt"><b>${won(dnat ? run : -run)}</b></td></tr>`; })).join('');
     q('#gl').innerHTML = `<thead><tr><th>번호</th><th>일자</th><th>적요</th><th class="amt">차변</th><th class="amt">대변</th><th class="amt">잔액</th></tr></thead><tbody><tr class="sec"><td></td><td>${R.P.s}</td><td>전기이월</td><td></td><td></td><td class="amt">${won(dnat ? ((R.acc[code] || {}).open || 0) : -((R.acc[code] || {}).open || 0))}</td></tr>${glRows || '<tr><td colspan="6" class="muted">이 기간에 이 계정의 거래가 없습니다.</td></tr>'}</tbody>`;
 
     // 분개장 — 번호 · 증빙 배지(호버/탭으로 미리보기)
@@ -244,7 +244,7 @@
     // 상대계정 선택지: 수익/비용 + 자산·부채(선급금·예수금처럼 수익·비용이 아닌 경유 거래용). 101·102 는 제외
     const opts = (kind, val) => B.coa.filter(c => c.active && c.code !== '101' && c.code !== '102' && c.kind !== 'net').sort((a, b) => (a.kind === kind ? 0 : 1) - (b.kind === kind ? 0 : 1) || a.code.localeCompare(b.code)).map(c => `<option value="${c.code}" ${c.code === val ? 'selected' : ''}>${c.code} ${esc(c.name)}${c.kind === kind ? '' : ' (' + KIND[c.kind] + ')'}</option>`).join('');
     let unk = 0;
-    q('#map').innerHTML = `<thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>계정</th></tr></thead><tbody>${rows.map(e => { const m = counterOf(e); if (m.how === 'default') unk++; return `<tr style="${m.how === 'default' ? 'background:#FFF8E6' : ''}"><td class="code">${esc(e.no || '')}</td><td>${e.date}</td><td>${e.type === 'income' ? '수입' : '지출'}</td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td><select data-assign="${e.id}" ${canWrite ? '' : 'disabled'}><option value="">자동 (${esc(nm(m.code))})</option>${opts(e.type === 'income' ? 'revenue' : 'expense', e.account)}</select></td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">이 기간의 거래가 없습니다.</td></tr>'}</tbody>`;
+    q('#map').innerHTML = `<thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>계정</th></tr></thead><tbody>${rows.map(e => { const m = counterOf(e); if (m.how === 'default') unk++; return `<tr style="${m.how === 'default' ? 'background:#FFF8E6' : ''}"><td class="code">${esc(e.no || '')}</td><td class="date">${ymd(e.date)}</td><td>${e.type === 'income' ? '수입' : '지출'}</td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td><select data-assign="${e.id}" ${canWrite ? '' : 'disabled'}><option value="">자동 (${esc(nm(m.code))})</option>${opts(e.type === 'income' ? 'revenue' : 'expense', e.account)}</select></td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">이 기간의 거래가 없습니다.</td></tr>'}</tbody>`;
     q('#map-sum').textContent = `${rows.length}건 중 기타로 분류 ${unk}건`;
 
     // 결산서

@@ -5,7 +5,7 @@
 <title>자금 · 증빙 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
 .amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;padding:4px 10px;border-radius:999px;white-space:nowrap}
@@ -82,7 +82,7 @@
 <script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109b"></script>
 <script>
 (async () => {
-  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s); const ymd = d => String(d || '').slice(2, 10).replace(/-/g, '/');
   const won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n || 0)).toLocaleString('ko-KR') + '원';
   const me = await api('/me').catch(() => ({}));
   const has = p => me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes(p);
@@ -101,13 +101,13 @@
     q('#k-last').textContent = last ? last.date : '—'; q('#k-diff').innerHTML = last ? (last.diff === 0 ? '<span style="color:var(--success)">일치</span>' : won(last.diff)) : '—';
     const real = L.filter(e => !e.planned); const withEv = new Set(EV.list.filter(x => x.ref_kind === 'ledger').map(x => x.ref_id));
     q('#k-ev').textContent = real.filter(e => withEv.has(e.id)).length + ' / ' + real.length;
-    q('#checks tbody').innerHTML = T.checks.map(c => `<tr><td>${c.date}</td><td class="amt">${won(c.bank_balance)}</td><td class="amt">${won(c.book_balance)}</td><td class="amt">${c.diff === 0 ? '—' : won(c.diff)}</td><td>${c.diff === 0 ? '<span class="chk ok">일치</span>' : '<span class="chk bad">불일치</span>'}</td><td class="muted">${esc(c.note)}</td><td>${esc(c.checked_by || '')}</td><td>${(me.role === 'owner' || me.role === 'agent' || (canCheck && c.checked_by === me.name)) ? `<button class="pill" data-cdel="${c.id}">삭제</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">아직 잔고 확인 기록이 없습니다.</td></tr>';
+    q('#checks tbody').innerHTML = T.checks.map(c => `<tr><td class="date">${ymd(c.date)}</td><td class="amt">${won(c.bank_balance)}</td><td class="amt">${won(c.book_balance)}</td><td class="amt">${c.diff === 0 ? '—' : won(c.diff)}</td><td>${c.diff === 0 ? '<span class="chk ok">일치</span>' : '<span class="chk bad">불일치</span>'}</td><td class="muted">${esc(c.note)}</td><td>${esc(c.checked_by || '')}</td><td>${(me.role === 'owner' || me.role === 'agent' || (canCheck && c.checked_by === me.name)) ? `<button class="pill" data-cdel="${c.id}">삭제</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">아직 잔고 확인 기록이 없습니다.</td></tr>';
     // 증빙 없는 거래 (선택 연도, 최근순, 금액 큰 순 아님 — 날짜순이 대사에 편함)
     const yrs = [...new Set(L.map(e => e.date.slice(0, 4)))].sort(); if (!yrs.includes(year)) yrs.push(year); yrs.sort();
     q('#years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
     const rows = real.filter(e => e.date.startsWith(year) && !withEv.has(e.id)).slice().reverse();
     const show = rows.slice(0, 80);
-    q('#noev tbody').innerHTML = show.map(e => `<tr><td class="no">${esc(e.no || '')}</td><td>${e.date}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td>${esc(e.counterparty || '')}</td><td>${EV.badge('ledger', e.id, e.no, [e.category, e.item].filter(Boolean).join(' · '))}</td></tr>`).join('') || `<tr><td colspan="7" class="muted">${year}년 거래에는 모두 증빙이 있거나, 거래가 없습니다.</td></tr>`;
+    q('#noev tbody').innerHTML = show.map(e => `<tr><td class="no">${esc(e.no || '')}</td><td class="date">${ymd(e.date)}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td>${esc(e.counterparty || '')}</td><td>${EV.badge('ledger', e.id, e.no, [e.category, e.item].filter(Boolean).join(' · '))}</td></tr>`).join('') || `<tr><td colspan="7" class="muted">${year}년 거래에는 모두 증빙이 있거나, 거래가 없습니다.</td></tr>`;
     q('#noev-more').textContent = rows.length > show.length ? `${rows.length}건 중 최근 ${show.length}건만 표시` : (rows.length ? `${year}년 증빙 없는 거래 ${rows.length}건` : '');
     // 증빙 목록
     const byId = Object.fromEntries(L.map(e => [e.id, e]));
@@ -117,7 +117,7 @@
     const grows = [...groups].map(([k, xs]) => { const [kind, id] = k.split(':'); const e = kind === 'ledger' ? byId[Number(id)] : null; return { kind, id: Number(id), e, xs, date: e ? e.date : '' }; }).sort((a, b) => b.date.localeCompare(a.date));
     q('#ev-sum').textContent = grows.length ? `거래 ${grows.length}건 · 증빙 ${EV.list.length}개` : '';
     q('#evlist tbody').innerHTML = grows.map(g => { const no = g.e ? g.e.no : (g.kind === 'journal' ? '수동 분개 #' + g.id : '#' + g.id), label = g.e ? [g.e.category, g.e.item].filter(Boolean).join(' · ') : '수동 분개';
-      return `<tr class="evrow" data-ev-kind="${g.kind}" data-ev-id="${g.id}" data-ev-no="${esc(no)}" data-ev-label="${esc(label)}" data-open="${esc(urlOf(g.xs[0]))}"><td class="no">${esc(no)}</td><td style="white-space:nowrap">${g.e ? g.e.date : '—'}</td><td>${esc(label)}</td><td class="amt">${g.e ? won(g.e.amount) : ''}</td><td>${g.xs.map(x => `<a class="chip" href="${esc(urlOf(x))}" target="_blank" rel="noopener" title="${esc(x.note || '')}">${esc(x.name || EV.host(x.url))}</a>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">아직 올린 증빙이 없습니다.</td></tr>';
+      return `<tr class="evrow" data-ev-kind="${g.kind}" data-ev-id="${g.id}" data-ev-no="${esc(no)}" data-ev-label="${esc(label)}" data-open="${esc(urlOf(g.xs[0]))}"><td class="no">${esc(no)}</td><td class="date">${g.e ? ymd(g.e.date) : '—'}</td><td>${esc(label)}</td><td class="amt">${g.e ? won(g.e.amount) : ''}</td><td>${g.xs.map(x => `<a class="chip" href="${esc(urlOf(x))}" target="_blank" rel="noopener" title="${esc(x.note || '')}">${esc(x.name || EV.host(x.url))}</a>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">아직 올린 증빙이 없습니다.</td></tr>';
   }
   // 증빙 목록 줄: 커서를 올리면 미리보기 팝업, 줄을 누르면 첫 서류를 새 창으로 (조각을 누르면 그 서류)
   q('#evlist').addEventListener('mouseover', e => { const tr = e.target.closest('tr.evrow'); if (tr) EV.show(tr); });
