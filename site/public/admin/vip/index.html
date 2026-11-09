@@ -105,7 +105,8 @@
   const STATUS = ['후보', '확인 필요', '확인됨', '제외'], FIELD = ['기업', '금융', '공공·정부', '국회·정치', '법조', '언론·문화', '학계', '기타'], TIER = ['', 'S', 'A', 'B'];
   const SRC = { news: '뉴스', web: '웹', dart: 'DART', assembly: '국회' };
   const GRP = ['기업·금융', '고위공무원', '판검사', '웹', 'DART 임원'], GRP_FIELD = { '판검사': '법조', '고위공무원': '공공·정부', 'DART 임원': '기업' };
-  const grp = h => h.source === 'dart' ? 'DART 임원' : h.source === 'web' ? '웹' : h.source === 'assembly' ? '국회' : /판사|검사|검찰|법원|법관|재판관|대법/.test(h.query) ? '판검사' : /장관|차관|청장|실장|국장|처장|대사|공무원|행정고시|행시|기획재정부|위원회|국세청|감사원/.test(h.query) ? '고위공무원' : '기업·금융';
+  // 분류: 직위를 알면 직위로(판검사·고위공무원·기업), 모르면 그 기사를 찾은 검색어로
+  const grp = h => h.source === 'dart' ? 'DART 임원' : h.source === 'web' ? '웹' : h.source === 'assembly' ? '국회' : /판사|법원장|대법관|재판관|지검장|고검장|검사장|검사$|법관/.test(h.position || '') ? '판검사' : /장관|차관|청장|국장|실장|처장|차관보|위원장|총재|기획관|정책관|심의관|비서관|대변인|수석|교육감|이사관|국회의원/.test(h.position || '') && !/변호사|회계사/.test(h.position || '') ? '고위공무원' : /회장|사장|대표|전무|상무|이사|CEO|CFO|센터장|본부장|행장|파트너|변호사|회계사/.test(h.position || '') ? '기업·금융' : /판사|검사|검찰|법원|법관|재판관|대법/.test(h.query) ? '판검사' : /장관|차관|청장|실장|국장|처장|대사|공무원|행정고시|행시|기획재정부|위원회|국세청|감사원/.test(h.query) ? '고위공무원' : '기업·금융';
   let limit = 200;
   const SNU_RE = /서울대(?:학교)?\s*\(?\s*(?:경영|상과|상대)[가-힣]*/g;
   let S = null, stF = '', fdF = '', qF = '', srcF = '', hsF = 'new';
@@ -164,7 +165,8 @@
     const o = norm(org), corp = o.length >= 2 && ((S.orgs || []).find(c => norm(c.name) === o) || (S.orgs || []).find(c => norm(c.name).length >= 3 && o.includes(norm(c.name))));
     if (corp) return { ...corp, via: corp.name, how: '소속 일치' };
     const names = d => [d.name, ...d.aliases].map(norm).filter(a => a.length >= 2);
-    const byOrg = o.length >= 2 && (S.dir || []).find(d => names(d).some(a => o.includes(a))); if (byOrg) return { phone: byOrg.phone, via: byOrg.name, how: '소속 일치' };
+    // 두 글자 약칭(대법·헌재)은 소속과 똑같을 때만 — "중앙대 법학과"에 대법원 번호가 붙지 않게
+    const byOrg = o.length >= 2 && (S.dir || []).find(d => names(d).some(a => a.length >= 3 ? o.includes(a) : o === a)); if (byOrg) return { phone: byOrg.phone, via: byOrg.name, how: '소속 일치' };
     // 소속을 아는데 번호가 없거나(대학 등) 직위로 기관 종류를 모르면 추정하지 않는다 (교수에게 부처 번호를 붙이지 않게)
     const pk = posKind(String(position || '')); if (o.length >= 2 || !pk) return {};
     const fits = d => !pk || pk === kindOf(d.name) || (pk === 'corp' && kindOf(d.name) === 'firm');

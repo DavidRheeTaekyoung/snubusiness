@@ -73,9 +73,14 @@ export function profile(h) {
         if (a) { org = a[1] || ''; position = a[2]; } }
     } else if ((m = text.match(rev))) { org = m[1] || ''; position = m[2]; }
     else { const d = text.match(new RegExp(`(?<![가-힣])(${TITLE})\\s${nm}(?![가-힣])`)); if (d) position = d[1]; }
+    // 소속은 기관 이름까지만 — 뒤에 붙은 수식("더불어민주당 수원갑 현역")은 버린다. 법무법인·회계법인은 다음 낱말이 이름
+    const tk = org.split(/\s+/).filter(Boolean), orgRe = new RegExp(`^${ORGW}$`); let keep = tk.length ? 1 : 0;
+    if (/^(?:법무법인|회계법인|세무법인|법률사무소)$/.test(tk[0]) && tk[1]) keep = 2;
+    while (keep < tk.length && (orgRe.test(tk[keep]) || /^[A-Za-z0-9&]/.test(tk[keep]))) keep++;
+    org = tk.slice(0, keep).join(' ');
     if (ORG_STOP.test(org)) org = '';
   }
-  if (name && new RegExp(nm + '\\s서울대(?:학교)?\\s경영(?:학과|대학?)?\\s(?:석좌|명예|객원)?교수').test(text) || /^서울대(?:학교)?\s경영/.test(org) && /교수$/.test(position)) { org = '서울대 경영대학'; position = '교수'; }
+  if (name && new RegExp(nm + '\\s서울대(?:학교)?\\s경영(?:학과|대학?)?\\s(?:석좌|명예|객원)?교수').test(text) || /^서울대/.test(org) && /교수$/.test(position) && new RegExp(nm + '\\s서울대(?:학교)?\\s경영').test(text)) { org = '서울대 경영대학'; position = '교수'; }
   if (name && !position) { const p = text.match(new RegExp(nm + '[^.…]{0,30}?(' + TITLES + ')')); if (p) position = p[1]; }
   // 기사 속 회사 이름으로 소속을 채우는 건 회사 직위일 때만 (검사·판사·장관에게 근처 회사 이름을 붙이지 않는다)
   const corpPos = !/판사|법원|대법관|재판관|법관|검사|지검|고검|장관|차관|청장|국장|실장|처장|차관보|기획관|정책관|심의관|비서관|대변인|수석|교육감|총재|사무총장|구청장|원내대표|최고위원|이사관|대사|의원|총장|학장|교수|변호사/.test(position);
