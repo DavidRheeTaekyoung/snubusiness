@@ -165,7 +165,9 @@
     if (corp) return { ...corp, via: corp.name, how: '소속 일치' };
     const names = d => [d.name, ...d.aliases].map(norm).filter(a => a.length >= 2);
     const byOrg = o.length >= 2 && (S.dir || []).find(d => names(d).some(a => o.includes(a))); if (byOrg) return { phone: byOrg.phone, via: byOrg.name, how: '소속 일치' };
-    const pk = posKind(String(position || '')), fits = d => !pk || pk === kindOf(d.name) || (pk === 'corp' && kindOf(d.name) === 'firm');
+    // 소속을 아는데 번호가 없거나(대학 등) 직위로 기관 종류를 모르면 추정하지 않는다 (교수에게 부처 번호를 붙이지 않게)
+    const pk = posKind(String(position || '')); if (o.length >= 2 || !pk) return {};
+    const fits = d => !pk || pk === kindOf(d.name) || (pk === 'corp' && kindOf(d.name) === 'firm');
     const t = norm(text); let best = null, at = 1e9; if (t) for (const d of S.dir || []) if (fits(d)) for (const a of names(d)) { const i = t.indexOf(a); if (i >= 0 && i < at) { at = i; best = d; } }
     return best ? { phone: best.phone, via: best.name, how: '기사 속 기관 · 확인 필요' } : {}; }
   async function xlsx(rows, cols, file) { // 엑셀 파일은 받는 사람 PC에만 생긴다 (서버·깃에 남기지 않음)
