@@ -106,7 +106,7 @@
       </div>
 
       <div class="pane" id="p-coa">
-        <div class="panel"><div class="panel-head"><h2>계정과목표</h2><span class="muted" style="font-size:13px">매핑 규칙: 장부의 "항목·내용"에 이 단어가 있으면 이 계정으로 자동 분류 (| 로 구분)</span></div>
+        <div class="panel"><div class="panel-head"><h2>계정과목표</h2><span class="muted" style="font-size:13px">매핑 규칙: 장부의 "항목"에 이 단어가 있으면 이 계정으로 자동 분류, 항목에 안 걸리면 "항목+내용"으로 다시 검사 (| 로 구분, 코드 순으로 먼저 걸리는 계정 우선)</span></div>
           <div class="wrap"><table class="fs coa" id="coa"></table></div>
           <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap" class="coa"><input id="c-code" placeholder="코드 (예: 511)" style="width:110px"><input id="c-name" placeholder="계정명" style="width:180px"><select id="c-kind" style="width:120px"><option value="revenue">수익</option><option value="expense">비용</option><option value="asset">자산</option><option value="liability">부채</option><option value="net">순자산</option></select><input id="c-rule" placeholder="매핑 규칙 (예: 교재|도서)" style="flex:1;min-width:180px"><button class="btn sm" id="c-add">계정 추가</button></div>
         </div>
@@ -153,8 +153,10 @@
   const assetOf = e => /현금/.test(e.method || '') ? '101' : '102';
   function counterOf(e) {
     if (e.account && coaBy()[e.account]) return { code: e.account, how: 'manual' };
-    const kind = e.type === 'income' ? 'revenue' : 'expense'; const text = (e.category || '') + ' ' + (e.item || '');
-    for (const c of B.coa.filter(c => c.kind === kind && c.active && c.rule)) { try { if (new RegExp(c.rule).test(text)) return { code: c.code, how: 'rule' }; } catch (x) {} }
+    // 1차: 항목(계정과목)만으로 규칙 검사 → 2차: 항목+내용. ("감사패비용 / 전임회장 사무총장…" 이 '사무'에 걸려 사무비로 가는 일을 막는다)
+    const kind = e.type === 'income' ? 'revenue' : 'expense'; const rules = B.coa.filter(c => c.kind === kind && c.active && c.rule);
+    for (const text of [(e.category || '').trim(), ((e.category || '') + ' ' + (e.item || '')).trim()]) { if (!text) continue;
+      for (const c of rules) { try { if (new RegExp(c.rule).test(text)) return { code: c.code, how: 'rule' }; } catch (x) {} } }
     return { code: kind === 'revenue' ? '409' : '599', how: 'default' };
   }
   // 모든 분개 (자동 + 수동)
