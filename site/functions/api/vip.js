@@ -5,9 +5,13 @@ import { liveSession, hasPerm } from '../_auth.js';
 // 명단은 D1에만 둔다 (깃·공개 페이지에 올리지 않음). 연락처·사생활은 모으지 않고 공개된 직함과 출처만 기록.
 // 출처 키: NAVER_CLIENT_ID/NAVER_CLIENT_SECRET (네이버 검색 API), DART_API_KEY (OpenDART), ASSEMBLY_API_KEY (열린국회정보)
 const SNU = /서울대(?:학교)?\s*\(?\s*(?:경영|상과|상대)|Seoul National Univ[^.]{0,40}(?:Business|Commerce)/i;
-const TITLES = '대표이사|부회장|회장|부사장|사장|대표|행장|장관|차관|청장|국회의원|의원|총장|원장|이사장|위원장|전무|상무|CEO|CFO|파트너|대사|검사장|법원장|대법관|감사';
+const TITLES = '대표이사|부회장|회장|부사장|사장|대표|행장|장관|차관|청장|국회의원|의원|총장|원장|이사장|위원장|전무|상무|CEO|CFO|파트너|대사|검사장|법원장|대법관|감사|변호사|회계사|교수|센터장|본부장|부행장';
 const SURN = '김이박최정강조윤장임한오서신권황안송류유전홍고문양손배백허남심노하곽성차주우구민진지엄채원천방공현함변염여추도소석선설마길연위표명기반왕금옥육인맹제모탁국어은편용예봉경';
-const STOP = new Set(['서울대', '경영학', '경영대', '졸업', '신임', '그룹', '회사', '이번', '올해', '지난', '현재', '전임', '선임', '대학교', '증권', '은행', '금융', '부문', '사업', '본부', '글로벌', '공동', '전략', '최고', '전문', '각자', '대표이', '대한', '한국', '이사', '고문', '차기', '역대', '초대', '기업', '임원', '내정', '발탁', '승진', '인사', '경영', '부사', '사장', '회장', '이후']);
+const STOP = new Set(['서울대', '경영학', '경영대', '졸업', '신임', '그룹', '회사', '이번', '올해', '지난', '현재', '전임', '선임', '대학교', '증권', '은행', '금융', '부문', '사업', '본부', '글로벌', '공동', '전략', '최고', '전문', '각자', '대표이', '대한', '한국', '이사', '고문', '차기', '역대', '초대', '기업', '임원', '내정', '발탁', '승진', '인사', '경영', '부사', '사장', '회장', '이후',
+  '변호', '변호사', '선출', '경쟁', '기존', '연임', '유임', '재선', '국민', '한공', '전무', '상무', '대표', '행장', '장관', '차관', '위원', '의원', '총장', '원장', '이사장', '감사', '대사', '검사', '법원',
+  '신규', '연말', '조직', '교체', '사임', '출신', '후보', '단독', '대행', '직무', '부행', '부장', '전체', '기관', '지주', '계열', '사외', '상임', '상근', '고객', '최초',
+  '성과', '수시', '선거', '당선', '동기', '소속', '전년', '우리', '신한', '하나', '농협', '한화', '삼성', '현대', '롯데', '신세계', '포스', '미래', '교보', '동양', '유진투', '다올',
+  '공동대', '전문경', '외부', '내부', '공식', '취임', '사의', '용퇴', '퇴임', '물러', '맡은', '맡게', '오른', '올라', '도전', '역임', '거친', '지낸', '중심', '세대', '경력', '책무']);
 const NEWS_Q = ['서울대 경영학과 신임 대표이사', '서울대 경영학과 신임 사장', '서울대 경영학과 회장 취임', '서울대 경영학과 부회장 승진', '서울대 경영학과 임원 인사', '서울대 경영학과 선임', '서울대 경영학과 장관 후보자', '서울대 경영학과 차관 임명', '서울대 경영학과 청장 임명', '서울대 경영학과 행장', '서울대 경영학과 CEO', '서울대 경영대 동문'];
 const WEB_Q = ['서울대 경영학과 졸업 대표이사 인사말', '서울대학교 경영학과 졸업 회장 약력', '서울대 경영학과 졸업 사장 프로필'];
 const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo'];
@@ -134,6 +138,11 @@ export async function onRequestPost({ request, env }) {
     if (done.length) await db.batch(done.map(([cc, n]) => db.prepare('UPDATE vip_corps SET scanned_at = ?, found = ? WHERE corp_code = ?').bind(now, n, cc)));
     const left = await db.prepare('SELECT COUNT(*) AS n FROM vip_corps WHERE scanned_at IS NULL').first();
     return json({ ok: true, scanned: done.length, found: hits.length, added, left: left.n });
+  }
+  if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
+    const { results } = await db.prepare("SELECT id, title, snippet FROM vip_hits WHERE source IN ('news','web')").all();
+    for (let i = 0; i < results.length; i += 50) await db.batch(results.slice(i, i + 50).map(h => db.prepare('UPDATE vip_hits SET names = ? WHERE id = ?').bind(JSON.stringify(guessNames(h.title + ' ' + h.snippet)), h.id)));
+    return json({ ok: true, n: results.length });
   }
   if (b.r === 'dart_reset') { await db.prepare('UPDATE vip_corps SET scanned_at = NULL, found = 0').run(); return json({ ok: true }); }
 
