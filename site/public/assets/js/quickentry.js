@@ -81,7 +81,8 @@
         continue;
       }
       let row;
-      if (c && c.length >= 3) row = fromCells(c, head, today, coa, CI); else row = fromText(line, today, coa, CI);
+      if (c && c.length >= 3) row = fromCells(c, head, today, coa, CI);
+      if (!row) row = fromText(line, today, coa, CI); // 표처럼 갈라졌지만 숫자 칸이 없으면 문장으로 다시
       if (!row) { skipped.push(line); continue; }
       row.src = line; out.push(row);
     }
