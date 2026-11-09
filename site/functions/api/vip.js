@@ -192,11 +192,12 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, saved: rows.length });
   }
   if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
-    const { results } = await db.prepare("SELECT id, source, title, snippet, date, names, org, position FROM vip_hits").all();
+    const from = Number(b.from) || 0, lim = Math.min(Number(b.n) || 300, 500); // 한 번에 다 돌리면 워커 시간 초과 — 나눠서
+    const { results } = await db.prepare("SELECT id, source, title, snippet, date, names, org, position FROM vip_hits WHERE id > ? ORDER BY id LIMIT ?").bind(from, lim).all();
     for (let i = 0; i < results.length; i += 50) await db.batch(results.slice(i, i + 50).map(h => { const dart = h.source === 'dart';
       h.names = dart ? JSON.parse(h.names || '[]') : guessNames(h.title + ' ' + h.snippet); if (!dart) { h.org = ''; h.position = ''; } const pf = profile(h);
       return db.prepare('UPDATE vip_hits SET names = ?, org = ?, position = ?, hs = ?, birth = ? WHERE id = ?').bind(JSON.stringify(h.names), clean(pf.org, 120), clean(pf.position, 120), clean(pf.hs, 40), clean(pf.birth, 10), h.id); }));
-    return json({ ok: true, n: results.length });
+    return json({ ok: true, n: results.length, last: results.length ? results[results.length - 1].id : null });
   }
   if (b.r === 'dart_reset') { await db.prepare('UPDATE vip_corps SET scanned_at = NULL, found = 0').run(); return json({ ok: true }); }
 
