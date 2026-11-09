@@ -61,13 +61,13 @@
   const of = (kind, id) => list.filter(x => x.ref_kind === kind && x.ref_id === Number(id));
   const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
   const fileUrl = x => '/api/treasury?r=file&id=' + x.id;
-  const when = ts => (ts || '').replace('T', ' ').slice(0, 16);
+  const when = ts => { if (!ts) return ''; try { return new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\. /g, '-').replace(/\.|,/g, ''); } catch (e) { return ts.slice(0, 16); } }; // 한국 시각
   const canDel = x => role === 'owner' || role === 'agent' || x.created_by === me;
   function item(x) {
     const isImg = x.kind === 'file' && /^image\//.test(x.mime), isPdf = x.kind === 'file' && x.mime === 'application/pdf';
     const url = x.kind === 'link' ? x.url : fileUrl(x);
     const th = isImg ? `<a href="${url}" target="_blank" rel="noopener"><img class="th" src="${url}" alt="" loading="lazy"></a>` : `<a href="${url}" target="_blank" rel="noopener" class="ph">${isPdf ? 'PDF' : x.kind === 'link' ? 'LINK' : 'FILE'}</a>`;
-    const sub = [x.kind === 'link' ? host(x.url) : (x.size ? (x.size / 1024).toFixed(0) + ' KB' : ''), x.note, (x.created_by || '') + ' · ' + when(x.created_at)].filter(Boolean).join(' · ');
+    const sub = [x.kind === 'link' ? host(x.url) : (x.size ? (x.size / 1024).toFixed(0) + ' KB' : ''), x.note].filter(Boolean).join(' · ');
     return `<div class="it">${th}<div><div class="nm">${esc(x.name || (x.kind === 'link' ? host(x.url) : '파일'))}</div><div class="sub">${esc(sub)}</div>${canDel(x) ? `<button class="del" data-ev-del="${x.id}">삭제</button>` : ''}</div><a class="open" href="${url}" target="_blank" rel="noopener">열기 ↗</a></div>`;
   }
   function show(b) {
@@ -118,5 +118,5 @@
       } catch (err) { msg.textContent = '실패: ' + err.message; }
     };
   }
-  window.EV = { load, badge, of, openAdd, setup(o) { mount(); canUpload = !!o.canUpload; onChange = o.onChange || null; }, get list() { return list; }, host, fileUrl, when };
+  window.EV = { load, badge, of, openAdd, show, hideSoon, setup(o) { mount(); canUpload = !!o.canUpload; onChange = o.onChange || null; }, get list() { return list; }, host, fileUrl, when };
 })();
