@@ -48,6 +48,7 @@ async function ensure(db) {
       field TEXT NOT NULL DEFAULT '', tier TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT '후보', link TEXT NOT NULL DEFAULT '', memo TEXT NOT NULL DEFAULT '', sources TEXT NOT NULL DEFAULT '[]', updated_by TEXT, updated_at TEXT)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS vip_hits (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT NOT NULL UNIQUE, source TEXT NOT NULL, url TEXT NOT NULL DEFAULT '', title TEXT NOT NULL DEFAULT '', snippet TEXT NOT NULL DEFAULT '',
       date TEXT NOT NULL DEFAULT '', names TEXT NOT NULL DEFAULT '[]', org TEXT NOT NULL DEFAULT '', position TEXT NOT NULL DEFAULT '', matched INTEGER NOT NULL DEFAULT 0, query TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'new', found_at TEXT, reviewed_by TEXT)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS vip_orgs (name TEXT PRIMARY KEY, aliases TEXT NOT NULL DEFAULT '[]', phone TEXT NOT NULL DEFAULT '', kind TEXT NOT NULL DEFAULT '', source TEXT NOT NULL DEFAULT '')`),
     db.prepare(`CREATE TABLE IF NOT EXISTS vip_corps (corp_code TEXT PRIMARY KEY, name TEXT NOT NULL, stock_code TEXT NOT NULL DEFAULT '', scanned_at TEXT, found INTEGER NOT NULL DEFAULT 0)`),
   ]);
   await migrate(db);
@@ -96,8 +97,9 @@ export async function onRequestGet({ request, env }) {
     db.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN scanned_at IS NOT NULL THEN 1 ELSE 0 END) AS scanned, SUM(found) AS found FROM vip_corps').first(),
     db.prepare("SELECT name, phone, addr, homepage FROM vip_corps WHERE phone NOT IN ('', '-')").all().then(r => r.results),
   ]);
+  const dir = await db.prepare('SELECT * FROM vip_orgs').all().then(r => r.results.map(o => ({ ...o, aliases: JSON.parse(o.aliases || '[]') })));
   const counts = await db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results);
-  return json({ people, hits, counts, corps, orgs, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
+  return json({ people, hits, counts, corps, orgs, dir, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -149,6 +151,12 @@ export async function onRequestPost({ request, env }) {
   if (b.r === 'corp_info') {
     const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => /^\d{8}$/.test(x.corp_code)).slice(0, 300);
     for (let i = 0; i < rows.length; i += 50) await db.batch(rows.slice(i, i + 50).map(x => db.prepare('UPDATE vip_corps SET phone = ?, addr = ?, homepage = ? WHERE corp_code = ?').bind(clean(x.phone, 40) || '-', clean(x.addr, 200), clean(x.homepage, 200), x.corp_code)));
+    return json({ ok: true, saved: rows.length });
+  }
+  if (b.r === 'orgs_set') { // 부처·법원·검찰·로펌 대표번호 표 (공식 사이트에서 확인한 번호만)
+    const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => clean(x.name, 60) && clean(x.phone, 40)).slice(0, 300);
+    for (let i = 0; i < rows.length; i += 50) await db.batch(rows.slice(i, i + 50).map(x => db.prepare('INSERT INTO vip_orgs (name, aliases, phone, kind, source) VALUES (?,?,?,?,?) ON CONFLICT(name) DO UPDATE SET aliases=excluded.aliases, phone=excluded.phone, kind=excluded.kind, source=excluded.source')
+      .bind(clean(x.name, 60), JSON.stringify((Array.isArray(x.aliases) ? x.aliases : []).map(a => clean(a, 40)).filter(Boolean).slice(0, 12)), clean(x.phone, 40), clean(x.kind, 20), clean(x.source, 300))));
     return json({ ok: true, saved: rows.length });
   }
   if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
