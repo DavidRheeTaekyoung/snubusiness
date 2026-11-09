@@ -50,12 +50,12 @@
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261106a"></script>
+<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script>
 <script>
 (async () => {
   const esc = SNU.esc;
   const plan = await SNU.json('/data/plan.json');
-  (async () => { try { const me = await WB.api('/me'); if (me.role !== 'owner') return; const p = document.getElementById('acct-panel'); p.hidden = false;
+  (async () => { try { const me = await WB.api('/me'); if (me.role !== 'owner') return; const p = document.getElementById('acct-panel'); p.hidden = false; if (location.hash === '#acct-panel') setTimeout(() => p.scrollIntoView({ behavior: 'smooth' }), 50);
     async function load() { const d = await WB.api('/accounts'); document.getElementById('acct-sum').textContent = d.accounts.length + '명 가입 · ' + d.not_joined.length + '명 미가입';
       document.querySelector('#acct-table tbody').innerHTML = d.accounts.map(a => `<tr><td><strong>${esc(a.name)}</strong></td><td>${esc(a.email)}</td><td>${a.role}</td><td style="white-space:nowrap">${a.role==='owner'?'전체':`<label title="회계·결산 작성 권한" style="font-size:12px;display:inline-flex;gap:3px;align-items:center;margin-right:8px"><input type="checkbox" data-perm="finance" data-email="${esc(a.email)}" ${(a.perms||'').split(',').includes('finance')?'checked':''}>결산</label><label title="자금·통장 관리 권한 (잔고 확인·증빙)" style="font-size:12px;display:inline-flex;gap:3px;align-items:center"><input type="checkbox" data-perm="treasury" data-email="${esc(a.email)}" ${(a.perms||'').split(',').includes('treasury')?'checked':''}>자금</label>`}</td><td class="muted">${(a.created_at||'').slice(0,10)}</td><td class="muted">${(a.last_login||'').replace('T',' ').slice(0,16)}</td><td><span class="status ${a.status==='active'?'done':'fail'}">${a.status==='active'?'활성':'차단'}</span></td><td style="white-space:nowrap">${a.role==='owner'?'':`<button class="pill" data-act="${a.status==='active'?'block':'unblock'}" data-email="${esc(a.email)}">${a.status==='active'?'차단':'해제'}</button> <button class="pill" data-act="resetlink" data-email="${esc(a.email)}">재설정 링크</button> <button class="pill" data-act="delete" data-email="${esc(a.email)}">삭제</button>`}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">아직 가입자가 없습니다.</td></tr>';
       document.getElementById('acct-missing').textContent = d.not_joined.length ? '미가입: ' + d.not_joined.join(', ') : '21인 전원 가입 완료'; }
