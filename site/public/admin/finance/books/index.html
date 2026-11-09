@@ -64,7 +64,7 @@
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · Books</span><h1>장부 · 결산서</h1><div class="sub">회비 정산 장부의 거래를 복식부기로 자동 분개해 시산표와 재무제표를 만듭니다.</div></div>
-      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm ghost" href="/admin/finance/">장부 입력으로</a></div></div>
+      <div class="actions"><div class="pill-row" id="years"></div><a class="btn sm ghost" href="/admin/finance/">장부 입력으로</a><a class="btn sm ghost" href="/admin/finance/treasury/">자금 · 증빙</a></div></div>
     <div class="admin-body" id="body">
       <div class="kpi">
         <div class="k"><div class="v" id="k-asset">—</div><div class="l">자산 (기말)</div></div>
@@ -125,24 +125,30 @@
       </div>
 
       <div class="note no-print" style="margin-top:24px">
-        <b>회계 처리 방식</b> — 장부의 수입 1건은 <i>차변 예금(또는 현금) / 대변 수익계정</i>, 지출 1건은 <i>차변 비용계정 / 대변 예금(또는 현금)</i>으로 자동 분개합니다. 결제수단이 "현금"이면 101 현금, 그 밖은 102 보통예금으로 봅니다. "예정·예산" 거래는 분개하지 않습니다. 이전 연도까지의 누적 결과는 다음 연도 기초 순자산으로 자동 이월됩니다.<br>
+        <b>회계 처리 방식</b> — 장부의 수입 1건은 <i>차변 예금(또는 현금) / 대변 수익계정</i>, 지출 1건은 <i>차변 비용계정 / 대변 예금(또는 현금)</i>으로 자동 분개합니다. 결제수단이 "현금"이면 101 현금, 그 밖은 102 보통예금으로 봅니다. "예정·예산" 거래는 분개하지 않습니다. 이전 연도까지의 누적 결과는 다음 연도 기초 순자산으로 자동 이월됩니다. 거래별 계정 확인에서 선급금·예수금 같은 자산·부채 계정을 지정하면 수익·비용이 아닌 경유·선급 거래로 처리됩니다.<br>
+        <b>분개 번호·증빙</b> — 거래마다 연도별 일련번호(예: 2026-0153, 수동 분개는 2026-J003)가 붙고, 증빙(PDF·이미지 파일 또는 외부 링크)은 이 번호로 관리합니다. 분개장의 증빙 칸에 마우스를 올리면(모바일은 탭) 미리보기가 뜹니다. 증빙은 주요 거래와 이체 건 위주로 올리면 되며, 없는 거래가 많아도 정상입니다.<br>
         서식은 비영리 단체 결산에서 흔히 쓰는 재무상태표·운영성과표 구성을 따랐습니다. 공식 결산이나 외부 제출 전에는 회계 전문가의 검토를 권합니다.
       </div>
     </div>
   </main>
 </div>
-<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261106a"></script>
+<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109a"></script>
 <script>
 (async () => {
   const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
   const won = n => { n = Math.round(n || 0); return n === 0 ? '—' : (n < 0 ? '(' + Math.abs(n).toLocaleString('ko-KR') + ')' : n.toLocaleString('ko-KR')); };
   const KIND = { asset: '자산', liability: '부채', net: '순자산', revenue: '수익', expense: '비용' };
   const me = await api('/me').catch(() => ({}));
-  if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('finance'))) { q('#body').innerHTML = '<div class="noperm" style="padding:60px;text-align:center;color:var(--ink-3)">결산 관리 권한이 없습니다.</div>'; return; }
+  const has = p => me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes(p);
+  if (!has('finance') && !has('treasury')) { q('#body').innerHTML = '<div class="noperm" style="padding:60px;text-align:center;color:var(--ink-3)">결산 관리 권한이 없습니다.</div>'; return; }
+  const canWrite = has('finance'); // 자금관리자만 있으면 열람 전용 (수동 분개·계정 편집 탭 숨김)
+  if (!canWrite) { q('#tabs [data-t=adj]').hidden = true; q('#tabs [data-t=coa]').hidden = true; q('#p-report .no-print').hidden = true; }
+  EV.setup({ canUpload: true, onChange: () => render() });
 
   let L = [], B = { coa: [], journal: [], meta: {} }, year = String(new Date().getFullYear());
-  async function load() { const [f, b] = await Promise.all([api('/finance'), api('/books')]); L = f.entries; B = b; render(); }
+  async function load() { const [f, b] = await Promise.all([api('/finance'), api('/books'), EV.load()]); L = f.entries; B = b; render(); }
 
+  const DEFAULT_NOTES = '1. 회계 처리 기준: 발생한 수입·지출을 거래일 기준으로 기록하고, 기말에 미지급·미수 항목은 수정 분개로 반영하였습니다.\n2. 현금 및 예금: 결제수단이 현금인 거래는 현금, 그 밖의 거래는 보통예금으로 처리하였습니다.\n3. 자금(통장)과 회계를 분리 — 통장관리자가 인터넷뱅킹 잔고를 확인하고 증빙을 올리며, 회계담당이 장부·결산을 작성합니다. 거래마다 분개 번호(연도-일련번호)를 부여하고 증빙은 그 번호로 관리합니다.';
   const coaBy = () => Object.fromEntries(B.coa.map(c => [c.code, c]));
   const assetOf = e => /현금/.test(e.method || '') ? '101' : '102';
   function counterOf(e) {
@@ -154,11 +160,12 @@
   // 모든 분개 (자동 + 수동)
   function entries() {
     const out = [];
+    // 분개 번호: 자동 분개는 거래 번호(2026-0153), 수동 분개는 2026-J003 — 증빙도 이 번호로
     for (const e of L) { if (e.planned) continue; const a = assetOf(e), c = counterOf(e).code;
-      out.push({ date: e.date, memo: [e.category, e.item, e.counterparty].filter(Boolean).join(' · '), kind: 'auto', ref: e.id,
+      out.push({ date: e.date, no: e.no || '', refKind: 'ledger', refId: e.id, memo: [e.category, e.item, e.counterparty].filter(Boolean).join(' · '), kind: 'auto', ref: e.id,
         lines: e.type === 'income' ? [{ code: a, dr: e.amount, cr: 0 }, { code: c, dr: 0, cr: e.amount }] : [{ code: c, dr: e.amount, cr: 0 }, { code: a, dr: 0, cr: e.amount }] }); }
-    for (const j of B.journal) out.push({ date: j.date, memo: j.memo, kind: j.kind, id: j.id, lines: j.lines });
-    return out.sort((x, y) => x.date.localeCompare(y.date));
+    for (const j of B.journal) out.push({ date: j.date, no: j.no || '', refKind: 'journal', refId: j.id, memo: j.memo, kind: j.kind, id: j.id, lines: j.lines });
+    return out.sort((x, y) => x.date.localeCompare(y.date) || String(x.no).localeCompare(String(y.no)));
   }
   const startMonth = () => Math.min(12, Math.max(1, Number(B.meta.fy_start || 1)));
   const period = y => { const m = String(startMonth()).padStart(2, '0'); const s = `${y}-${m}-01`; const ey = startMonth() === 1 ? Number(y) : Number(y) + 1; const em = startMonth() === 1 ? 12 : startMonth() - 1; const last = new Date(ey, em, 0).getDate(); return { s, e: `${ey}-${String(em).padStart(2, '0')}-${String(last).padStart(2, '0')}` }; };
@@ -219,32 +226,34 @@
     sel.innerHTML = B.coa.map(c => `<option value="${c.code}" ${c.code === cur ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join('');
     const code = sel.value, ck = (C[code] || {}).kind, dnat = ['asset', 'expense'].includes(ck);
     let run = (R.acc[code] || {}).open || 0; if (ck === 'revenue' || ck === 'expense') run = 0;
-    const glRows = R.inPeriod.flatMap(j => j.lines.filter(l => l.code === code).map(l => { run += l.dr - l.cr; return `<tr><td>${j.date}</td><td>${esc(j.memo)}</td><td class="amt">${won(l.dr)}</td><td class="amt">${won(l.cr)}</td><td class="amt"><b>${won(dnat ? run : -run)}</b></td></tr>`; })).join('');
-    q('#gl').innerHTML = `<thead><tr><th>일자</th><th>적요</th><th class="amt">차변</th><th class="amt">대변</th><th class="amt">잔액</th></tr></thead><tbody><tr class="sec"><td>${R.P.s}</td><td>전기이월</td><td></td><td></td><td class="amt">${won(dnat ? ((R.acc[code] || {}).open || 0) : -((R.acc[code] || {}).open || 0))}</td></tr>${glRows || '<tr><td colspan="5" class="muted">이 기간에 이 계정의 거래가 없습니다.</td></tr>'}</tbody>`;
+    const glRows = R.inPeriod.flatMap(j => j.lines.filter(l => l.code === code).map(l => { run += l.dr - l.cr; return `<tr><td class="code" style="white-space:nowrap">${esc(j.no || '')}</td><td>${j.date}</td><td>${esc(j.memo)}</td><td class="amt">${won(l.dr)}</td><td class="amt">${won(l.cr)}</td><td class="amt"><b>${won(dnat ? run : -run)}</b></td></tr>`; })).join('');
+    q('#gl').innerHTML = `<thead><tr><th>번호</th><th>일자</th><th>적요</th><th class="amt">차변</th><th class="amt">대변</th><th class="amt">잔액</th></tr></thead><tbody><tr class="sec"><td></td><td>${R.P.s}</td><td>전기이월</td><td></td><td></td><td class="amt">${won(dnat ? ((R.acc[code] || {}).open || 0) : -((R.acc[code] || {}).open || 0))}</td></tr>${glRows || '<tr><td colspan="6" class="muted">이 기간에 이 계정의 거래가 없습니다.</td></tr>'}</tbody>`;
 
-    // 분개장
+    // 분개장 — 번호 · 증빙 배지(호버/탭으로 미리보기)
     const nm = c => (C[c] ? c + ' ' + C[c].name : c);
-    const jrow = j => `<tr><td style="white-space:nowrap">${j.date}<br><span class="tagk ${j.kind}">${j.kind === 'auto' ? '자동' : j.kind === 'opening' ? '기초' : '수정'}</span></td><td>${esc(j.memo)}<div class="lines" style="margin-top:6px">${j.lines.map(l => `<span class="${l.cr ? 'cr' : ''}">${l.cr ? '(대) ' : '(차) '}${esc(nm(l.code))}</span><span class="amt">${l.dr ? won(l.dr) : ''}</span><span class="amt">${l.cr ? won(l.cr) : ''}</span>`).join('')}</div></td>${j.id ? `<td class="no-print"><button class="pill" data-jdel="${j.id}">삭제</button></td>` : '<td></td>'}</tr>`;
-    q('#jr').innerHTML = `<thead><tr><th style="width:110px">일자</th><th>적요 · 분개</th><th></th></tr></thead><tbody>${R.inPeriod.map(jrow).join('') || '<tr><td colspan="3" class="muted">이 기간의 분개가 없습니다.</td></tr>'}</tbody>`;
-    q('#adj-list').innerHTML = `<tbody>${B.journal.map(j => jrow({ ...j })).join('') || '<tr><td class="muted">수동 분개가 없습니다.</td></tr>'}</tbody>`;
+    const jrow = j => `<tr><td style="white-space:nowrap"><span class="code" style="display:block;color:var(--navy-800);font-weight:600">${esc(j.no || '')}</span>${j.date}<br><span class="tagk ${j.kind}">${j.kind === 'auto' ? '자동' : j.kind === 'opening' ? '기초' : '수정'}</span></td><td>${esc(j.memo)}<div class="lines" style="margin-top:6px">${j.lines.map(l => `<span class="${l.cr ? 'cr' : ''}">${l.cr ? '(대) ' : '(차) '}${esc(nm(l.code))}</span><span class="amt">${l.dr ? won(l.dr) : ''}</span><span class="amt">${l.cr ? won(l.cr) : ''}</span>`).join('')}</div></td><td class="no-print" style="white-space:nowrap">${j.refKind ? EV.badge(j.refKind, j.refId, j.no, j.memo) : ''}${j.id && canWrite ? ` <button class="pill" data-jdel="${j.id}">삭제</button>` : ''}</td></tr>`;
+    q('#jr').innerHTML = `<thead><tr><th style="width:120px">번호 · 일자</th><th>적요 · 분개</th><th class="no-print">증빙</th></tr></thead><tbody>${R.inPeriod.map(jrow).join('') || '<tr><td colspan="3" class="muted">이 기간의 분개가 없습니다.</td></tr>'}</tbody>`;
+    q('#adj-list').innerHTML = `<tbody>${B.journal.map(j => jrow({ ...j, refKind: 'journal', refId: j.id })).join('') || '<tr><td class="muted">수동 분개가 없습니다.</td></tr>'}</tbody>`;
 
     // 계정과목표
     q('#coa').innerHTML = `<thead><tr><th>코드</th><th>계정명</th><th>구분</th><th>매핑 규칙</th><th></th></tr></thead><tbody>${B.coa.map(c => `<tr data-code="${c.code}" style="${c.active ? '' : 'opacity:.45'}"><td class="code">${c.code}</td><td><input value="${esc(c.name)}" data-f="name"></td><td><select data-f="kind">${Object.entries(KIND).map(([k, v]) => `<option value="${k}" ${k === c.kind ? 'selected' : ''}>${v}</option>`).join('')}</select></td><td><input value="${esc(c.rule)}" data-f="rule" placeholder="${['asset', 'liability', 'net'].includes(c.kind) ? '(자동 분류 대상 아님)' : '단어|단어'}"></td><td><button class="pill" data-cdel="${c.code}">${c.active ? '삭제' : '비활성'}</button></td></tr>`).join('')}</tbody>`;
     // 거래별 매핑
     const rows = L.filter(e => !e.planned && e.date >= R.P.s && e.date <= R.P.e);
-    const opts = (kind, val) => B.coa.filter(c => c.kind === kind && c.active).map(c => `<option value="${c.code}" ${c.code === val ? 'selected' : ''}>${c.code} ${esc(c.name)}</option>`).join('');
+    // 상대계정 선택지: 수익/비용 + 자산·부채(선급금·예수금처럼 수익·비용이 아닌 경유 거래용). 101·102 는 제외
+    const opts = (kind, val) => B.coa.filter(c => c.active && c.code !== '101' && c.code !== '102' && c.kind !== 'net').sort((a, b) => (a.kind === kind ? 0 : 1) - (b.kind === kind ? 0 : 1) || a.code.localeCompare(b.code)).map(c => `<option value="${c.code}" ${c.code === val ? 'selected' : ''}>${c.code} ${esc(c.name)}${c.kind === kind ? '' : ' (' + KIND[c.kind] + ')'}</option>`).join('');
     let unk = 0;
-    q('#map').innerHTML = `<thead><tr><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>계정</th></tr></thead><tbody>${rows.map(e => { const m = counterOf(e); if (m.how === 'default') unk++; return `<tr style="${m.how === 'default' ? 'background:#FFF8E6' : ''}"><td>${e.date}</td><td>${e.type === 'income' ? '수입' : '지출'}</td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td><select data-assign="${e.id}"><option value="">자동 (${esc(nm(m.code))})</option>${opts(e.type === 'income' ? 'revenue' : 'expense', e.account)}</select></td></tr>`; }).join('') || '<tr><td colspan="5" class="muted">이 기간의 거래가 없습니다.</td></tr>'}</tbody>`;
+    q('#map').innerHTML = `<thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>계정</th></tr></thead><tbody>${rows.map(e => { const m = counterOf(e); if (m.how === 'default') unk++; return `<tr style="${m.how === 'default' ? 'background:#FFF8E6' : ''}"><td class="code">${esc(e.no || '')}</td><td>${e.date}</td><td>${e.type === 'income' ? '수입' : '지출'}</td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td><select data-assign="${e.id}" ${canWrite ? '' : 'disabled'}><option value="">자동 (${esc(nm(m.code))})</option>${opts(e.type === 'income' ? 'revenue' : 'expense', e.account)}</select></td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">이 기간의 거래가 없습니다.</td></tr>'}</tbody>`;
     q('#map-sum').textContent = `${rows.length}건 중 기타로 분류 ${unk}건`;
 
     // 결산서
-    q('#m-org').value = B.meta.org || '서울대학교 경영대학 총동문회'; q('#m-preparer').value = B.meta.preparer || ''; q('#m-auditor').value = B.meta.auditor || ''; q('#m-notes').value = B.meta.notes || '';
+    q('#m-org').value = B.meta.org || '서울대학교 경영대학 총동문회'; q('#m-preparer').value = B.meta.preparer || ''; q('#m-auditor').value = B.meta.auditor || ''; q('#m-notes').value = B.meta.notes || DEFAULT_NOTES;
     const org = esc(B.meta.org || '서울대학교 경영대학 총동문회');
     q('#report').innerHTML = `<div class="page"><div class="cover"><div class="en">Annual Financial Statements</div><h1>${org}<br>${year} 회계연도 결산서</h1><div class="p">회계기간 ${pl}</div></div>
       <h2>1. 재무상태표</h2><div class="unit">${R.P.e.replace(/-/g, '.')} 현재 · (단위: 원)</div><table class="fs">${bsHtml}</table>
       <h2>2. 운영성과표</h2><div class="unit">${pl} · (단위: 원)</div><table class="fs">${isHtml}</table></div>
       <div class="page"><h2>3. 합계잔액시산표</h2><div class="unit">${pl} · (단위: 원)</div><table class="fs">${q('#tb').innerHTML}</table>
-      <h2>4. 주석</h2><div class="notes">${esc(B.meta.notes || '1. 회계 처리 기준: 발생한 수입·지출을 거래일 기준으로 기록하고, 기말에 미지급·미수 항목은 수정 분개로 반영하였습니다.\n2. 현금 및 예금: 결제수단이 현금인 거래는 현금, 그 밖의 거래는 보통예금으로 처리하였습니다.')}</div>
+      <h2>4. 주석</h2><div class="notes">${esc(B.meta.notes || DEFAULT_NOTES)}</div></div>
+      <div class="page"><h2>5. 분개 목록 · 증빙 번호</h2><div class="unit">${pl} · 번호 = 증빙 관리 번호 · (단위: 원)</div><table class="fs"><thead><tr><th>번호</th><th>일자</th><th>적요</th><th>차변</th><th>대변</th><th class="amt">금액</th><th class="amt">증빙</th></tr></thead><tbody>${R.inPeriod.map(j => { const d = j.lines.filter(l => l.dr), c = j.lines.filter(l => l.cr); const n = j.refKind ? EV.of(j.refKind, j.refId).length : 0; return `<tr><td class="code" style="white-space:nowrap">${esc(j.no || '')}</td><td style="white-space:nowrap">${j.date}</td><td>${esc(j.memo)}</td><td>${d.map(l => esc(nm(l.code))).join('<br>')}</td><td>${c.map(l => esc(nm(l.code))).join('<br>')}</td><td class="amt">${won(d.reduce((a, l) => a + l.dr, 0))}</td><td class="amt">${n || ''}</td></tr>`; }).join('') || '<tr><td colspan="7" class="muted">—</td></tr>'}</tbody></table>
       <div class="sign"><div>작성자 ${esc(B.meta.preparer || '')} (인)</div><div>감사 ${esc(B.meta.auditor || '')} (인)</div></div></div>`;
   }
 

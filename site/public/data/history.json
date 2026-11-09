@@ -1,6 +1,6 @@
 {
  "next": [
-  "서희원 위원 엑셀 결산 파일 수령 → 장부(ledger)로 이관 (열 매핑 후 가져오기), 결산 열람 권한 추가 대상자 명단 반영",
+  "[자금/회계 분리] 회계결산 담당자 지정(서희원 위원은 통장관리자로 — 잔고 확인·증빙), 사무국에도 자금관리자·회계결산 관리자 분리 반영",
   "송년회(11/26) 전 공개 전환: Pages 환경변수 GATE_MODE=admin 으로 바꾸면 공개 페이지는 열리고 작업대만 코드 입장",
   "[즉시] 작업대 /admin/* Cloudflare Access 보호 — 허용 이메일 목록은 작업대 주인이 지정 (prodigen@gmail.com 우선)",
   "[리서치] 회비 체계 숫자 — 국내 주요 대학 동문회 회비 비교표 (연회비·평생회비·입회비) → 토론 스레드로 제출",
@@ -467,6 +467,25 @@
    "kind": "build",
    "title": "2027 창립총회 행사기획 공간 + pm@snubusiness.com",
    "detail": "/admin/event2027/ (행사기획팀 전용, 게스트 계정 도입): 대행사 8곳 연락처·전화 멘트·진행 현황, 첫 연락/정식 RFP 메일 양식과 pm@ 발송(Resend)·발송 기록, 웹 채점(20개 세부 항목·결격 5), 업체 회신 엑셀. pm@snubusiness.com 수신: Cloudflare Email Routing → 아웃룩(창립총회 PM 폴더 규칙). 수신 테스트 확인."
+  },
+  {
+   "id": "L-0043",
+   "ts": "2026-11-09 18:00",
+   "kind": "build",
+   "title": "결산 관리 2단계 — 서희원 회계장부 이관(2021~2026) · 자금/회계 분리 · 분개 번호 · 증빙",
+   "detail": "서희원 위원 엑셀(2021-01-28~2026-11-09, 353건) → ledger 352건 + 기초잔액 분개 1건으로 이관(금액·명단은 D1에만), 기말 보통예금 잔액이 엑셀·인터넷뱅킹과 일치. 계정과목 규칙 보강(통신비·기부금·조찬/골프/송년회 식대·강연료 등)과 신규 계정 511 강연·공연료 / 512 분과지원비 / 513 외부 찬조·기부 지급. 발전기금 지정기부 경유 건은 202 예수금, 발족식 예약금은 121 선급금, 조찬식대입금은 403. 새 권한 treasury(자금·통장 관리자): 잔고 확인 기록(bank_checks, 장부 잔액 자동 비교)과 증빙(evidence: PDF/이미지 D1 BLOB 2MB 또는 외부 링크, 거래 번호로 관리). 거래마다 분개 번호(2026-0153 / 수동 분개 2026-J003) 부여, 분개장·원장·결산서·장부에 표시, 증빙 배지 호버/탭 팝업 미리보기. 화면 /admin/finance/treasury/ 추가, 메뉴 \"자금 · 증빙\". 쓰기 권한: 장부·분개·계정 finance, 잔고 확인 treasury, 증빙 업로드 둘 다(삭제는 올린 사람·오너). 과거 통장 대사 메모 6건을 잔고 확인 기록으로 이관. 결산서 주석에 자금/회계 분리 문구.",
+   "files": [
+    "functions/api/finance.js",
+    "functions/api/books.js",
+    "functions/api/treasury.js",
+    "public/admin/finance/index.html",
+    "public/admin/finance/books/index.html",
+    "public/admin/finance/treasury/index.html",
+    "assets/js/evidence.js",
+    "assets/js/admin.js",
+    "public/admin/index.html",
+    "data/committee.json"
+   ]
   }
  ]
 }

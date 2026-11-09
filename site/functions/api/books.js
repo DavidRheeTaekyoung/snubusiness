@@ -15,56 +15,69 @@ export const DEFAULT_COA = [
   ['202', '예수금', 'liability', ''],
   ['203', '선수회비', 'liability', ''],
   ['301', '순자산', 'net', ''],
+  // 규칙은 코드 순으로 검사하므로 먼저 걸리는 계정이 우선. 서희원 위원 엑셀의 계정과목(통신비·기부금·조찬식대·골프대회식대·강연료·분과지원비 등)이 그대로 걸리게 맞춤 (2026-11-09)
   ['401', '회비수익', 'revenue', '회비|연회비|평생회비|임원회비|입회비'],
   ['402', '찬조·기부금수익', 'revenue', '찬조|기부|후원|협찬'],
-  ['403', '행사참가비수익', 'revenue', '참가비|등록비|행사.*수입'],
+  ['403', '행사참가비수익', 'revenue', '참가비|등록비|식대입금|행사.*수입'],
   ['404', '이자수익', 'revenue', '이자'],
-  ['409', '기타수익', 'revenue', ''],
-  ['501', '행사비', 'expense', '행사비|행사|골프|송년|총회|그린피|캐디|카트'],
-  ['502', '회의비·식대', 'expense', '식대|식사|회의|조찬|다과|음료'],
-  ['503', '장소대관료', 'expense', '대관|장소|임차'],
+  ['409', '기타수익', 'revenue', '기타수입|환급'],
+  ['501', '행사비', 'expense', '행사진행|행사비|진행비|상품권|서포트|그린피|캐디|카트|총회|준비모임|발족식'],
+  ['502', '회의비·식대', 'expense', '식대|식사|회의|조찬|다과|음료|회식|저녁'],
+  ['503', '장소대관료', 'expense', '대관|장소|임차|예약금'],
   ['504', '인쇄·홍보비', 'expense', '인쇄|홍보|현수막|디자인|촬영|사진'],
-  ['505', '사무·운영비', 'expense', '사무|운영|도메인|호스팅|소프트웨어|우편|통신'],
-  ['506', '경조사비', 'expense', '경조|조화|화환|부의|축의'],
+  ['505', '사무·운영비', 'expense', '사무|운영|도메인|호스팅|소프트웨어|우편|통신|전화|핸드폰|유심|소모품|직인'],
+  ['506', '경조사비', 'expense', '경조|조화|화환|화한|감사패|부의|축의'],
   ['507', '장학금', 'expense', '장학'],
   ['508', '교통비', 'expense', '교통|택시|주차|유류'],
-  ['509', '지급수수료', 'expense', '수수료|이체'],
+  ['509', '지급수수료', 'expense', '수수료|이체수수료'],
   ['510', '기념품·시상품', 'expense', '기념품|시상|상품|선물'],
+  ['511', '강연·공연료', 'expense', '강연|강사|강의|공연|오디오|연주'],
+  ['512', '분과지원비', 'expense', '분과'],
+  ['513', '외부 찬조·기부 지급', 'expense', '외부찬조|찬조지급|발전기금|음악회|기부금 지급|지정기부'],
   ['599', '기타비용', 'expense', ''],
 ];
 
+let ready = false;
 async function ensure(db) {
+  if (ready) return; ready = true; // 워커가 뜰 때 한 번만
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS coa (code TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, rule TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS journal (id INTEGER PRIMARY KEY AUTOINCREMENT, date TEXT NOT NULL, memo TEXT NOT NULL DEFAULT '', lines TEXT NOT NULL, kind TEXT NOT NULL DEFAULT 'adjust', created_by TEXT, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')))`),
     db.prepare(`CREATE TABLE IF NOT EXISTS books_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`),
   ]);
   try { await db.prepare("ALTER TABLE ledger ADD COLUMN account TEXT NOT NULL DEFAULT ''").run(); } catch (e) {}
+  try { await db.prepare('ALTER TABLE journal ADD COLUMN seq INTEGER').run(); } catch (e) {} // 분개 번호 (연도별 일련번호, "2026-J003")
   const n = await db.prepare('SELECT COUNT(*) AS n FROM coa').first();
   if (!n.n) await db.batch(DEFAULT_COA.map(c => db.prepare('INSERT INTO coa (code, name, kind, rule) VALUES (?,?,?,?)').bind(...c)));
+  else await db.batch(DEFAULT_COA.map(c => db.prepare('INSERT OR IGNORE INTO coa (code, name, kind, rule) VALUES (?,?,?,?)').bind(...c))); // 새로 생긴 기본 계정만 추가 (기존 규칙은 건드리지 않음)
+  const miss = await db.prepare('SELECT COUNT(*) AS n FROM journal WHERE seq IS NULL').first();
+  if (miss && miss.n) { const { results } = await db.prepare('SELECT id, date FROM journal ORDER BY date, id').all(); const cnt = {}; await db.batch(results.map(r => { const y = r.date.slice(0, 4); cnt[y] = (cnt[y] || 0) + 1; return db.prepare('UPDATE journal SET seq = ? WHERE id = ?').bind(cnt[y], r.id); })); }
 }
-async function guard(request, env, db) {
+// 읽기: finance(회계담당)·treasury(자금관리자) / 쓰기: finance. 오너·에이전트는 전부
+async function guard(request, env, db, write) {
   const s = await liveSession(request, env, db);
   if (!s) return [null, err('login required', 401)];
-  if (!hasPerm(s, 'finance')) return [null, err('결산 관리 권한이 없습니다', 403)];
+  if (write ? !hasPerm(s, 'finance') : !(hasPerm(s, 'finance') || hasPerm(s, 'treasury'))) return [null, err(write ? '장부·결산 작성은 회계담당(결산 관리 권한)만 할 수 있습니다' : '결산 관리 권한이 없습니다', 403)];
   return [s, null];
 }
 const KINDS = ['asset', 'liability', 'net', 'revenue', 'expense'];
+const journalNo = j => j.date.slice(0, 4) + '-J' + String(j.seq || 0).padStart(3, '0');
 
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db); if (e) return e;
-  const [coa, journal, meta] = await Promise.all([
+  const [coa, journal, meta, ev] = await Promise.all([
     db.prepare('SELECT * FROM coa ORDER BY code').all().then(r => r.results),
     db.prepare('SELECT * FROM journal ORDER BY date, id').all().then(r => r.results),
     db.prepare('SELECT * FROM books_meta').all().then(r => Object.fromEntries(r.results.map(x => [x.key, x.value]))),
+    db.prepare("SELECT ref_id, COUNT(*) AS n FROM evidence WHERE ref_kind='journal' GROUP BY ref_id").all().then(r => Object.fromEntries(r.results.map(x => [x.ref_id, x.n]))).catch(() => ({})),
   ]);
-  return json({ coa, journal: journal.map(j => ({ ...j, lines: JSON.parse(j.lines || '[]') })), meta, me: s.name });
+  return json({ coa, journal: journal.map(j => ({ ...j, lines: JSON.parse(j.lines || '[]'), no: journalNo(j), ev: ev[j.id] || 0 })), meta, me: s.name, can_write: hasPerm(s, 'finance') });
 }
 
 export async function onRequestPost({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
-  const [s, e] = await guard(request, env, db); if (e) return e;
+  const [s, e] = await guard(request, env, db, true); if (e) return e;
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
   const r = clean(b.r, 20);
   if (r === 'coa') { // 계정 추가/수정
@@ -87,7 +100,7 @@ export async function onRequestPost({ request, env }) {
     if (lines.length < 2 || dr !== cr || !dr) return err(`차변(${dr.toLocaleString()})과 대변(${cr.toLocaleString()}) 합계가 같아야 합니다`);
     const kind = ['adjust', 'opening', 'closing'].includes(b.kind) ? b.kind : 'adjust';
     if (b.id) await db.prepare('UPDATE journal SET date=?, memo=?, lines=?, kind=? WHERE id=?').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, Number(b.id)).run();
-    else await db.prepare('INSERT INTO journal (date, memo, lines, kind, created_by) VALUES (?,?,?,?,?)').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, s.name).run();
+    else await db.prepare('INSERT INTO journal (date, memo, lines, kind, created_by, seq) VALUES (?,?,?,?,?,(SELECT COALESCE(MAX(seq),0)+1 FROM journal WHERE substr(date,1,4)=?))').bind(date, clean(b.memo, 300), JSON.stringify(lines), kind, s.name, date.slice(0, 4)).run();
     return json({ ok: true });
   }
   if (r === 'meta') { // 단체명·회계연도 시작월·마감 연도 등
@@ -100,7 +113,7 @@ export async function onRequestPost({ request, env }) {
 
 export async function onRequestDelete({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
-  const [s, e] = await guard(request, env, db); if (e) return e;
+  const [s, e] = await guard(request, env, db, true); if (e) return e;
   const u = new URL(request.url); const r = u.searchParams.get('r');
   if (r === 'journal') { await db.prepare('DELETE FROM journal WHERE id = ?').bind(Number(u.searchParams.get('id'))).run(); return json({ ok: true }); }
   if (r === 'coa') { // 사용 중인 계정은 비활성만

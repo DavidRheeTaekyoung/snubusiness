@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>자금 · 증빙 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.amt{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chk{display:inline-flex;gap:6px;align-items:center;font-size:13px;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.chk.ok{background:#E3F1EA;color:var(--success)}.chk.bad{background:#F8E3E0;color:var(--danger)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:1000px){.two{grid-template-columns:1fr}}
+.cform{display:grid;grid-template-columns:150px 1fr 1fr auto;gap:10px;align-items:end}
+@media (max-width:800px){.cform{grid-template-columns:1fr 1fr}}
+.cform .field{margin:0}.cform .field input{padding:10px 11px;font-size:14px}
+.note{font-size:13px;color:var(--ink-3);line-height:1.7;background:var(--ivory);border-left:3px solid var(--gold-400);padding:12px 16px;margin-bottom:18px}
+.table td.no,.table td.code{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
+.table td{font-size:13.5px;vertical-align:middle}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+@media (max-width:800px){.roles{grid-template-columns:1fr}}
+.roles div{border:1px solid var(--line);padding:14px 16px;font-size:13.5px;line-height:1.65;background:var(--paper)}
+.roles b{display:block;color:var(--navy-800);margin-bottom:4px}
+.roles .me{border-color:var(--gold-500);background:#FDFAF2}
+.wrap{overflow-x:auto}
+.noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}
+.tiny{font-size:12px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Finance · Treasury</span><h1>자금 · 증빙</h1><div class="sub">통장관리자가 인터넷뱅킹 잔고를 장부와 대사하고, 거래 번호별로 증빙을 올리는 자리. 회계(장부·결산)와 자금(통장)을 다른 사람이 맡아 부정 위험을 막습니다.</div></div>
+      <div class="actions"><a class="btn sm ghost" href="/admin/finance/">회비 정산</a><a class="btn sm ghost" href="/admin/finance/books/">장부 · 결산서</a></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi">
+        <div class="k gold"><div class="v" id="k-book">—</div><div class="l">장부상 보통예금 잔액 (오늘)</div></div>
+        <div class="k"><div class="v" id="k-last">—</div><div class="l">최근 잔고 확인</div></div>
+        <div class="k"><div class="v" id="k-diff">—</div><div class="l">최근 확인 시 차이</div></div>
+        <div class="k"><div class="v" id="k-ev">—</div><div class="l">증빙 등록 거래 / 전체</div></div>
+      </div>
+
+      <div class="roles" id="roles">
+        <div id="role-t"><b>자금(통장) 관리자 — treasury</b>인터넷뱅킹에서 잔액을 보고 아래에 입력하면 그 날짜까지의 장부 잔액과 자동 비교됩니다. 이체확인증·영수증 PDF, 거래내역 캡처 링크를 거래 번호에 붙입니다. 장부 입력은 하지 않습니다.</div>
+        <div id="role-f"><b>회계담당 — finance</b>회비 정산 장부에 거래를 입력하고 계정을 지정해 장부·결산서를 만듭니다. 통장은 직접 다루지 않고, 이 화면의 잔고 확인 기록으로 장부가 실제 잔액과 맞는지 봅니다.</div>
+      </div>
+
+      <div class="panel" id="check-panel"><div class="panel-head"><h2>잔고 확인</h2><span class="muted" style="font-size:13px">확인자: <b id="me-name">—</b></span></div>
+        <form class="cform" id="cform" autocomplete="off">
+          <div class="field"><label>확인 일자</label><input type="date" id="c-date" required></div>
+          <div class="field"><label>인터넷뱅킹 잔액 (원)</label><input id="c-bank" inputmode="numeric" placeholder="예: 299,636,098" required></div>
+          <div class="field"><label>메모</label><input id="c-note" placeholder="예: 통장 사본 확인, 미결제 1건 반영 전"></div>
+          <div class="field"><button class="btn" type="submit">장부와 대사</button></div>
+        </form>
+        <div id="c-result" style="margin-top:12px"></div>
+        <div class="wrap" style="margin-top:14px"><table class="table" id="checks"><thead><tr><th>확인 일자</th><th class="amt">은행 잔액</th><th class="amt">장부 잔액</th><th class="amt">차이</th><th>결과</th><th>메모</th><th>확인자</th><th>기록</th><th></th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="panel"><div class="panel-head"><h2>증빙 없는 거래</h2><div class="pill-row" id="years"></div></div>
+        <div class="tiny" style="margin:-6px 0 12px">증빙은 주요 거래와 이체 건 위주로 올리면 됩니다. 없는 거래가 많아도 정상입니다. 증빙 칸(▢)을 누르면 파일·링크를 붙일 수 있습니다.</div>
+        <div class="wrap"><table class="table" id="noev"><thead><tr><th>번호</th><th>날짜</th><th>구분</th><th>항목 · 내용</th><th class="amt">금액</th><th>거래처</th><th>증빙</th></tr></thead><tbody></tbody></table></div>
+        <div class="tiny" id="noev-more" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel"><div class="panel-head"><h2>증빙 목록</h2><span class="muted" style="font-size:13px" id="ev-sum"></span></div>
+        <div class="wrap"><table class="table" id="evlist"><thead><tr><th>번호</th><th>거래</th><th>종류</th><th>이름</th><th>메모</th><th>올린 사람</th><th>일시</th><th></th></tr></thead><tbody></tbody></table></div>
+      </div>
+
+      <div class="note">
+        <b>대사 방법</b> — 장부 잔액은 그 날짜까지의 장부 거래(현금 결제 제외, 예정 제외)와 기초잔액·수동 분개의 보통예금 라인을 합한 값입니다. 차이가 나면 (1) 아직 장부에 안 올린 입출금, (2) 날짜가 다른 거래, (3) 은행 수수료·이자 자동 처리 건을 먼저 확인하세요. 불일치 기록은 지우지 말고 원인을 메모에 적어 두는 편이 좋습니다.
+      </div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261020c"></script><script src="/assets/js/admin.js?v=20261109a"></script><script src="/assets/js/evidence.js?v=20261109a"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const won = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n || 0)).toLocaleString('ko-KR') + '원';
+  const me = await api('/me').catch(() => ({}));
+  const has = p => me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes(p);
+  if (!has('finance') && !has('treasury')) { q('#body').innerHTML = '<div class="noperm">자금·결산 권한이 없습니다. 권한은 이태경 위원이 부여합니다.</div>'; return; }
+  const canCheck = has('treasury');
+  if (has('treasury')) q('#role-t').classList.add('me'); if (has('finance')) q('#role-f').classList.add('me');
+  if (!canCheck) { q('#cform').hidden = true; q('#c-result').innerHTML = '<span class="tiny">잔고 확인 기록은 자금(통장) 관리자가 남깁니다. 회계담당은 열람만.</span>'; }
+  q('#me-name').textContent = me.name; q('#c-date').value = new Date().toISOString().slice(0, 10);
+  EV.setup({ canUpload: true, onChange: () => render() });
+
+  let T = { checks: [], evidence: [], book_balance: 0 }, L = [], year = String(new Date().getFullYear());
+  async function load() { const [t, f] = await Promise.all([api('/treasury'), api('/finance'), EV.load()]); T = t; L = f.entries; render(); }
+  function render() {
+    q('#k-book').textContent = won(T.book_balance);
+    const last = T.checks[0];
+    q('#k-last').textContent = last ? last.date : '—'; q('#k-diff').innerHTML = last ? (last.diff === 0 ? '<span style="color:var(--success)">일치</span>' : won(last.diff)) : '—';
+    const real = L.filter(e => !e.planned); const withEv = new Set(EV.list.filter(x => x.ref_kind === 'ledger').map(x => x.ref_id));
+    q('#k-ev').textContent = real.filter(e => withEv.has(e.id)).length + ' / ' + real.length;
+    q('#checks tbody').innerHTML = T.checks.map(c => `<tr><td>${c.date}</td><td class="amt">${won(c.bank_balance)}</td><td class="amt">${won(c.book_balance)}</td><td class="amt">${c.diff === 0 ? '—' : won(c.diff)}</td><td>${c.diff === 0 ? '<span class="chk ok">일치</span>' : '<span class="chk bad">불일치</span>'}</td><td class="muted">${esc(c.note)}</td><td>${esc(c.checked_by || '')}</td><td class="muted tiny">${(c.created_at || '').replace('T', ' ').slice(0, 16)}</td><td>${(me.role === 'owner' || me.role === 'agent' || (canCheck && c.checked_by === me.name)) ? `<button class="pill" data-cdel="${c.id}">삭제</button>` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="muted">아직 잔고 확인 기록이 없습니다.</td></tr>';
+    // 증빙 없는 거래 (선택 연도, 최근순, 금액 큰 순 아님 — 날짜순이 대사에 편함)
+    const yrs = [...new Set(L.map(e => e.date.slice(0, 4)))].sort(); if (!yrs.includes(year)) yrs.push(year); yrs.sort();
+    q('#years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
+    const rows = real.filter(e => e.date.startsWith(year) && !withEv.has(e.id)).slice().reverse();
+    const show = rows.slice(0, 80);
+    q('#noev tbody').innerHTML = show.map(e => `<tr><td class="no">${esc(e.no || '')}</td><td>${e.date}</td><td><span class="status ${e.type === 'income' ? 'done' : 'fail'}">${e.type === 'income' ? '수입' : '지출'}</span></td><td>${esc([e.category, e.item].filter(Boolean).join(' · '))}</td><td class="amt">${won(e.amount)}</td><td>${esc(e.counterparty || '')}</td><td>${EV.badge('ledger', e.id, e.no, [e.category, e.item].filter(Boolean).join(' · '))}</td></tr>`).join('') || `<tr><td colspan="7" class="muted">${year}년 거래에는 모두 증빙이 있거나, 거래가 없습니다.</td></tr>`;
+    q('#noev-more').textContent = rows.length > show.length ? `${rows.length}건 중 최근 ${show.length}건만 표시` : (rows.length ? `${year}년 증빙 없는 거래 ${rows.length}건` : '');
+    // 증빙 목록
+    const byId = Object.fromEntries(L.map(e => [e.id, e]));
+    const ev = EV.list.slice().reverse();
+    q('#ev-sum').textContent = ev.length ? `${ev.length}건 (파일 ${ev.filter(x => x.kind === 'file').length} · 링크 ${ev.filter(x => x.kind === 'link').length})` : '';
+    q('#evlist tbody').innerHTML = ev.map(x => { const e = x.ref_kind === 'ledger' ? byId[x.ref_id] : null; const url = x.kind === 'link' ? x.url : EV.fileUrl(x); const no = e ? e.no : (x.ref_kind === 'journal' ? '수동 분개 #' + x.ref_id : '#' + x.ref_id);
+      return `<tr><td class="no">${esc(no)}</td><td>${e ? esc([e.date, e.category, e.item].filter(Boolean).join(' · ')) + ' <span class="amt">' + won(e.amount) + '</span>' : '<span class="muted">—</span>'}</td><td>${x.kind === 'link' ? '링크' : x.mime === 'application/pdf' ? 'PDF' : '이미지'}</td><td><a href="${url}" target="_blank" rel="noopener">${esc(x.name || EV.host(x.url))}</a>${x.kind === 'link' ? ` <span class="tiny">${esc(EV.host(x.url))}</span>` : x.size ? ` <span class="tiny">${(x.size / 1024).toFixed(0)} KB</span>` : ''}</td><td class="muted">${esc(x.note)}</td><td>${esc(x.created_by || '')}</td><td class="muted tiny">${EV.when(x.created_at)}</td><td>${(me.role === 'owner' || me.role === 'agent' || x.created_by === me.name) ? `<button class="pill" data-edel="${x.id}">삭제</button>` : ''}</td></tr>`; }).join('') || '<tr><td colspan="8" class="muted">아직 올린 증빙이 없습니다.</td></tr>';
+  }
+  q('#years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
+  q('#cform').addEventListener('submit', async e => { e.preventDefault();
+    try { const r = await api('/treasury', { method: 'POST', body: { r: 'check', date: q('#c-date').value, bank_balance: q('#c-bank').value, note: q('#c-note').value } }); const c = r.check;
+      q('#c-result').innerHTML = c.diff === 0 ? `<span class="chk ok">일치 — ${c.date} 장부 잔액 ${won(c.book_balance)}</span>` : `<span class="chk bad">불일치 — 은행 ${won(c.bank_balance)} / 장부 ${won(c.book_balance)} / 차이 ${won(c.diff)}</span> <span class="tiny">장부에 안 올린 입출금이 있는지 회계담당과 확인하세요.</span>`;
+      q('#c-bank').value = ''; q('#c-note').value = ''; await load(); } catch (err) { toast('실패: ' + err.message); } });
+  document.addEventListener('click', async e => {
+    const c = e.target.closest('[data-cdel]'); if (c) { if (!confirm('이 잔고 확인 기록을 삭제할까요?')) return; try { await api('/treasury?r=check&id=' + c.dataset.cdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } return; }
+    const d = e.target.closest('[data-edel]'); if (d) { if (!confirm('이 증빙을 삭제할까요?')) return; try { await api('/treasury?r=evidence&id=' + d.dataset.edel, { method: 'DELETE' }); toast('삭제했습니다'); await load(); } catch (err) { toast('실패: ' + err.message); } }
+  });
+  await load();
+})();
+</script>
+</body></html>
