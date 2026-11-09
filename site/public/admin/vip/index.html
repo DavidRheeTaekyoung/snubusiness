@@ -156,7 +156,7 @@
     return out;
   }
   // 기관 대표번호: DART 기업개황에서 받은 상장사 번호를 소속 이름으로 맞춘다
-  const norm = o => String(o || '').replace(/(주)|㈜|주식회사|s/g, '');
+  const norm = o => String(o || '').replace(/\(주\)|㈜|주식회사|\(유한\)|\(유\)|\s/g, '');
   function orgInfo(org, text) { // 1) 상장사(DART) 이름 2) 부처·법원·로펌 표의 이름·약칭이 소속에 있거나 3) 기사에 가장 먼저 나오는 기관
     const o = norm(org), corp = o.length >= 2 && ((S.orgs || []).find(c => norm(c.name) === o) || (S.orgs || []).find(c => norm(c.name).length >= 3 && o.includes(norm(c.name))));
     if (corp) return { ...corp, via: corp.name };
