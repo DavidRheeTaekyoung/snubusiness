@@ -41,7 +41,7 @@
 .ht .tl a{font-weight:600;color:var(--navy-800);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ht .sn{color:var(--ink-3);font-size:12.5px;line-height:1.55;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ht mark{background:#F3EAD3;padding:0 2px}
 .ht .chip{font-size:12px;padding:2px 8px;margin:0 4px 4px 0}.ht .acts{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
-.ht .dt{font-size:12px;color:var(--ink-3);white-space:nowrap}.more{display:block;margin:12px auto 0}
+.ht .dt{font-size:12px;color:var(--ink-3);white-space:nowrap}.ht .src-b{white-space:nowrap}.ht .dup{font-size:12px;color:var(--gold-700,#8A6D1F);margin-top:2px;cursor:help}.more{display:block;margin:12px auto 0}
 </style>
 </head>
 <body>
@@ -118,7 +118,7 @@
   function render() {
     const P = S.people, live = S.hits.filter(h => h.status === 'new');
     q('#k-ok').textContent = P.filter(p => p.status === '확인됨').length; q('#k-cand').textContent = P.filter(p => p.status === '후보' || p.status === '확인 필요').length;
-    q('#k-hits').textContent = live.length; q('#k-dart').textContent = S.corps.total ? `${S.corps.scanned || 0}/${S.corps.total}` : '—';
+    q('#k-hits').textContent = dedup(live).length; q('#k-dart').textContent = S.corps.total ? `${S.corps.scanned || 0}/${S.corps.total}` : '—';
     q('#st-f').innerHTML = ['', ...STATUS].map(s => `<button class="pill ${s === stF ? 'on' : ''}" data-st="${s}">${s || '전체'} ${s ? P.filter(p => p.status === s).length : P.length}</button>`).join('');
     const rows = P.filter(p => (!stF || p.status === stF) && (!fdF || p.field === fdF) && (!qF || [p.name, p.org, p.position, p.memo, p.link, p.cohort].join(' ').includes(qF)));
     q('#ppl-n').textContent = rows.length + '명';
@@ -127,19 +127,31 @@
       <td class="src">${p.sources.map(s => s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" title="${esc(s.title)}">${esc(SRC[s.from] || s.from || '')} ${esc(s.title || s.url)}</a>` : `<span class="muted" style="font-size:12px">${esc(s.title)}</span>`).join('') || '<span class="muted" style="font-size:12px">—</span>'}</td>
       <td><button class="x" data-del="${p.id}" title="삭제">×</button></td></tr>`).join('') || '<tr><td colspan="12" class="muted">아직 명단이 없습니다. 수집 결과에서 이름을 누르거나, 사람 추가·자료 붙여넣기로 넣어 주세요.</td></tr>';
 
-    const cnt = g => S.hits.filter(h => h.status === hsF && (!g || grp(h) === g)).length;
+    const cnt = g => dedup(S.hits.filter(h => h.status === hsF && (!g || grp(h) === g))).length;
     q('#src-f').innerHTML = ['', ...GRP].map(g => `<button class="pill ${g === srcF ? 'on' : ''}" data-src="${g}">${g || '전체'} ${cnt(g)}</button>`).join('');
     const names = new Set(P.map(p => p.name));
-    const hs = shownHits();
-    q('#hit-n').textContent = hs.length + '건';
+    const raw = shownHits(), hs = dedup(raw); GROUPS = new Map(hs.map(g => [g.id, g]));
+    q('#hit-n').textContent = hs.length + '건' + (raw.length > hs.length ? ` (같은 기사 ${raw.length - hs.length}건을 묶음)` : '');
     q('#hits').innerHTML = hs.slice(0, limit).map(h => `<tr data-h="${h.id}"><td class="dt">${esc(h.date || '—')}</td><td><span class="src-b">${esc(grp(h))}</span></td>
-      <td>${h.names.map(n => `<button class="chip ${names.has(n) ? 'have' : ''}" data-name="${esc(n)}" title="${names.has(n) ? '명단에 있음 · 출처 덧붙이기' : '명단에 후보로 추가'}">${esc(n)}${names.has(n) ? ' ✓' : ' +'}</button>`).join('')}<button class="x" data-other title="다른 이름으로 명단에 추가">직접 입력</button></td>
-      <td><div class="tl"><a href="${esc(h.url)}" target="_blank" rel="noopener noreferrer" title="${esc(h.title)}">${esc(h.title)}</a></div><div class="sn" title="${esc(h.snippet)}">${esc(h.snippet).replace(SNU_RE, m => '<mark>' + m + '</mark>')}</div></td>
+      <td>${h.allNames.map(n => `<button class="chip ${names.has(n) ? 'have' : ''}" data-name="${esc(n)}" title="${names.has(n) ? '명단에 있음 · 출처 덧붙이기' : '명단에 후보로 추가'}">${esc(n)}${names.has(n) ? ' ✓' : ' +'}</button>`).join('')}<button class="x" data-other title="다른 이름으로 명단에 추가">직접 입력</button></td>
+      <td><div class="tl"><a href="${esc(h.url)}" target="_blank" rel="noopener noreferrer" title="${esc(h.title)}">${esc(h.title)}</a></div>${h.ids.length > 1 ? `<div class="dup" title="${esc(h.dups.join('\n'))}">같은 기사 ${h.ids.length - 1}건 더 · 보관·무시는 함께 처리</div>` : ''}<div class="sn" title="${esc(h.snippet)}">${esc(h.snippet).replace(SNU_RE, m => '<mark>' + m + '</mark>')}</div></td>
       <td><div class="acts">${h.status === 'new' ? '<button class="x" data-hs="kept">보관</button>' : '<button class="x" data-hs="new">검토 대기로</button>'}<button class="x" data-hs="dismissed">무시</button></div></td></tr>`).join('') || '<tr><td colspan="5" class="muted">' + (S.hits.length ? '이 조건의 수집 결과가 없습니다.' : '아직 수집 결과가 없습니다. "검색 실행" 탭에서 검색을 돌려 주세요.') + '</td></tr>';
     q('#more').hidden = hs.length <= limit; q('#more').textContent = `더 보기 (${Math.min(limit, hs.length)} / ${hs.length})`;
     document.querySelectorAll('[data-k]').forEach(el => { const on = S.keys[el.dataset.k]; el.className = 'key ' + (on ? 'on' : 'off'); el.textContent = on ? '연결됨' : '키 미등록'; });
     q('#dart-st').textContent = S.corps.total ? `상장사 ${S.corps.total}곳 중 ${S.corps.scanned || 0}곳 확인 · 발견 ${S.corps.found || 0}명` : '아직 스캔 전입니다';
     q('#dart-bar').style.width = S.corps.total ? Math.round(100 * (S.corps.scanned || 0) / S.corps.total) + '%' : '0';
+  }
+  // 명확한 중복만 묶기: 사흘 안에 이름 후보 묶음이 똑같거나, 제목 앞부분이 같은 기사 (DART는 사람·회사별이라 묶지 않음)
+  let GROUPS = new Map();
+  function dedup(list) {
+    const out = [], idx = new Map(), day = d => Date.parse(d) / 864e5;
+    for (const h of list) {
+      const nk = h.names.slice().sort().join(','), keys = h.source === 'dart' ? [] : [nk && 'n:' + nk, 't:' + h.title.replace(/\[[^\]]*\]/g, '').replace(/[^가-힣A-Za-z0-9]/g, '').slice(0, 14)].filter(Boolean);
+      let g = keys.map(k => idx.get(k)).find(g => g && (!g.date || !h.date || Math.abs(day(g.date) - day(h.date)) <= 3));
+      if (!g) { g = { ...h, ids: [], allNames: h.names.slice(), dups: [] }; out.push(g); keys.forEach(k => idx.set(k, g)); } else g.dups.push(h.title);
+      g.ids.push(h.id);
+    }
+    return out;
   }
   const shownHits = () => S.hits.filter(h => h.status === hsF && (!srcF || grp(h) === srcF) && (!q('#named-only').checked || h.names.length));
   q('#more').addEventListener('click', () => { limit += 200; render(); });
@@ -170,12 +182,12 @@
     if (ex) { if (!confirm(name + ' 님이 이미 명단에 있습니다 (' + [ex.org, ex.position].filter(Boolean).join(' ') + ').\n같은 사람이면 확인을 눌러 출처만 덧붙입니다. 동명이인이면 취소 후 "다른 이름으로 추가"를 쓰세요.')) return;
       await api('/vip', { method: 'POST', body: { r: 'person', id: ex.id, source } }); }
     else await api('/vip', { method: 'POST', body: { r: 'person', name, org: h.org, position: h.position, field: h.source === 'assembly' ? '국회·정치' : GRP_FIELD[grp(h)] || '', status: '후보', source, memo: h.source === 'dart' || h.source === 'assembly' ? h.snippet.slice(0, 300) : '' } });
-    await api('/vip', { method: 'POST', body: { r: 'hit', id: h.id, status: 'kept' } }); toast(name + ' 님을 명단에 반영했습니다'); await reload();
+    await api('/vip', { method: 'POST', body: { r: 'hit', ids: GROUPS.get(h.id)?.ids || [h.id], status: 'kept' } }); toast(name + ' 님을 명단에 반영했습니다'); await reload();
   }
   q('#hits').addEventListener('click', async e => { const card = e.target.closest('[data-h]'); if (!card) return; const h = S.hits.find(x => x.id === Number(card.dataset.h));
     const c = e.target.closest('[data-name]'); if (c) return addFrom(h, c.dataset.name);
     if (e.target.closest('[data-other]')) { const n = prompt('명단에 넣을 이름'); if (n) addFrom(h, n.trim()); return; }
-    const st = e.target.closest('[data-hs]'); if (st) { await api('/vip', { method: 'POST', body: { r: 'hit', id: h.id, status: st.dataset.hs } }); h.status = st.dataset.hs; render(); } });
+    const st = e.target.closest('[data-hs]'); if (st) { const ids = GROUPS.get(h.id)?.ids || [h.id]; await api('/vip', { method: 'POST', body: { r: 'hit', ids, status: st.dataset.hs } }); S.hits.forEach(x => { if (ids.includes(x.id)) x.status = st.dataset.hs; }); render(); } });
   q('#src-f').addEventListener('click', e => { const b = e.target.closest('[data-src]'); if (b) { srcF = b.dataset.src; limit = 200; render(); } });
   q('#hs-f').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; hsF = b.dataset.s; limit = 200; [...b.parentElement.children].forEach(x => x.classList.toggle('on', x === b)); render(); });
   q('#named-only').addEventListener('change', render);
