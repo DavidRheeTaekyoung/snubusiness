@@ -6,15 +6,19 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261020c"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 </head>
 <body>
 <div class="admin-shell">
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><h1>대시보드</h1><div class="sub">마스터 개발계획을 늘 상기하며 — 오늘의 상태</div></div>
-      <div class="actions"><a class="btn sm gold" href="/admin/event2027/" data-ev hidden>창립총회</a><a class="btn sm gold" href="/admin/vip/" data-ev hidden>동문 찾기</a><a class="btn sm ghost" href="/admin/golf/">골프 운영</a><a class="btn sm ghost" href="/admin/meeting/?m=committee">회의록</a><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
+      <div class="actions"><a class="btn sm" href="#acct-panel" data-owner hidden>회원 관리</a><a class="btn sm gold" href="/admin/event2027/" data-ev hidden>창립총회</a><a class="btn sm gold" href="/admin/vip/" data-ev hidden>동문 찾기</a><a class="btn sm ghost" href="/admin/golf/">골프 운영</a><a class="btn sm ghost" href="/admin/meeting/?m=committee">회의록</a><a class="btn sm ghost" href="/admin/discussion/">토론 열기</a><a class="btn sm" href="/admin/history/">개발이력</a></div></div>
     <div class="admin-body">
+      <div class="panel" id="acct-panel" hidden><div class="panel-head"><h2>회원 관리 <span class="badge">Owner</span></h2><span class="muted" id="acct-sum"></span></div>
+        <p class="muted" style="font-size:13.5px;margin:-6px 0 14px">준비위원 명단의 이름으로만 가입됩니다. 동명이인·오가입은 여기서 차단하거나 삭제하세요. 비밀번호를 잊은 위원은 입장 화면의 "비밀번호를 잊으셨나요?"로 이메일 재설정을 받거나, 여기서 재설정 링크를 발급해 개인 메시지로 전달합니다.</p>
+        <table class="table" id="acct-table"><thead><tr><th>이름</th><th>이메일 아이디</th><th>권한</th><th>결산 / 자금</th><th>가입</th><th>최근 접속</th><th>상태</th><th>조치</th></tr></thead><tbody></tbody></table>
+        <div id="acct-missing" class="muted" style="font-size:13px;margin-top:12px"></div></div>
       <div class="meet-cards">
         <a class="meet-card hot" href="/admin/event2027/" data-ev hidden><div class="tag">2027. 4. 16.(금) · 행사기획팀 전용</div><h3>창립총회 행사기획</h3><div class="when">그랜드 하얏트 서울 Grand Ballroom · 약 700명 · PM 이태경</div><div class="desc">대행사 8곳 연락·전화 멘트 · RFP 메일(pm@snubusiness.com) · 채점 · 예산</div><span class="go">창립총회 열기 →</span></a>
         <a class="meet-card" href="/admin/vip/" data-ev hidden><div class="tag">행사기획팀 전용 · VIP 동문 발굴</div><h3>동문 찾기</h3><div class="when">뉴스 인사 기사 · 웹 · DART 상장사 임원 공시</div><div class="desc">서울대 경영 출신 후보 수집 · 같은 기사 묶기 · 명단 정리 · 엑셀 내려받기</div><span class="go">동문 찾기 열기 →</span></a>
@@ -34,10 +38,6 @@
         <div class="panel"><div class="panel-head"><h2>최근 개발이력</h2><a class="link-more" href="/admin/history/">전체</a></div><ul class="log" id="recent-log"></ul></div>
         <div class="panel"><div class="panel-head"><h2>열린 토론</h2><a class="link-more" href="/admin/discussion/">전체</a></div><div id="recent-threads"></div></div>
       </div>
-      <div class="panel" id="acct-panel" hidden><div class="panel-head"><h2>회원 관리 <span class="badge">Owner</span></h2><span class="muted" id="acct-sum"></span></div>
-        <p class="muted" style="font-size:13.5px;margin:-6px 0 14px">준비위원 명단의 이름으로만 가입됩니다. 동명이인·오가입은 여기서 차단하거나 삭제하세요. 비밀번호를 잊은 위원은 입장 화면의 "비밀번호를 잊으셨나요?"로 이메일 재설정을 받거나, 여기서 재설정 링크를 발급해 개인 메시지로 전달합니다.</p>
-        <table class="table" id="acct-table"><thead><tr><th>이름</th><th>이메일 아이디</th><th>권한</th><th>결산 / 자금</th><th>가입</th><th>최근 접속</th><th>상태</th><th>조치</th></tr></thead><tbody></tbody></table>
-        <div id="acct-missing" class="muted" style="font-size:13px;margin-top:12px"></div></div>
       <div class="panel"><h2>작업대 사용법</h2>
         <div class="prose" style="font-size:15px;max-width:none">
           <ol>
@@ -55,7 +55,7 @@
 (async () => {
   const esc = SNU.esc;
   const plan = await SNU.json('/data/plan.json');
-  (async () => { try { const me = await WB.api('/me'); if (me.role !== 'owner') return; const p = document.getElementById('acct-panel'); p.hidden = false; if (location.hash === '#acct-panel') setTimeout(() => p.scrollIntoView({ behavior: 'smooth' }), 50);
+  (async () => { try { const me = await WB.api('/me'); if (me.role !== 'owner') return; const p = document.getElementById('acct-panel'); p.hidden = false; document.querySelectorAll('[data-owner]').forEach(e => e.hidden = false); if (location.hash === '#acct-panel') setTimeout(() => p.scrollIntoView({ behavior: 'smooth' }), 50);
     async function load() { const d = await WB.api('/accounts'); document.getElementById('acct-sum').textContent = d.accounts.length + '명 가입 · ' + d.not_joined.length + '명 미가입';
       document.querySelector('#acct-table tbody').innerHTML = d.accounts.map(a => `<tr><td><strong>${esc(a.name)}</strong></td><td>${esc(a.email)}</td><td>${a.role}</td><td style="white-space:nowrap">${a.role==='owner'?'전체':`<label title="회계·결산 작성 권한" style="font-size:12px;display:inline-flex;gap:3px;align-items:center;margin-right:8px"><input type="checkbox" data-perm="finance" data-email="${esc(a.email)}" ${(a.perms||'').split(',').includes('finance')?'checked':''}>결산</label><label title="자금·통장 관리 권한 (잔고 확인·증빙)" style="font-size:12px;display:inline-flex;gap:3px;align-items:center"><input type="checkbox" data-perm="treasury" data-email="${esc(a.email)}" ${(a.perms||'').split(',').includes('treasury')?'checked':''}>자금</label>`}</td><td class="muted">${(a.created_at||'').slice(0,10)}</td><td class="muted">${(a.last_login||'').replace('T',' ').slice(0,16)}</td><td><span class="status ${a.status==='active'?'done':'fail'}">${a.status==='active'?'활성':'차단'}</span></td><td style="white-space:nowrap">${a.role==='owner'?'':`<button class="pill" data-act="${a.status==='active'?'block':'unblock'}" data-email="${esc(a.email)}">${a.status==='active'?'차단':'해제'}</button> <button class="pill" data-act="resetlink" data-email="${esc(a.email)}">재설정 링크</button> <button class="pill" data-act="delete" data-email="${esc(a.email)}">삭제</button>`}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">아직 가입자가 없습니다.</td></tr>';
       document.getElementById('acct-missing').textContent = d.not_joined.length ? '미가입: ' + d.not_joined.join(', ') : '21인 전원 가입 완료'; }

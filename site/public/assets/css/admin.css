@@ -135,3 +135,9 @@
 @media (max-width:960px){ .panel .table{min-width:620px} .panel .table td,.panel .table th{white-space:normal} }
 
 .meet-card[hidden],.btn[hidden]{display:none!important}
+/* 패널 폭 기준 반응형 — 브라우저 확대나 좁은 창에서 2열·개발이력 표가 찌그러지지 않게 (뷰포트가 아니라 담는 상자 폭으로 판단) */
+.admin-main{container-type:inline-size}
+.panel{container-type:inline-size;min-width:0}
+.log li{grid-template-columns:150px 92px minmax(0,1fr)}
+@container (max-width:900px){.grid.c2{grid-template-columns:1fr}}
+@container (max-width:560px){.log li{grid-template-columns:1fr;gap:4px 12px}.log .t,.log .k{display:inline-block;padding-top:0}.log .k{margin-left:10px}.log .m{grid-column:1/-1}}
