@@ -27,7 +27,7 @@ let migrated = false;
 async function migrate(db) { // 나중에 붙인 칸 — 이미 있으면 ALTER가 실패하므로 하나씩 시도
   if (migrated) return; migrated = true;
   for (const sql of ["ALTER TABLE vip_people ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN phone TEXT NOT NULL DEFAULT ''",
-    "ALTER TABLE vip_corps ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN addr TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN homepage TEXT NOT NULL DEFAULT ''"]) { try { await db.prepare(sql).run(); } catch {} }
+    "ALTER TABLE vip_hits ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_hits ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN addr TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN homepage TEXT NOT NULL DEFAULT ''"]) { try { await db.prepare(sql).run(); } catch {} }
 }
 
 // 기사 문장에서 이름 뒤의 소속·직위, 출신 고교, 출생연도를 뽑는다 (자동 추출이라 사람이 확인)
@@ -79,8 +79,9 @@ async function naver(env, kind, q, start = 1) {
 async function saveHits(db, hits, now) {
   if (!hits.length) return 0; let n = 0;
   for (let i = 0; i < hits.length; i += 50) {
-    const rs = await db.batch(hits.slice(i, i + 50).map(h => db.prepare('INSERT INTO vip_hits (key, source, url, title, snippet, date, names, org, position, matched, query, found_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(key) DO NOTHING')
-      .bind(clean(h.key, 500), h.source, clean(h.url, 500), clean(h.title, 300), clean(h.snippet, 1200), clean(h.date, 20), JSON.stringify(h.names || []), clean(h.org, 120), clean(h.position, 120), h.matched ? 1 : 0, clean(h.query, 200), now)));
+    const rs = await db.batch(hits.slice(i, i + 50).map(h => { const pf = profile(h); // 소속·고교·출생연도는 저장할 때 한 번만 뽑는다
+      return db.prepare('INSERT INTO vip_hits (key, source, url, title, snippet, date, names, org, position, hs, birth, matched, query, found_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(key) DO NOTHING')
+      .bind(clean(h.key, 500), h.source, clean(h.url, 500), clean(h.title, 300), clean(h.snippet, 1200), clean(h.date, 20), JSON.stringify(h.names || []), clean(pf.org, 120), clean(pf.position, 120), clean(pf.hs, 40), clean(pf.birth, 10), h.matched ? 1 : 0, clean(h.query, 200), now); }));
     n += rs.reduce((a, r) => a + (r.meta?.changes || 0), 0);
   }
   return n;
@@ -90,16 +91,21 @@ async function saveHits(db, hits, now) {
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db); if (e) return e;
-  const [people, hits, corps, orgs] = await Promise.all([
+  // 화면을 빨리 띄우려고 둘로 나눔: 기본은 숫자·명단, ?part=hits 는 수집 결과 목록과 대표번호 표
+  if (new URL(request.url).searchParams.get('part') === 'hits') {
+    const [hits, orgs, dir] = await Promise.all([
+      db.prepare("SELECT id, source, url, title, substr(snippet, 1, 300) AS snippet, date, names, org, position, hs, birth, matched, query, status FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 5000").all().then(r => r.results.map(h => ({ ...h, names: JSON.parse(h.names || '[]') }))),
+      db.prepare("SELECT name, phone, addr, homepage FROM vip_corps WHERE phone NOT IN ('', '-')").all().then(r => r.results),
+      db.prepare('SELECT * FROM vip_orgs').all().then(r => r.results.map(o => ({ ...o, aliases: JSON.parse(o.aliases || '[]') }))),
+    ]);
+    return json({ hits, orgs, dir });
+  }
+  const [people, corps, counts] = await Promise.all([
     db.prepare('SELECT * FROM vip_people ORDER BY id DESC').all().then(r => r.results.map(p => ({ ...p, sources: JSON.parse(p.sources || '[]') }))),
-    db.prepare("SELECT id, key, source, url, title, snippet, date, names, org, position, matched, query, status, found_at, reviewed_by FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 5000").all()
-      .then(r => r.results.map(h => { h.names = JSON.parse(h.names || '[]'); return { ...h, ...profile(h), snippet: h.snippet.slice(0, 400) }; })),
     db.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN scanned_at IS NOT NULL THEN 1 ELSE 0 END) AS scanned, SUM(found) AS found FROM vip_corps').first(),
-    db.prepare("SELECT name, phone, addr, homepage FROM vip_corps WHERE phone NOT IN ('', '-')").all().then(r => r.results),
+    db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results),
   ]);
-  const dir = await db.prepare('SELECT * FROM vip_orgs').all().then(r => r.results.map(o => ({ ...o, aliases: JSON.parse(o.aliases || '[]') })));
-  const counts = await db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results);
-  return json({ people, hits, counts, corps, orgs, dir, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
+  return json({ people, counts, corps, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -160,8 +166,10 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, saved: rows.length });
   }
   if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
-    const { results } = await db.prepare("SELECT id, title, snippet FROM vip_hits WHERE source IN ('news','web')").all();
-    for (let i = 0; i < results.length; i += 50) await db.batch(results.slice(i, i + 50).map(h => db.prepare('UPDATE vip_hits SET names = ? WHERE id = ?').bind(JSON.stringify(guessNames(h.title + ' ' + h.snippet)), h.id)));
+    const { results } = await db.prepare("SELECT id, source, title, snippet, date, names, org, position FROM vip_hits").all();
+    for (let i = 0; i < results.length; i += 50) await db.batch(results.slice(i, i + 50).map(h => { const dart = h.source === 'dart';
+      h.names = dart ? JSON.parse(h.names || '[]') : guessNames(h.title + ' ' + h.snippet); if (!dart) { h.org = ''; h.position = ''; } const pf = profile(h);
+      return db.prepare('UPDATE vip_hits SET names = ?, org = ?, position = ?, hs = ?, birth = ? WHERE id = ?').bind(JSON.stringify(h.names), clean(pf.org, 120), clean(pf.position, 120), clean(pf.hs, 40), clean(pf.birth, 10), h.id); }));
     return json({ ok: true, n: results.length });
   }
   if (b.r === 'dart_reset') { await db.prepare('UPDATE vip_corps SET scanned_at = NULL, found = 0').run(); return json({ ok: true }); }

@@ -109,16 +109,18 @@
   let limit = 200;
   const SNU_RE = /서울대(?:학교)?\s*\(?\s*(?:경영|상과|상대)[가-힣]*/g;
   let S = null, stF = '', fdF = '', qF = '', srcF = '', hsF = 'new';
-  try { S = await api('/vip'); } catch (e) { q('#body').innerHTML = '<div class="noperm">' + esc(e.status === 403 ? e.message : '불러오지 못했습니다: ' + e.message) + '</div>'; return; }
+  try { S = { ...(await api('/vip')), hits: [], orgs: [], dir: [] }; } catch (e) { q('#body').innerHTML = '<div class="noperm">' + esc(e.status === 403 ? e.message : '불러오지 못했습니다: ' + e.message) + '</div>'; return; }
   q('#fd-f').innerHTML += FIELD.map(f => `<option>${f}</option>`).join('');
-  async function reload() { S = await api('/vip'); render(); }
+  // 숫자·명단을 먼저 그리고, 수집 결과 목록(용량이 큼)은 뒤따라 받는다
+  async function loadHits() { Object.assign(S, await api('/vip?part=hits'), { hitsLoaded: true }); render(); }
+  async function reload() { const [a, b] = await Promise.all([api('/vip'), api('/vip?part=hits')]); S = { ...a, ...b, hitsLoaded: true }; render(); }
   const opt = (v, list) => list.map(x => `<option ${x === v ? 'selected' : ''} value="${esc(x)}">${esc(x || '—')}</option>`).join('');
   const ce = (p, f, ph) => `<div class="ce" contenteditable="true" data-f="${f}" data-ph="${ph}">${esc(p[f] || '')}</div>`;
 
   function render() {
     const P = S.people, live = S.hits.filter(h => h.status === 'new');
     q('#k-ok').textContent = P.filter(p => p.status === '확인됨').length; q('#k-cand').textContent = P.filter(p => p.status === '후보' || p.status === '확인 필요').length;
-    q('#k-hits').textContent = dedup(live).length; q('#k-dart').textContent = S.corps.total ? `${S.corps.scanned || 0}/${S.corps.total}` : '—';
+    q('#k-hits').textContent = S.hitsLoaded ? dedup(live).length : (S.counts || []).filter(c => c.status === 'new').reduce((a, c) => a + c.n, 0); q('#k-dart').textContent = S.corps.total ? `${S.corps.scanned || 0}/${S.corps.total}` : '—';
     q('#st-f').innerHTML = ['', ...STATUS].map(s => `<button class="pill ${s === stF ? 'on' : ''}" data-st="${s}">${s || '전체'} ${s ? P.filter(p => p.status === s).length : P.length}</button>`).join('');
     const rows = P.filter(p => (!stF || p.status === stF) && (!fdF || p.field === fdF) && (!qF || [p.name, p.org, p.position, p.memo, p.link, p.cohort].join(' ').includes(qF)));
     q('#ppl-n').textContent = rows.length + '명';
@@ -135,7 +137,7 @@
     q('#hits').innerHTML = hs.slice(0, limit).map(h => `<tr data-h="${h.id}"><td class="dt">${esc(h.date || '—')}</td><td><span class="src-b">${esc(grp(h))}</span></td>
       <td>${h.allNames.map(n => `<button class="chip ${names.has(n) ? 'have' : ''}" data-name="${esc(n)}" title="${names.has(n) ? '명단에 있음 · 출처 덧붙이기' : '명단에 후보로 추가'}">${esc(n)}${names.has(n) ? ' ✓' : ' +'}</button>`).join('')}<button class="x" data-other title="다른 이름으로 명단에 추가">직접 입력</button></td>
       <td><div class="tl"><a href="${esc(h.url)}" target="_blank" rel="noopener noreferrer" title="${esc(h.title)}">${esc(h.title)}</a></div>${h.ids.length > 1 ? `<div class="dup" title="${esc(h.dups.join('\n'))}">같은 기사 ${h.ids.length - 1}건 더 · 보관·무시는 함께 처리</div>` : ''}<div class="sn" title="${esc(h.snippet)}">${esc(h.snippet).replace(SNU_RE, m => '<mark>' + m + '</mark>')}</div></td>
-      <td><div class="acts">${h.status === 'new' ? '<button class="x" data-hs="kept">보관</button>' : '<button class="x" data-hs="new">검토 대기로</button>'}<button class="x" data-hs="dismissed">무시</button></div></td></tr>`).join('') || '<tr><td colspan="5" class="muted">' + (S.hits.length ? '이 조건의 수집 결과가 없습니다.' : '아직 수집 결과가 없습니다. "검색 실행" 탭에서 검색을 돌려 주세요.') + '</td></tr>';
+      <td><div class="acts">${h.status === 'new' ? '<button class="x" data-hs="kept">보관</button>' : '<button class="x" data-hs="new">검토 대기로</button>'}<button class="x" data-hs="dismissed">무시</button></div></td></tr>`).join('') || '<tr><td colspan="5" class="muted">' + (!S.hitsLoaded ? '수집 결과를 불러오는 중…' : S.hits.length ? '이 조건의 수집 결과가 없습니다.' : '아직 수집 결과가 없습니다. "검색 실행" 탭에서 검색을 돌려 주세요.') + '</td></tr>';
     q('#more').hidden = hs.length <= limit; q('#more').textContent = `더 보기 (${Math.min(limit, hs.length)} / ${hs.length})`;
     document.querySelectorAll('[data-k]').forEach(el => { const on = S.keys[el.dataset.k]; el.className = 'key ' + (on ? 'on' : 'off'); el.textContent = on ? '연결됨' : '키 미등록'; });
     q('#dart-st').textContent = S.corps.total ? `상장사 ${S.corps.total}곳 중 ${S.corps.scanned || 0}곳 확인 · 발견 ${S.corps.found || 0}명` : '아직 스캔 전입니다';
@@ -231,7 +233,7 @@
 
   q('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); });
   const h0 = location.hash.slice(1); if (h0) q(`#tabs [data-t="${h0}"]`)?.click();
-  render();
+  render(); loadHits().catch(e => toast('수집 결과를 불러오지 못했습니다: ' + e.message));
 })();
 </script>
 </body></html>
