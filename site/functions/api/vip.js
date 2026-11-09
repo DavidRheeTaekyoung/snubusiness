@@ -24,8 +24,9 @@ const NEWS_Q = {
 const WEB_Q = ['서울대 경영학과 졸업 대표이사 인사말', '서울대학교 경영학과 졸업 회장 약력', '서울대 경영학과 졸업 사장 프로필'];
 const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo', 'hs', 'birth', 'phone'];
 let migrated = false;
-async function migrate(db) { // 나중에 붙인 칸 — 이미 있으면 ALTER가 실패하므로 하나씩 시도
-  if (migrated) return; migrated = true;
+async function migrate(db) { // 나중에 붙인 칸 — 한 번 조회해서 빠진 칸이 있을 때만 ALTER (요청마다 ALTER를 돌리면 느려짐)
+  const have = await db.prepare("SELECT (SELECT COUNT(*) FROM pragma_table_info('vip_hits') WHERE name = 'birth') + (SELECT COUNT(*) FROM pragma_table_info('vip_corps') WHERE name = 'homepage') + (SELECT COUNT(*) FROM pragma_table_info('vip_people') WHERE name = 'phone') AS n").first();
+  if (have?.n === 3) return;
   for (const sql of ["ALTER TABLE vip_people ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN phone TEXT NOT NULL DEFAULT ''",
     "ALTER TABLE vip_hits ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_hits ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN addr TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN homepage TEXT NOT NULL DEFAULT ''"]) { try { await db.prepare(sql).run(); } catch {} }
 }
@@ -43,6 +44,7 @@ export function profile(h) {
 }
 
 async function ensure(db) {
+  if (migrated) return; migrated = true; // 워커가 뜰 때 한 번만
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS vip_people (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, cohort TEXT NOT NULL DEFAULT '', degree TEXT NOT NULL DEFAULT '', org TEXT NOT NULL DEFAULT '', position TEXT NOT NULL DEFAULT '',
       field TEXT NOT NULL DEFAULT '', tier TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT '후보', link TEXT NOT NULL DEFAULT '', memo TEXT NOT NULL DEFAULT '', sources TEXT NOT NULL DEFAULT '[]', updated_by TEXT, updated_at TEXT)`),

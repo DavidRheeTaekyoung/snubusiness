@@ -21,7 +21,9 @@ export async function hashPassword(password, saltB64) {
 }
 export async function verifyPassword(password, hash, salt) { const h = await hashPassword(password, salt); return h.hash === hash; }
 
+let accountsReady = false;
 export async function ensureAccounts(db) {
+  if (accountsReady) return; accountsReady = true; // 워커가 뜰 때 한 번만 (요청마다 돌리면 D1 왕복이 늘어 느려짐)
   await db.prepare(`CREATE TABLE IF NOT EXISTS accounts (
     email TEXT PRIMARY KEY, name TEXT NOT NULL, pass_hash TEXT NOT NULL, salt TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'member', status TEXT NOT NULL DEFAULT 'active',
@@ -46,9 +48,15 @@ export async function readSession(request, env) {
   return { email: p.u || null, name: p.n, role: p.r || 'member', exp: p.e };
 }
 // 세션이 있어도 계정이 차단됐으면 무효
+// 계정 상태는 20초 동안 기억 — 미들웨어와 API가 같은 요청에서 두 번 묻지 않게. 차단·권한 변경은 20초 안에 반영된다
+const ACC = new Map();
+async function account(db, email) {
+  const c = ACC.get(email); if (c && Date.now() - c.t < 20000) return c.a;
+  const a = await db.prepare('SELECT status, role, name, perms FROM accounts WHERE email = ?').bind(email).first(); ACC.set(email, { a, t: Date.now() }); return a;
+}
 export async function liveSession(request, env, db) {
   const s = await readSession(request, env); if (!s) return null;
-  if (db && s.email) { try { await ensureAccounts(db); const a = await db.prepare('SELECT status, role, name, perms FROM accounts WHERE email = ?').bind(s.email).first(); if (!a || a.status !== 'active') return null; s.role = a.role; s.name = a.name; s.perms = (a.perms || '').split(',').filter(Boolean); } catch (e) {} }
+  if (db && s.email) { try { await ensureAccounts(db); const a = await account(db, s.email); if (!a || a.status !== 'active') return null; s.role = a.role; s.name = a.name; s.perms = (a.perms || '').split(',').filter(Boolean); } catch (e) {} }
   return s;
 }
 export function cookieHeader(value, exp) { return `${COOKIE}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=${new Date(exp).toUTCString()}`; }
