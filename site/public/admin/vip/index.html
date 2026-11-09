@@ -157,13 +157,17 @@
   }
   // 기관 대표번호: DART 기업개황에서 받은 상장사 번호를 소속 이름으로 맞춘다
   const norm = o => String(o || '').replace(/\(주\)|㈜|주식회사|\(유한\)|\(유\)|\s/g, '');
-  function orgInfo(org, text) { // 1) 상장사(DART) 이름 2) 부처·법원·로펌 표의 이름·약칭이 소속에 있거나 3) 기사에 가장 먼저 나오는 기관
+  // 기관 종류 — 기사 속 기관으로 추정할 때 직위와 안 맞는 곳(회사 사장인데 관세청 등)은 버린다
+  const kindOf = name => /법원|검찰|공소청|법무부|헌법재판소|사법연수원|법무연수원/.test(name) ? 'court' : /법무법인|법률사무소|회계법인|회계사회/.test(name) ? 'firm' : 'gov';
+  const posKind = p => /판사|법원장|대법관|재판관|검사|검사장|지검장|고검장/.test(p) ? 'court' : /변호사/.test(p) ? 'firm' : /장관|차관|청장|실장|국장|처장|차관보|위원장|총재|원장|기획관|정책관/.test(p) ? 'gov' : /회장|사장|대표|전무|상무|이사|CEO|센터장|본부장|행장|파트너/.test(p) ? 'corp' : '';
+  function orgInfo(org, text, position) { // 1) 상장사(DART) 이름 2) 부처·법원·로펌 표의 이름·약칭이 소속에 있거나 3) 기사에 가장 먼저 나오는 기관(직위와 맞는 것만, 확인 필요)
     const o = norm(org), corp = o.length >= 2 && ((S.orgs || []).find(c => norm(c.name) === o) || (S.orgs || []).find(c => norm(c.name).length >= 3 && o.includes(norm(c.name))));
-    if (corp) return { ...corp, via: corp.name };
+    if (corp) return { ...corp, via: corp.name, how: '소속 일치' };
     const names = d => [d.name, ...d.aliases].map(norm).filter(a => a.length >= 2);
-    const byOrg = o.length >= 2 && (S.dir || []).find(d => names(d).some(a => o.includes(a))); if (byOrg) return { phone: byOrg.phone, via: byOrg.name };
-    const t = norm(text); let best = null, at = 1e9; if (t) for (const d of S.dir || []) for (const a of names(d)) { const i = t.indexOf(a); if (i >= 0 && i < at) { at = i; best = d; } }
-    return best ? { phone: best.phone, via: best.name } : {}; }
+    const byOrg = o.length >= 2 && (S.dir || []).find(d => names(d).some(a => o.includes(a))); if (byOrg) return { phone: byOrg.phone, via: byOrg.name, how: '소속 일치' };
+    const pk = posKind(String(position || '')), fits = d => !pk || pk === kindOf(d.name) || (pk === 'corp' && kindOf(d.name) === 'firm');
+    const t = norm(text); let best = null, at = 1e9; if (t) for (const d of S.dir || []) if (fits(d)) for (const a of names(d)) { const i = t.indexOf(a); if (i >= 0 && i < at) { at = i; best = d; } }
+    return best ? { phone: best.phone, via: best.name, how: '기사 속 기관 · 확인 필요' } : {}; }
   async function xlsx(rows, cols, file) { // 엑셀 파일은 받는 사람 PC에만 생긴다 (서버·깃에 남기지 않음)
     if (!window.XLSX) await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload = ok; sc.onerror = () => no(new Error('엑셀 모듈을 불러오지 못했습니다')); document.head.appendChild(sc); });
     const ws = XLSX.utils.aoa_to_sheet([cols.map(c => c[0]), ...rows.map(r => cols.map(c => r[c[1]] ?? ''))]);
@@ -172,10 +176,18 @@
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '목록'); XLSX.writeFile(wb, file);
   }
   const tel = oi => oi.phone ? oi.via + ' ' + oi.phone : ''; // 번호만 두면 엉뚱한 곳에 걸 수 있어 기관명을 같은 칸에 붙인다
+  // 대표번호로 걸 때 읽을 멘트: 직위에서 호칭을 만들고(대표이사→대표님, 사외이사→이사님), 교환원용·비서실용 두 줄
+  function callScript(name, position, via) {
+    if (!name || !via) return '';
+    const p = String(position || '').replace(/\s+/g, ''), t = /대표이사|CEO|^대표/.test(p) ? '대표' : /이사$/.test(p) && !/이사장/.test(p) ? '이사' : p.replace(/^(신임|전|前)/, '');
+    const who = name + ' ' + (t ? t + '님' : '님');
+    return `[교환] 안녕하세요, 서울대학교 경영대학 총동문회 사무국입니다. ${via}에 계신 ${who}께 동문회 일로 연락드렸습니다. 비서실이나 담당 부서로 연결 부탁드립니다.\n`
+      + `[비서실] 2027년 4월 16일 총동문회 창립총회에 ${who}을 모시고자 인사드리려 합니다. 서울대 경영학과 동문이 맞으신지 여쭙고, 편하신 연락처나 시간을 알려 주시면 다시 연락드리겠습니다.`;
+  }
   const today = () => new Date().toISOString().slice(0, 10);
   q('#xl-hits').addEventListener('click', async () => { const gs = dedup(shownHits());
-    const rows = gs.map((g, i) => { const oi = orgInfo(g.org, g.title + ' ' + g.snippet); return { no: i + 1, via: oi.via || '', grp: grp(g), name: g.names[0] || '', org: g.org, pos: g.position, hs: g.hs, birth: g.birth, phone: oi.phone || '', via: oi.phone ? oi.via : '', addr: oi.addr || '', date: g.date, title: g.title, url: g.url, dup: g.ids.length - 1, more: g.names.slice(1).join(', '), sn: g.snippet, st: g.status === 'new' ? '검토 대기' : '보관' }; });
-    try { await xlsx(rows, [['번호', 'no', 6], ['분류', 'grp', 10], ['이름', 'name', 9], ['소속', 'org', 22], ['직위', 'pos', 10], ['출신 고교', 'hs', 11], ['출생연도', 'birth', 9], ['대표번호', 'phone', 15], ['전화할 기관', 'via', 22], ['기관 주소', 'addr', 30], ['기사 날짜', 'date', 11], ['기사 제목', 'title', 50], ['원문 링크', 'url', 40, 'link'], ['같은 기사', 'dup', 8], ['함께 나온 이름', 'more', 16], ['요약', 'sn', 60], ['상태', 'st', 9]], 'VIP_수집결과_' + today() + '.xlsx'); toast(rows.length + '건을 엑셀로 저장했습니다'); } catch (e) { toast(e.message); } });
+    const rows = gs.map((g, i) => { const oi = orgInfo(g.org, g.title + ' ' + g.snippet, g.position); return { no: i + 1, how: oi.phone ? oi.how : '', via: oi.via || '', grp: grp(g), name: g.names[0] || '', org: g.org, pos: g.position, hs: g.hs, birth: g.birth, phone: oi.phone || '', via: oi.phone ? oi.via : '', say: callScript(g.names[0], g.position, oi.phone ? oi.via : ''), addr: oi.addr || '', date: g.date, title: g.title, url: g.url, dup: g.ids.length - 1, more: g.names.slice(1).join(', '), sn: g.snippet, st: g.status === 'new' ? '검토 대기' : '보관' }; });
+    try { await xlsx(rows, [['번호', 'no', 6], ['분류', 'grp', 10], ['이름', 'name', 9], ['소속', 'org', 22], ['직위', 'pos', 10], ['출신 고교', 'hs', 11], ['출생연도', 'birth', 9], ['대표번호', 'phone', 15], ['전화할 기관', 'via', 22], ['번호 근거', 'how', 20], ['전화 멘트', 'say', 60], ['기관 주소', 'addr', 30], ['기사 날짜', 'date', 11], ['기사 제목', 'title', 50], ['원문 링크', 'url', 40, 'link'], ['같은 기사', 'dup', 8], ['함께 나온 이름', 'more', 16], ['요약', 'sn', 60], ['상태', 'st', 9]], 'VIP_수집결과_' + today() + '.xlsx'); toast(rows.length + '건을 엑셀로 저장했습니다'); } catch (e) { toast(e.message); } });
   q('#xl-ppl').addEventListener('click', async () => { const rows = S.people.map((p, i) => ({ ...p, no: i + 1, phone: p.phone || tel(orgInfo(p.org)), src: p.sources.map(x => x.url).filter(Boolean)[0] || '', srcs: p.sources.map(x => x.title).join(' / ') }));
     try { await xlsx(rows, [['번호', 'no', 6], ['이름', 'name', 9], ['학번', 'cohort', 7], ['과정', 'degree', 8], ['소속', 'org', 22], ['직위', 'position', 12], ['분야', 'field', 10], ['등급', 'tier', 6], ['상태', 'status', 9], ['출신 고교', 'hs', 11], ['출생연도', 'birth', 9], ['전화할 기관 · 대표번호', 'phone', 30], ['연결 동문', 'link', 12], ['메모', 'memo', 40], ['대표 출처 링크', 'src', 40, 'link'], ['출처 제목', 'srcs', 50]], 'VIP_명단_' + today() + '.xlsx'); } catch (e) { toast(e.message); } });
   const shownHits = () => S.hits.filter(h => h.status === hsF && (!srcF || grp(h) === srcF) && (!q('#named-only').checked || h.names.length));
@@ -206,7 +218,7 @@
     const ex = S.people.find(p => p.name === name), source = { title: h.title, url: h.url, from: h.source };
     if (ex) { if (!confirm(name + ' 님이 이미 명단에 있습니다 (' + [ex.org, ex.position].filter(Boolean).join(' ') + ').\n같은 사람이면 확인을 눌러 출처만 덧붙입니다. 동명이인이면 취소 후 "다른 이름으로 추가"를 쓰세요.')) return;
       await api('/vip', { method: 'POST', body: { r: 'person', id: ex.id, source } }); }
-    else await api('/vip', { method: 'POST', body: { r: 'person', name, org: h.names[0] === name ? h.org : '', position: h.names[0] === name ? h.position : '', hs: h.names[0] === name ? h.hs : '', birth: h.names[0] === name ? String(h.birth || '').replace('?', '') : '', phone: h.names[0] === name ? tel(orgInfo(h.org, h.title + ' ' + h.snippet)) : '', field: h.source === 'assembly' ? '국회·정치' : GRP_FIELD[grp(h)] || '', status: '후보', source, memo: h.source === 'dart' || h.source === 'assembly' ? h.snippet.slice(0, 300) : '' } });
+    else await api('/vip', { method: 'POST', body: { r: 'person', name, org: h.names[0] === name ? h.org : '', position: h.names[0] === name ? h.position : '', hs: h.names[0] === name ? h.hs : '', birth: h.names[0] === name ? String(h.birth || '').replace('?', '') : '', phone: h.names[0] === name ? tel(orgInfo(h.org, h.title + ' ' + h.snippet, h.position)) : '', field: h.source === 'assembly' ? '국회·정치' : GRP_FIELD[grp(h)] || '', status: '후보', source, memo: h.source === 'dart' || h.source === 'assembly' ? h.snippet.slice(0, 300) : '' } });
     await api('/vip', { method: 'POST', body: { r: 'hit', ids: GROUPS.get(h.id)?.ids || [h.id], status: 'kept' } }); toast(name + ' 님을 명단에 반영했습니다'); await reload();
   }
   q('#hits').addEventListener('click', async e => { const card = e.target.closest('[data-h]'); if (!card) return; const h = S.hits.find(x => x.id === Number(card.dataset.h));
