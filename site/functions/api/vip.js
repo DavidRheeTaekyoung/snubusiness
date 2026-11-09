@@ -13,7 +13,7 @@ const STOP = new Set(['서울대', '경영학', '경영대', '졸업', '신임',
   '성과', '수시', '선거', '당선', '동기', '소속', '전년', '우리', '신한', '하나', '농협', '한화', '삼성', '현대', '롯데', '신세계', '포스', '미래', '교보', '동양', '유진투', '다올',
   '공동대', '전문경', '임관', '제약', '한편', '모르', '연달', '강화', '금감원', '금융감', '검찰', '법무', '대법', '고법', '지법', '중앙지', '서울중', '부산지', '수원지', '인천지', '대전지', '대구지', '광주지', '기획재', '공정거', '국세청', '관세청', '조달청', '통계청', '감사원', '차장', '평검', '부부', '수석', '선임', '전직', '현직', '고위', '행정', '사법', '연수', '임명', '내정자', '지명', '외부', '내부', '공식', '취임', '사의', '용퇴', '퇴임', '물러', '맡은', '맡게', '오른', '올라', '도전', '역임', '거친', '지낸', '중심', '세대', '경력', '책무',
   '국회', '기재', '정부', '오늘', '이날', '인선', '최소', '서울', '국무', '기획', '예상', '전망', '함께', '강력', '이와', '여기', '고용', '노동', '경제', '조달', '원주', '임시', '공직', '금감', '이같', '주일', '노조',
-  '방통', '국정', '기구', '권한', '전공', '예고', '여성', '한양', '한영', '이노', '한전', '경기', '정책', '공정', '산업', '통상', '외교', '국방', '법제', '인사처', '공무', '대통', '총리', '이재명', '윤석열', '문재인', '국세', '공인', '예산', '기조', '경사노', '지은', '국조', '제주', '주중', '공기', '석좌', '고려대', '연세대', '한동훈']);
+  '방통', '국정', '기구', '권한', '전공', '예고', '여성', '한양', '한영', '이노', '한전', '경기', '정책', '공정', '산업', '통상', '외교', '국방', '법제', '인사처', '공무', '대통', '총리', '이재명', '윤석열', '문재인', '국세', '공인', '예산', '기조', '경사노', '지은', '국조', '제주', '주중', '공기', '석좌', '고려대', '연세대', '한동훈', '전북', '전남', '경북', '경남', '충북', '충남', '강원', '부산', '대구', '광주', '인천', '대전', '울산', '최연', '채권', '위반', '해남', '출신']);
 const NOT_NAME = /[부처청회에를을와과의로날늘며고서]$/; // 기관명·조사로 끝나는 말은 이름이 아니다
 const Q = s => s.split(' ').map(w => '서울대 경영학과 ' + w.replace(/_/g, ' '));
 const NEWS_Q = {
@@ -22,7 +22,25 @@ const NEWS_Q = {
   law: Q('검사장 지검장 고검장 부장검사 검찰_인사 법원장 부장판사 고법_판사 대법관_후보 헌법재판관 법관_인사 판사_출신 검사_출신'),
 };
 const WEB_Q = ['서울대 경영학과 졸업 대표이사 인사말', '서울대학교 경영학과 졸업 회장 약력', '서울대 경영학과 졸업 사장 프로필'];
-const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo'];
+const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo', 'hs', 'birth', 'phone'];
+let migrated = false;
+async function migrate(db) { // 나중에 붙인 칸 — 이미 있으면 ALTER가 실패하므로 하나씩 시도
+  if (migrated) return; migrated = true;
+  for (const sql of ["ALTER TABLE vip_people ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN phone TEXT NOT NULL DEFAULT ''",
+    "ALTER TABLE vip_corps ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN addr TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN homepage TEXT NOT NULL DEFAULT ''"]) { try { await db.prepare(sql).run(); } catch {} }
+}
+
+// 기사 문장에서 이름 뒤의 소속·직위, 출신 고교, 출생연도를 뽑는다 (자동 추출이라 사람이 확인)
+const HS_STOP = /^(최|광|보|참|경|재|사|원|공|제|비|신|중|등|고|마|창|노|폐|잔|하|모|휴|권|선|숙|탈|전|정|연)고$/;
+export function profile(h) {
+  const text = h.title + ' ' + h.snippet, name = h.names?.[0] || '', y = Number((h.date || '').slice(0, 4)) || new Date().getFullYear();
+  let org = h.org || '', position = h.position || '', hs = '', birth = '';
+  if (name && !org) { const m = text.match(new RegExp(name + '\\s?(?:\\([^)]{1,12}\\)\\s?)?((?:[가-힣A-Za-z0-9&·()]+\\s){0,3}?)(?:신임\\s)?(' + TITLES + ')')); if (m) { org = m[1].trim(); position = m[2]; } }
+  for (const m of text.matchAll(/([가-힣]{1,6}(?:고등학교|여고|고))\s*(?:와|과|,|·|를|및|△|졸업|졸|\s)*\s*(?:서울대|연세대|고려대)/g)) if (!HS_STOP.test(m[1]) && !/(?:하|되|했|였|이|며|었|았|받|맡|쳐|나)고$/.test(m[1])) { hs = m[1]; break; }
+  const b1 = text.match(/(19[3-9]\d|200\d)년생/) || text.match(/출생\s?(19[3-9]\d|200\d)/); if (b1) birth = b1[1];
+  else if (name) { const a = text.match(new RegExp(name + '[^()]{0,30}\\((\\d{2})[·)]')); if (a && +a[1] >= 30 && +a[1] <= 90) birth = (y - +a[1]) + '?'; }
+  return { org, position, hs, birth };
+}
 
 async function ensure(db) {
   await db.batch([
@@ -32,6 +50,7 @@ async function ensure(db) {
       date TEXT NOT NULL DEFAULT '', names TEXT NOT NULL DEFAULT '[]', org TEXT NOT NULL DEFAULT '', position TEXT NOT NULL DEFAULT '', matched INTEGER NOT NULL DEFAULT 0, query TEXT NOT NULL DEFAULT '', status TEXT NOT NULL DEFAULT 'new', found_at TEXT, reviewed_by TEXT)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS vip_corps (corp_code TEXT PRIMARY KEY, name TEXT NOT NULL, stock_code TEXT NOT NULL DEFAULT '', scanned_at TEXT, found INTEGER NOT NULL DEFAULT 0)`),
   ]);
+  await migrate(db);
 }
 async function guard(request, env, db) {
   const s = await liveSession(request, env, db);
@@ -70,13 +89,15 @@ async function saveHits(db, hits, now) {
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   const [s, e] = await guard(request, env, db); if (e) return e;
-  const [people, hits, corps] = await Promise.all([
+  const [people, hits, corps, orgs] = await Promise.all([
     db.prepare('SELECT * FROM vip_people ORDER BY id DESC').all().then(r => r.results.map(p => ({ ...p, sources: JSON.parse(p.sources || '[]') }))),
-    db.prepare("SELECT id, key, source, url, title, substr(snippet, 1, 400) AS snippet, date, names, org, position, matched, query, status, found_at, reviewed_by FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 4000").all().then(r => r.results.map(h => ({ ...h, names: JSON.parse(h.names || '[]') }))),
+    db.prepare("SELECT id, key, source, url, title, snippet, date, names, org, position, matched, query, status, found_at, reviewed_by FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 5000").all()
+      .then(r => r.results.map(h => { h.names = JSON.parse(h.names || '[]'); return { ...h, ...profile(h), snippet: h.snippet.slice(0, 400) }; })),
     db.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN scanned_at IS NOT NULL THEN 1 ELSE 0 END) AS scanned, SUM(found) AS found FROM vip_corps').first(),
+    db.prepare("SELECT name, phone, addr, homepage FROM vip_corps WHERE phone NOT IN ('', '-')").all().then(r => r.results),
   ]);
   const counts = await db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results);
-  return json({ people, hits, counts, corps, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
+  return json({ people, hits, counts, corps, orgs, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -122,6 +143,13 @@ export async function onRequestPost({ request, env }) {
     const list = (Array.isArray(b.corps) ? b.corps : []).filter(c => /^\d{8}$/.test(c.corp_code)).slice(0, 200);
     if (list.length) await db.batch(list.map(c => db.prepare('INSERT INTO vip_corps (corp_code, name, stock_code) VALUES (?,?,?) ON CONFLICT(corp_code) DO UPDATE SET name=excluded.name, stock_code=excluded.stock_code').bind(c.corp_code, clean(c.name, 120), clean(c.stock_code, 10))));
     return json({ ok: true, saved: list.length });
+  }
+  // 기관 대표번호 — DART 기업개황의 공개 대표전화만 (개인 번호는 모으지 않음). 상장사 전체를 로컬 스크립트가 채운다
+  if (b.r === 'corp_todo') { const { results } = await db.prepare("SELECT corp_code, name FROM vip_corps WHERE phone = '' ORDER BY found DESC, corp_code").all(); return json({ ok: true, corps: results }); }
+  if (b.r === 'corp_info') {
+    const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => /^\d{8}$/.test(x.corp_code)).slice(0, 300);
+    for (let i = 0; i < rows.length; i += 50) await db.batch(rows.slice(i, i + 50).map(x => db.prepare('UPDATE vip_corps SET phone = ?, addr = ?, homepage = ? WHERE corp_code = ?').bind(clean(x.phone, 40) || '-', clean(x.addr, 200), clean(x.homepage, 200), x.corp_code)));
+    return json({ ok: true, saved: rows.length });
   }
   if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
     const { results } = await db.prepare("SELECT id, title, snippet FROM vip_hits WHERE source IN ('news','web')").all();
