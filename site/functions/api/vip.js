@@ -11,7 +11,7 @@ const STOP = new Set(['서울대', '경영학', '경영대', '졸업', '신임',
   '변호', '변호사', '선출', '경쟁', '기존', '연임', '유임', '재선', '국민', '한공', '전무', '상무', '대표', '행장', '장관', '차관', '위원', '의원', '총장', '원장', '이사장', '감사', '대사', '검사', '법원',
   '신규', '연말', '조직', '교체', '사임', '출신', '후보', '단독', '대행', '직무', '부행', '부장', '전체', '기관', '지주', '계열', '사외', '상임', '상근', '고객', '최초',
   '성과', '수시', '선거', '당선', '동기', '소속', '전년', '우리', '신한', '하나', '농협', '한화', '삼성', '현대', '롯데', '신세계', '포스', '미래', '교보', '동양', '유진투', '다올',
-  '공동대', '전문경', '금감원', '금융감', '검찰', '법무', '대법', '고법', '지법', '중앙지', '서울중', '부산지', '수원지', '인천지', '대전지', '대구지', '광주지', '기획재', '공정거', '국세청', '관세청', '조달청', '통계청', '감사원', '차장', '평검', '부부', '수석', '선임', '전직', '현직', '고위', '행정', '사법', '연수', '임명', '내정자', '지명', '외부', '내부', '공식', '취임', '사의', '용퇴', '퇴임', '물러', '맡은', '맡게', '오른', '올라', '도전', '역임', '거친', '지낸', '중심', '세대', '경력', '책무']);
+  '공동대', '전문경', '임관', '제약', '한편', '모르', '연달', '강화', '금감원', '금융감', '검찰', '법무', '대법', '고법', '지법', '중앙지', '서울중', '부산지', '수원지', '인천지', '대전지', '대구지', '광주지', '기획재', '공정거', '국세청', '관세청', '조달청', '통계청', '감사원', '차장', '평검', '부부', '수석', '선임', '전직', '현직', '고위', '행정', '사법', '연수', '임명', '내정자', '지명', '외부', '내부', '공식', '취임', '사의', '용퇴', '퇴임', '물러', '맡은', '맡게', '오른', '올라', '도전', '역임', '거친', '지낸', '중심', '세대', '경력', '책무']);
 const Q = s => s.split(' ').map(w => '서울대 경영학과 ' + w.replace(/_/g, ' '));
 const NEWS_Q = {
   corp: [...Q('신임_대표이사 신임_사장 회장_취임 부회장_승진 임원_인사 선임 행장 CEO'), '서울대 경영대 동문'],
@@ -80,7 +80,7 @@ export async function onRequestGet({ request, env }) {
   const [s, e] = await guard(request, env, db); if (e) return e;
   const [people, hits, corps] = await Promise.all([
     db.prepare('SELECT * FROM vip_people ORDER BY id DESC').all().then(r => r.results.map(p => ({ ...p, sources: JSON.parse(p.sources || '[]') }))),
-    db.prepare("SELECT * FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 600").all().then(r => r.results.map(h => ({ ...h, names: JSON.parse(h.names || '[]') }))),
+    db.prepare("SELECT id, key, source, url, title, substr(snippet, 1, 400) AS snippet, date, names, org, position, matched, query, status, found_at, reviewed_by FROM vip_hits WHERE status != 'dismissed' ORDER BY matched DESC, date DESC, id DESC LIMIT 4000").all().then(r => r.results.map(h => ({ ...h, names: JSON.parse(h.names || '[]') }))),
     db.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN scanned_at IS NOT NULL THEN 1 ELSE 0 END) AS scanned, SUM(found) AS found FROM vip_corps').first(),
   ]);
   const counts = await db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results);
