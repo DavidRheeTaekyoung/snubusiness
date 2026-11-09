@@ -55,14 +55,14 @@
       <div class="tabs" id="tabs"><button data-t="people" class="on">명단</button><button data-t="hits">수집 결과</button><button data-t="run">검색 실행</button></div>
 
       <div class="pane on" id="p-people">
-        <div class="bar"><div class="pill-row" id="st-f"></div><select id="fd-f"><option value="">분야 전체</option></select><input id="q-f" placeholder="이름·소속·메모 검색" style="min-width:200px"><button class="btn sm" id="add">사람 추가</button><button class="btn sm ghost" id="xl-ppl">엑셀 내려받기</button><span class="muted" id="ppl-n" style="font-size:13px"></span></div>
+        <div class="bar"><div class="pill-row" id="st-f"></div><select id="fd-f"><option value="">분야 전체</option></select><input id="q-f" placeholder="이름·소속·메모 검색" style="min-width:200px"><button class="btn sm" id="add">사람 추가</button><button class="btn sm ghost" id="xl-ppl" title="이 명단(사람이 확인해 넣은 사람)만 내려받습니다. 수집된 후보 전체는 수집 결과 탭의 '인물별 엑셀'">확인된 명단 엑셀</button><span class="muted" id="ppl-n" style="font-size:13px"></span></div>
         <div style="overflow-x:auto"><table class="table ppl" id="ppl"><thead><tr><th style="width:84px">이름</th><th style="width:76px">학번</th><th style="width:76px">과정</th><th style="width:130px">소속</th><th style="width:110px">직위</th><th style="width:96px">분야</th><th style="width:62px">등급</th><th style="width:96px">상태</th><th style="width:76px">출신 고교</th><th style="width:60px">출생</th><th style="width:150px">전화할 기관 · 번호</th><th style="width:110px">연결 동문</th><th>메모</th><th style="width:150px">출처</th><th style="width:44px"></th></tr></thead><tbody></tbody></table></div>
         <div class="import"><b>자료 붙여넣기</b> (SNU Biz 앱 자료, 위원 제보 엑셀 등) — 엑셀에서 <code>이름, 학번, 과정, 소속, 직위, 분야, 메모</code> 순서로 열을 맞춰 복사해 붙여넣고 "가져오기"를 누르세요. 이름만 있어도 됩니다.<textarea id="paste" placeholder="홍길동	82	학부	○○그룹	회장	기업	"></textarea><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="do-import">가져오기</button><span class="muted" id="import-msg" style="font-size:13px"></span></div></div>
       </div>
 
       <div class="pane" id="p-hits">
         <div class="bar"><div class="pill-row" id="src-f"></div></div>
-        <div class="bar"><div class="pill-row" id="hs-f"><button class="pill on" data-s="new">검토 대기</button><button class="pill" data-s="kept">보관</button></div><label style="font-size:13px"><input type="checkbox" id="named-only"> 이름 후보가 있는 것만</label><button class="x" id="dismiss-shown">보이는 항목 모두 무시</button><button class="btn sm ghost" id="xl-hits">보이는 목록 엑셀로</button><span class="muted" id="hit-n" style="font-size:13px"></span></div>
+        <div class="bar"><div class="pill-row" id="hs-f"><button class="pill on" data-s="new">검토 대기</button><button class="pill" data-s="kept">보관</button></div><label style="font-size:13px"><input type="checkbox" id="named-only"> 이름 후보가 있는 것만</label><button class="x" id="dismiss-shown">보이는 항목 모두 무시</button><button class="btn sm" id="xl-people" title="검토 대기·보관 전체를 한 사람 한 줄로 묶어 내려받습니다 (인물별·기사별·대표번호 표 3개 시트)">인물별 엑셀 (전체)</button><button class="btn sm ghost" id="xl-hits">보이는 기사만 엑셀</button><span class="muted" id="hit-n" style="font-size:13px"></span></div>
         <p class="muted" style="font-size:13px;margin:-4px 0 14px">이름 버튼을 누르면 명단에 후보로 추가되고 이 기사가 출처로 붙습니다. 같은 이름이 이미 있으면 그 사람에게 출처만 덧붙입니다. 학번과 동명이인 여부는 사람이 확인해 주세요.</p>
         <div style="overflow-x:auto"><table class="table ht"><thead><tr><th style="width:78px">날짜</th><th style="width:84px">분류</th><th style="width:200px">이름 후보</th><th>기사 · 출처</th><th style="width:96px"></th></tr></thead><tbody id="hits"></tbody></table></div>
         <button class="btn sm ghost more" id="more" hidden>더 보기</button>
@@ -172,12 +172,14 @@
     const fits = d => !pk || pk === kindOf(d.name) || (pk === 'corp' && kindOf(d.name) === 'firm');
     const t = norm(text); let best = null, at = 1e9; if (t) for (const d of S.dir || []) if (fits(d)) for (const a of names(d)) { const i = t.indexOf(a); if (i >= 0 && i < at) { at = i; best = d; } }
     return best ? { phone: best.phone, via: best.name, how: '기사 속 기관 · 확인 필요' } : {}; }
-  async function xlsx(rows, cols, file) { // 엑셀 파일은 받는 사람 PC에만 생긴다 (서버·깃에 남기지 않음)
+  async function xlsx(rows, cols, file, sheetName = '목록', extra = []) { // 엑셀 파일은 받는 사람 PC에만 생긴다 (서버·깃에 남기지 않음). extra: 뒤에 붙일 시트 [{name, rows, cols}]
     if (!window.XLSX) await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; sc.onload = ok; sc.onerror = () => no(new Error('엑셀 모듈을 불러오지 못했습니다')); document.head.appendChild(sc); });
-    const ws = XLSX.utils.aoa_to_sheet([cols.map(c => c[0]), ...rows.map(r => cols.map(c => r[c[1]] ?? ''))]);
-    cols.forEach((c, ci) => { if (c[3] !== 'link') return; rows.forEach((r, ri) => { const cell = ws[XLSX.utils.encode_cell({ r: ri + 1, c: ci })]; if (cell && cell.v) cell.l = { Target: String(cell.v) }; }); });
-    ws['!cols'] = cols.map(c => ({ wch: c[2] })); ws['!autofilter'] = { ref: ws['!ref'] }; ws['!freeze'] = { xSplit: 0, ySplit: 1 };
-    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '목록'); XLSX.writeFile(wb, file);
+    const sheet = (rows, cols) => { const ws = XLSX.utils.aoa_to_sheet([cols.map(c => c[0]), ...rows.map(r => cols.map(c => r[c[1]] ?? ''))]);
+      cols.forEach((c, ci) => { if (c[3] !== 'link') return; rows.forEach((r, ri) => { const cell = ws[XLSX.utils.encode_cell({ r: ri + 1, c: ci })]; if (cell && cell.v) { cell.l = { Target: String(cell.v) }; cell.v = '원문 열기'; } }); });
+      ws['!cols'] = cols.map(c => ({ wch: c[2] })); ws['!autofilter'] = { ref: ws['!ref'] }; ws['!freeze'] = { xSplit: 0, ySplit: 1 }; return ws; };
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, sheet(rows, cols), sheetName);
+    for (const x of extra) XLSX.utils.book_append_sheet(wb, sheet(x.rows, x.cols), x.name);
+    XLSX.writeFile(wb, file);
   }
   const tel = oi => oi.phone ? oi.via + ' ' + oi.phone : ''; // 번호만 두면 엉뚱한 곳에 걸 수 있어 기관명을 같은 칸에 붙인다
   // 대표번호로 걸 때 읽을 멘트: 직위에서 호칭을 만들고(대표이사→대표님, 사외이사→이사님), 교환원용·비서실용 두 줄
@@ -189,6 +191,37 @@
       + `[비서실] 2027년 4월 16일 총동문회 창립총회에 ${who}을 모시고자 인사드리려 합니다. 서울대 경영학과 동문이 맞으신지 여쭙고, 편하신 연락처나 시간을 알려 주시면 다시 연락드리겠습니다.`;
   }
   const today = () => new Date().toISOString().slice(0, 10);
+  // 인물별: 첫 번째 이름(서울대 경영 언급과 가장 가까운 이름) 기준으로 기사를 모아 한 사람 한 줄 — 검토 대기·보관 전체, 화면 필터와 무관
+  const liveHits = () => S.hits.filter(h => h.status !== 'dismissed');
+  function peopleRows() {
+    const gs = dedup(liveHits());
+    const alias = new Map(); for (const d of S.dir || []) for (const a of [d.name, ...(Array.isArray(d.aliases) ? d.aliases : [])]) alias.set(norm(a), d.name); // 약칭 → 정식 기관명 (중기부 → 중소벤처기업부)
+    for (const g of gs) if (g.org && alias.has(norm(g.org))) g.org = alias.get(norm(g.org));
+    const top = arr => { const c = {}; arr.filter(Boolean).forEach(x => c[x] = (c[x] || 0) + 1); return Object.entries(c).sort((a, b) => b[1] - a[1]).map(x => x[0]); };
+    const order = ['DART 임원', '기업·금융', '고위공무원', '판검사', '웹', '국회'];
+    const P = new Map(); for (const g of gs) { const n = g.names[0]; if (!n) continue; if (!P.has(n)) P.set(n, []); P.get(n).push(g); }
+    const people = [...P].map(([name, list]) => {
+      list.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const orgs = top(list.map(g => g.org)), org = orgs[0] || '';
+      const pos = top(list.filter(g => !org || g.org === org).map(g => g.position))[0] || top(list.map(g => g.position))[0] || '';
+      // 대표번호는 대표 소속과 같은 기관 기사에서만 — 전 직장 번호가 붙지 않게
+      const same = g => !g.org || !org || norm(org).includes(norm(g.org)) || norm(g.org).includes(norm(org));
+      let oi = {}; for (const g of list) { if (!same(g)) continue; const x = orgInfo(g.org || org, g.title + ' ' + g.snippet, g.position || pos); if (x.phone && (!oi.phone || x.how === '소속 일치' && oi.how !== '소속 일치')) oi = x; }
+      const other = orgs.slice(1).filter(o => !norm(org).includes(norm(o)) && !norm(o).includes(norm(org))); // 동명이인 가능성
+      const via = oi.phone ? oi.via : '';
+      return { grp: top(list.map(grp)).sort((a, b) => order.indexOf(a) - order.indexOf(b))[0], name, org, pos, hs: top(list.map(g => g.hs))[0] || '', birth: top(list.map(g => g.birth))[0] || '', phone: oi.phone || '', via, how: oi.phone ? oi.how : '', say: callScript(name, pos, via),
+        n: list.length, date: list[0].date, title: list[0].title, url: list[0].url, url2: list[1]?.url || '', url3: list[2]?.url || '', other: other.join(', '), addr: oi.addr || '', home: oi.homepage || '' };
+    });
+    people.sort((a, b) => order.indexOf(a.grp) - order.indexOf(b.grp) || b.n - a.n || String(b.date).localeCompare(String(a.date)));
+    return people.map((p, i) => ({ ...p, no: i + 1 }));
+  }
+  const PCOLS = [['번호', 'no', 6], ['분류', 'grp', 10], ['이름', 'name', 9], ['소속', 'org', 22], ['직위', 'pos', 10], ['출신 고교', 'hs', 10], ['출생연도', 'birth', 9], ['대표번호', 'phone', 15], ['전화할 기관', 'via', 22], ['번호 근거', 'how', 20], ['전화 멘트', 'say', 70], ['기사 수', 'n', 7], ['최근 날짜', 'date', 11], ['최근 기사 제목', 'title', 44], ['원문 1', 'url', 10, 'link'], ['원문 2', 'url2', 10, 'link'], ['원문 3', 'url3', 10, 'link'], ['다른 소속 표기 (동명이인 확인)', 'other', 26], ['기관 주소', 'addr', 30], ['홈페이지', 'home', 22]];
+  const ACOLS = [['번호', 'no', 6], ['분류', 'grp', 10], ['이름 후보', 'names', 20], ['소속', 'org', 22], ['직위', 'pos', 10], ['날짜', 'date', 11], ['제목', 'title', 50], ['원문 링크', 'url', 10, 'link'], ['같은 기사', 'dup', 8], ['요약 (서울대 경영 언급)', 'sn', 70], ['상태', 'st', 9]];
+  const DCOLS = [['기관', 'name', 24], ['약칭', 'al', 34], ['대표번호', 'phone', 15], ['구분', 'kind', 11], ['확인 출처', 'src', 60]];
+  q('#xl-people').addEventListener('click', async () => { if (!S.hits.length) return toast('수집 결과를 아직 불러오는 중입니다. 잠시 후 다시 눌러 주세요');
+    const people = peopleRows(), arts = dedup(liveHits()).map((g, i) => ({ no: i + 1, grp: grp(g), names: g.names.join(', '), org: g.org, pos: g.position, date: g.date, title: g.title, url: g.url, dup: g.ids.length - 1, sn: g.snippet, st: g.status === 'new' ? '검토 대기' : '보관' }));
+    const dir = (S.dir || []).slice().sort((a, b) => a.name.localeCompare(b.name)).map(d => ({ name: d.name, al: (Array.isArray(d.aliases) ? d.aliases : []).join(', '), phone: d.phone, kind: d.kind, src: d.source }));
+    try { await xlsx(people, PCOLS, 'VIP_동문후보_' + today() + '.xlsx', '인물별', [{ name: '기사별', rows: arts, cols: ACOLS }, { name: '대표번호 표', rows: dir, cols: DCOLS }]); toast(people.length + '명 · 기사 ' + arts.length + '건을 엑셀로 저장했습니다'); } catch (e) { toast(e.message); } });
   q('#xl-hits').addEventListener('click', async () => { const gs = dedup(shownHits());
     const rows = gs.map((g, i) => { const oi = orgInfo(g.org, g.title + ' ' + g.snippet, g.position); return { no: i + 1, how: oi.phone ? oi.how : '', via: oi.via || '', grp: grp(g), name: g.names[0] || '', org: g.org, pos: g.position, hs: g.hs, birth: g.birth, phone: oi.phone || '', via: oi.phone ? oi.via : '', say: callScript(g.names[0], g.position, oi.phone ? oi.via : ''), addr: oi.addr || '', date: g.date, title: g.title, url: g.url, dup: g.ids.length - 1, more: g.names.slice(1).join(', '), sn: g.snippet, st: g.status === 'new' ? '검토 대기' : '보관' }; });
     try { await xlsx(rows, [['번호', 'no', 6], ['분류', 'grp', 10], ['이름', 'name', 9], ['소속', 'org', 22], ['직위', 'pos', 10], ['출신 고교', 'hs', 11], ['출생연도', 'birth', 9], ['대표번호', 'phone', 15], ['전화할 기관', 'via', 22], ['번호 근거', 'how', 20], ['전화 멘트', 'say', 60], ['기관 주소', 'addr', 30], ['기사 날짜', 'date', 11], ['기사 제목', 'title', 50], ['원문 링크', 'url', 40, 'link'], ['같은 기사', 'dup', 8], ['함께 나온 이름', 'more', 16], ['요약', 'sn', 60], ['상태', 'st', 9]], 'VIP_수집결과_' + today() + '.xlsx'); toast(rows.length + '건을 엑셀로 저장했습니다'); } catch (e) { toast(e.message); } });
