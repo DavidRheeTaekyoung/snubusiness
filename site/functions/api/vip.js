@@ -63,17 +63,6 @@ async function saveHits(db, hits, now) {
   return n;
 }
 
-// DART 임원현황: 최근 보고서부터 차례로 시도 (반기 → 직전 사업보고서)
-const REPORTS = (() => { const y = new Date().getFullYear(); return [[y, '11014'], [y, '11012'], [y - 1, '11011']]; })();
-async function dartExecs(env, corp) {
-  for (const [year, code] of REPORTS) {
-    const r = await fetch(`https://opendart.fss.or.kr/api/exctvSttus.json?crtfc_key=${env.DART_API_KEY}&corp_code=${corp.corp_code}&bsns_year=${year}&reprt_code=${code}`);
-    const j = await r.json().catch(() => ({}));
-    if (j.status === '000') return (j.list || []).map(x => ({ ...x, year, code }));
-    if (j.status === '020' || j.status === '011' || j.status === '010') throw new Error('DART ' + j.status + ' ' + (j.message || ''));
-  }
-  return [];
-}
 
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
@@ -117,33 +106,19 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: true, members: rows.length, found: hits.length, added });
   }
 
-  if (b.r === 'dart_zip') { // 회사 고유번호 목록(zip)을 그대로 넘겨 브라우저에서 풀게 한다 — 함수 CPU를 아끼려는 것
-    if (!k.dart) return err('OpenDART API 키가 아직 등록되지 않았습니다', 503);
-    const r = await fetch('https://opendart.fss.or.kr/api/corpCode.xml?crtfc_key=' + env.DART_API_KEY);
-    if (!r.ok) return err('DART 회사 목록을 받지 못했습니다 ' + r.status, 502);
-    return new Response(r.body, { headers: { 'content-type': r.headers.get('content-type') || 'application/zip', 'cache-control': 'no-store' } });
+  // OpenDART는 해외(클라우드) 접속을 오류 페이지로 돌려보내므로, 스캔은 국내 PC에서 tools/dart-scan.mjs 로 돌리고 결과만 여기로 보낸다
+  if (b.r === 'dart_todo') { const { results } = await db.prepare('SELECT corp_code, name FROM vip_corps WHERE scanned_at IS NULL ORDER BY corp_code').all(); return json({ ok: true, corps: results }); }
+  if (b.r === 'dart_import') {
+    const hits = (Array.isArray(b.hits) ? b.hits : []).slice(0, 300).map(h => ({ ...h, source: 'dart', matched: 1, query: 'DART 임원현황', names: [clean(h.name, 20)] }));
+    const done = (Array.isArray(b.done) ? b.done : []).filter(d => /^\d{8}$/.test(d[0])).slice(0, 300);
+    const added = await saveHits(db, hits, now);
+    if (done.length) await db.batch(done.map(([cc, n]) => db.prepare('UPDATE vip_corps SET scanned_at = ?, found = ? WHERE corp_code = ?').bind(now, Number(n) || 0, cc)));
+    return json({ ok: true, added });
   }
   if (b.r === 'dart_corps') { // 상장사 목록 저장 (브라우저가 100곳씩 보냄)
     const list = (Array.isArray(b.corps) ? b.corps : []).filter(c => /^\d{8}$/.test(c.corp_code)).slice(0, 200);
     if (list.length) await db.batch(list.map(c => db.prepare('INSERT INTO vip_corps (corp_code, name, stock_code) VALUES (?,?,?) ON CONFLICT(corp_code) DO UPDATE SET name=excluded.name, stock_code=excluded.stock_code').bind(c.corp_code, clean(c.name, 120), clean(c.stock_code, 10))));
     return json({ ok: true, saved: list.length });
-  }
-  if (b.r === 'dart_scan') { // 아직 안 본 상장사 몇 곳씩 임원현황을 훑는다 — 페이지가 반복 호출
-    if (!k.dart) return err('OpenDART API 키가 아직 등록되지 않았습니다', 503);
-    const batch = await db.prepare('SELECT * FROM vip_corps WHERE scanned_at IS NULL ORDER BY corp_code LIMIT ?').bind(Math.min(Number(b.limit) || 6, 10)).all().then(r => r.results);
-    const hits = [], done = [];
-    for (const c of batch) {
-      let execs; try { execs = await dartExecs(env, c); } catch (x) { return json({ ok: false, error: x.message, scanned: done.length }); }
-      const found = execs.filter(x => SNU.test(x.main_career || ''));
-      found.forEach(x => hits.push({ key: `dart:${c.corp_code}:${x.nm}`, source: 'dart', url: x.rcept_no ? 'https://dart.fss.or.kr/dsaf001/main.do?rcpNo=' + x.rcept_no : 'https://dart.fss.or.kr/',
-        title: `${x.nm} · ${c.name} ${x.ofcps || ''}`, snippet: `${strip(x.main_career)}${x.chrg_job ? ' / 담당: ' + strip(x.chrg_job) : ''}${x.birth_ym ? ' / 출생 ' + x.birth_ym : ''} (${x.year} ${({ '11011': '사업보고서', '11012': '반기보고서', '11014': '3분기보고서' })[x.code]})`,
-        date: '', names: [x.nm], org: c.name, position: x.ofcps || '', matched: 1, query: 'DART 임원현황' }));
-      done.push([c.corp_code, found.length]);
-    }
-    const added = await saveHits(db, hits, now);
-    if (done.length) await db.batch(done.map(([cc, n]) => db.prepare('UPDATE vip_corps SET scanned_at = ?, found = ? WHERE corp_code = ?').bind(now, n, cc)));
-    const left = await db.prepare('SELECT COUNT(*) AS n FROM vip_corps WHERE scanned_at IS NULL').first();
-    return json({ ok: true, scanned: done.length, found: hits.length, added, left: left.n });
   }
   if (b.r === 'renames') { // 이름 추출 규칙을 고친 뒤 기존 뉴스·웹 결과의 이름 후보를 다시 뽑는다
     const { results } = await db.prepare("SELECT id, title, snippet FROM vip_hits WHERE source IN ('news','web')").all();
