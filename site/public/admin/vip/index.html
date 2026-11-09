@@ -63,17 +63,16 @@
       <div class="pane" id="p-run">
         <div class="run">
           <div class="panel"><h2>뉴스 인사 기사 <span class="key" data-k="naver"></span></h2>
-            <p>경제신문 인사·선임·승진 기사에서 "서울대 경영"이 함께 나온 기사를 모읍니다. 기본 검색어 12개를 최신순으로 한 번에 돌립니다. 정부 장관·차관·청장 임명 기사도 여기에 포함됩니다.</p>
-            <button class="btn sm" data-run="news">인사 기사 일괄 검색</button><div class="out" id="o-news"></div></div>
+            <p>인사·선임·임명 기사에서 "서울대 경영"이 함께 나온 기사를 최신순으로 모읍니다. 분야별로 따로 돌립니다.</p>
+            <div class="bar"><button class="btn sm" data-run="news" data-g="corp">기업 · 금융</button><button class="btn sm" data-run="news" data-g="gov">고위공무원</button><button class="btn sm" data-run="news" data-g="law">판사 · 검사</button></div><div class="out" id="o-news"></div></div>
           <div class="panel"><h2>웹 문서 <span class="key" data-k="naver"></span></h2>
             <p>회사 홈페이지 인사말·약력, 프로필 페이지 등 웹 문서에서 찾습니다.</p>
             <button class="btn sm" data-run="web">웹 일괄 검색</button><div class="out" id="o-web"></div></div>
           <div class="panel"><h2>직접 검색 <span class="key" data-k="naver"></span></h2>
             <p>예: <code>서울대 경영학과 82학번</code>, <code>서울대 경영학과 미래에셋</code>, <code>서울대 경영학과 국세청장</code></p>
             <div class="bar"><input id="cq" placeholder="검색어" style="flex:1;min-width:200px"><select id="ck"><option value="news">뉴스</option><option value="web">웹</option></select><select id="cp"><option value="1">100건</option><option value="3">300건</option><option value="5">500건</option></select><label style="font-size:13px"><input type="checkbox" id="cm" checked> 서울대 경영 언급만</label><button class="btn sm" data-run="custom">검색</button></div><div class="out" id="o-custom"></div></div>
-          <div class="panel"><h2>국회의원 약력 <span class="key" data-k="assembly"></span></h2>
-            <p>현직 국회의원 인적사항의 약력에서 서울대 경영 출신을 찾습니다.</p>
-            <button class="btn sm" data-run="assembly">국회의원 조회</button><div class="out" id="o-assembly"></div></div>
+          <div class="panel"><h2>고위공무원 · 판검사 안내</h2>
+            <p>정부·법원·검찰은 학력을 공개 명부로 내지 않으므로, 임명·인사 때 언론에 나오는 프로필("△서울대 경영학과 △행시 ○회")로 찾습니다. 현직이지만 최근 기사가 없는 분은 직접 검색에 <code>서울대 경영학과 행시 38회</code>, <code>서울대 경영학과 사법연수원 30기</code>처럼 기수를 넣어 보세요.</p></div>
           <div class="panel" style="grid-column:1/-1"><h2>DART 상장사 임원현황 <span class="key" data-k="dart"></span></h2>
             <p>상장사 정기보고서의 임원 "주요경력"에 서울대 경영이 적힌 임원을 찾습니다. 상장사 약 2,700곳을 몇 곳씩 차례로 훑으므로 30분 이상 걸립니다. 이 탭을 열어 두면 계속 진행되고, 닫았다가 다시 누르면 이어서 합니다.</p>
             <div class="bar"><button class="btn sm ghost" data-run="dart-list">1. 상장사 목록 불러오기</button><button class="btn sm" data-run="dart-scan" id="dart-btn">2. 임원현황 스캔 시작</button><button class="x" data-run="dart-reset">처음부터 다시</button><span class="muted" id="dart-st" style="font-size:13px"></span></div>
@@ -83,7 +82,6 @@
               <ol>
                 <li><b>네이버 검색 API</b>: developers.naver.com → Application 등록 → 사용 API "검색" 선택 → Client ID와 Client Secret 발급. 하루 25,000회.<br><code>npx wrangler pages secret put NAVER_CLIENT_ID --project-name snubusiness</code><br><code>npx wrangler pages secret put NAVER_CLIENT_SECRET --project-name snubusiness</code></li>
                 <li><b>OpenDART</b>: opendart.fss.or.kr → 인증키 신청. 하루 20,000회.<br><code>npx wrangler pages secret put DART_API_KEY --project-name snubusiness</code></li>
-                <li><b>열린국회정보</b>: open.assembly.go.kr → 인증키 신청.<br><code>npx wrangler pages secret put ASSEMBLY_API_KEY --project-name snubusiness</code></li>
               </ol>
               등록 후에는 배포를 한 번 다시 해야 키가 반영됩니다 (에이전트에게 "배포해" 하면 됩니다). 학교 쪽 SNU Biz 앱 자료는 명단 탭의 "자료 붙여넣기"로 넣습니다.<br>
               <span class="muted">원칙: 공개된 직함과 출처만 기록하고 연락처·사생활은 모으지 않습니다. 명단은 깃과 공개 페이지에 올리지 않습니다.</span></div></div>
@@ -155,7 +153,7 @@
     const ex = S.people.find(p => p.name === name), source = { title: h.title, url: h.url, from: h.source };
     if (ex) { if (!confirm(name + ' 님이 이미 명단에 있습니다 (' + [ex.org, ex.position].filter(Boolean).join(' ') + ').\n같은 사람이면 확인을 눌러 출처만 덧붙입니다. 동명이인이면 취소 후 "다른 이름으로 추가"를 쓰세요.')) return;
       await api('/vip', { method: 'POST', body: { r: 'person', id: ex.id, source } }); }
-    else await api('/vip', { method: 'POST', body: { r: 'person', name, org: h.org, position: h.position, field: h.source === 'assembly' ? '국회·정치' : (h.source === 'dart' ? '기업' : ''), status: '후보', source, memo: h.source === 'dart' || h.source === 'assembly' ? h.snippet.slice(0, 300) : '' } });
+    else await api('/vip', { method: 'POST', body: { r: 'person', name, org: h.org, position: h.position, field: h.source === 'assembly' ? '국회·정치' : h.source === 'dart' ? '기업' : /판사|검사|검찰|법원|법관|재판관|대법/.test(h.query) ? '법조' : /장관|차관|청장|실장|국장|처장|대사|공무원|행정고시|행시|기획재정부|위원회|국세청|감사원/.test(h.query) ? '공공·정부' : '', status: '후보', source, memo: h.source === 'dart' || h.source === 'assembly' ? h.snippet.slice(0, 300) : '' } });
     await api('/vip', { method: 'POST', body: { r: 'hit', id: h.id, status: 'kept' } }); toast(name + ' 님을 명단에 반영했습니다'); await reload();
   }
   q('#hits').addEventListener('click', async e => { const card = e.target.closest('[data-h]'); if (!card) return; const h = S.hits.find(x => x.id === Number(card.dataset.h));
@@ -189,7 +187,7 @@
     if (k === 'dart-scan') return dartScan();
     b.disabled = true;
     try {
-      if (k === 'news' || k === 'web') { out(k, '검색 중…'); const r = await api('/vip', { method: 'POST', body: { r: 'search', kind: k } }); out(k, `서울대 경영 언급 ${r.found}건 · 새로 추가 ${r.added}건` + (r.fail.length ? '\n실패: ' + r.fail.join('\n') : '')); }
+      if (k === 'news' || k === 'web') { out(k, '검색 중…'); const r = await api('/vip', { method: 'POST', body: { r: 'search', kind: k, group: b.dataset.g } }); out(k, `서울대 경영 언급 ${r.found}건 · 새로 추가 ${r.added}건` + (r.fail.length ? '\n실패: ' + r.fail.join('\n') : '')); }
       if (k === 'custom') { const qq = q('#cq').value.trim(); if (!qq) return; out('custom', '검색 중…'); const r = await api('/vip', { method: 'POST', body: { r: 'search', kind: q('#ck').value, q: qq, pages: Number(q('#cp').value), only_matched: q('#cm').checked } }); out('custom', `${r.found}건 · 새로 추가 ${r.added}건` + (r.fail.length ? '\n실패: ' + r.fail.join('\n') : '')); }
       if (k === 'assembly') { out(k, '조회 중…'); const r = await api('/vip', { method: 'POST', body: { r: 'assembly' } }); out(k, `의원 ${r.members}명 중 ${r.found}명 · 새로 추가 ${r.added}건`); }
       if (k === 'dart-list') { out('dart', '회사 목록 내려받는 중…');
