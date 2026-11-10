@@ -117,7 +117,7 @@
 
       <div class="pane" id="p-report">
         <div class="panel no-print"><div class="panel-head"><h2>결산서 설정</h2><button class="btn sm" onclick="window.print()">인쇄 · PDF 저장</button></div>
-          <div class="form-j" style="grid-template-columns:140px 1fr"><label style="font-size:13.5px;padding-top:8px">단체명</label><input id="m-org"><label style="font-size:13.5px;padding-top:8px">작성자</label><input id="m-preparer"><label style="font-size:13.5px;padding-top:8px">감사</label><input id="m-auditor"></div>
+          <div class="form-j" style="grid-template-columns:140px 1fr"><label style="font-size:13.5px;padding-top:8px">단체명</label><input id="m-org"><label style="font-size:13.5px;padding-top:8px">작성자</label><input id="m-preparer"><label style="font-size:13.5px;padding-top:8px">감사</label><input id="m-auditor"><label style="font-size:13.5px;padding-top:8px">회기 마감 지점</label><input id="m-cuts" placeholder="예) 2025=2025-0124, 2026=2026-11-25 — 비우면 1~12월"></div>
           <div class="field" style="margin:0"><label>주석 (회계정책·특이사항)</label><textarea id="m-notes" style="min-height:120px;font-size:13.5px"></textarea></div>
           <button class="btn sm ghost" id="m-save" style="margin-top:10px">설정 저장</button>
         </div>
@@ -170,7 +170,19 @@
     return out.sort((x, y) => x.date.localeCompare(y.date) || String(x.no).localeCompare(String(y.no)));
   }
   const startMonth = () => Math.min(12, Math.max(1, Number(B.meta.fy_start || 1)));
-  const period = y => { const m = String(startMonth()).padStart(2, '0'); const s = `${y}-${m}-01`; const ey = startMonth() === 1 ? Number(y) : Number(y) + 1; const em = startMonth() === 1 ? 12 : startMonth() - 1; const last = new Date(ey, em, 0).getDate(); return { s, e: `${ey}-${String(em).padStart(2, '0')}-${String(last).padStart(2, '0')}` }; };
+  const calPeriod = y => { const m = String(startMonth()).padStart(2, '0'); const s = `${y}-${m}-01`; const ey = startMonth() === 1 ? Number(y) : Number(y) + 1; const em = startMonth() === 1 ? 12 : startMonth() - 1; const last = new Date(ey, em, 0).getDate(); return { s, e: `${ey}-${String(em).padStart(2, '0')}-${String(last).padStart(2, '0')}` }; };
+  // 회기 마감 지점(fy_cuts): "2025=2025-0124"(그 분개 번호까지) 또는 "2026=2026-11-25"(그 날짜까지). 같은 날 중간에서 회기가 갈릴 수 있어 번호로도 끊는다
+  const cuts = () => Object.fromEntries(String(B.meta.fy_cuts || '').split(/[\n,]+/).map(x => x.trim().split('=').map(v => v.trim())).filter(x => /^\d{4}$/.test(x[0]) && x[1]));
+  const cutOf = y => { const v = cuts()[y]; if (!v) return null; if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return { date: v }; const e = L.find(x => x.no === v); return e ? { date: e.date, no: v } : null; };
+  const upTo = (c, date, no, led) => date < c.date || (date === c.date && (!c.no || (led && String(no) <= c.no)));
+  function period(y) {
+    const P = calPeriod(y), a = cutOf(String(Number(y) - 1)), b = cutOf(String(y));
+    if (a) { P.s = a.no ? a.date : new Date(Date.parse(a.date) + 864e5).toISOString().slice(0, 10); if (a.no) P.note = `분개 ${a.no} 다음부터`; }
+    if (b) { P.e = b.date; if (b.no) P.note = (P.note ? P.note + ' · ' : '') + `분개 ${b.no}까지`; }
+    P.before = (date, no, led) => a ? upTo(a, date, no, led) : date < P.s;
+    P.has = (date, no, led) => !P.before(date, no, led) && (b ? upTo(b, date, no, led) : date <= P.e);
+    return P;
+  }
 
   function compute() {
     const P = period(year), all = entries(), C = coaBy();
@@ -179,21 +191,21 @@
     let carry = 0; // 이전 기간 수익-비용 → 순자산 이월
     for (const j of all) for (const l of j.lines) {
       const k = (C[l.code] || {}).kind;
-      if (j.date < P.s) { if (k === 'revenue' || k === 'expense') carry += (l.cr - l.dr); else A(l.code).open += (l.dr - l.cr); }
-      else if (j.date <= P.e) { A(l.code).dr += l.dr; A(l.code).cr += l.cr; }
+      if (P.before(j.date, j.no, j.refKind === 'ledger')) { if (k === 'revenue' || k === 'expense') carry += (l.cr - l.dr); else A(l.code).open += (l.dr - l.cr); }
+      else if (P.has(j.date, j.no, j.refKind === 'ledger')) { A(l.code).dr += l.dr; A(l.code).cr += l.cr; }
     }
     A('301').open += -carry; // 순자산은 대변잔액(음수)으로 보관
     const bal = code => { const x = acc[code] || { open: 0, dr: 0, cr: 0 }; return x.open + x.dr - x.cr; }; // 차변 기준
     const sumKind = k => B.coa.filter(c => c.kind === k).reduce((s, c) => s + bal(c.code), 0);
     const rev = -sumKind('revenue'), exp = sumKind('expense'), ops = rev - exp;
     const asset = sumKind('asset'), liab = -sumKind('liability'), netOpen = -sumKind('net'), net = netOpen + ops;
-    return { P, all, acc, bal, rev, exp, ops, asset, liab, netOpen, net, inPeriod: all.filter(j => j.date >= P.s && j.date <= P.e) };
+    return { P, all, acc, bal, rev, exp, ops, asset, liab, netOpen, net, inPeriod: all.filter(j => P.has(j.date, j.no, j.refKind === 'ledger')) };
   }
 
   function render() {
     const yrs = [...new Set(L.map(e => e.date.slice(0, 4)).concat(B.journal.map(j => j.date.slice(0, 4))))]; if (!yrs.includes(year)) yrs.push(year); yrs.sort();
     q('#years').innerHTML = yrs.map(y => `<button class="pill ${y === year ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
-    const R = compute(), C = coaBy(); const pl = `${R.P.s.replace(/-/g, '.')} ~ ${R.P.e.replace(/-/g, '.')}`;
+    const R = compute(), C = coaBy(); const pl = `${R.P.s.replace(/-/g, '.')} ~ ${R.P.e.replace(/-/g, '.')}` + (R.P.note ? ` (${R.P.note})` : '');
     q('#k-asset').textContent = won(R.asset); q('#k-liab').textContent = won(R.liab); q('#k-net').textContent = won(R.net); q('#k-ops').textContent = won(R.ops);
     const diff = Math.round(R.asset - R.liab - R.net);
     q('#balance-check').innerHTML = diff === 0 ? '<span class="chk ok">대차 일치 — 자산 = 부채 + 순자산</span>' : `<span class="chk bad">대차 불일치 ${won(diff)} — 수동 분개를 확인하세요</span>`;
@@ -240,7 +252,7 @@
     // 계정과목표
     q('#coa').innerHTML = `<thead><tr><th>코드</th><th>계정명</th><th>구분</th><th>매핑 규칙</th><th></th></tr></thead><tbody>${B.coa.map(c => `<tr data-code="${c.code}" style="${c.active ? '' : 'opacity:.45'}"><td class="code">${c.code}</td><td><input value="${esc(c.name)}" data-f="name"></td><td><select data-f="kind">${Object.entries(KIND).map(([k, v]) => `<option value="${k}" ${k === c.kind ? 'selected' : ''}>${v}</option>`).join('')}</select></td><td><input value="${esc(c.rule)}" data-f="rule" placeholder="${['asset', 'liability', 'net'].includes(c.kind) ? '(자동 분류 대상 아님)' : '단어|단어'}"></td><td><button class="pill" data-cdel="${c.code}">${c.active ? '삭제' : '비활성'}</button></td></tr>`).join('')}</tbody>`;
     // 거래별 매핑
-    const rows = L.filter(e => !e.planned && e.date >= R.P.s && e.date <= R.P.e);
+    const rows = L.filter(e => !e.planned && R.P.has(e.date, e.no, true));
     // 상대계정 선택지: 수익/비용 + 자산·부채(선급금·예수금처럼 수익·비용이 아닌 경유 거래용). 101·102 는 제외
     const opts = (kind, val) => B.coa.filter(c => c.active && c.code !== '101' && c.code !== '102' && c.kind !== 'net').sort((a, b) => (a.kind === kind ? 0 : 1) - (b.kind === kind ? 0 : 1) || a.code.localeCompare(b.code)).map(c => `<option value="${c.code}" ${c.code === val ? 'selected' : ''}>${c.code} ${esc(c.name)}${c.kind === kind ? '' : ' (' + KIND[c.kind] + ')'}</option>`).join('');
     let unk = 0;
@@ -248,7 +260,7 @@
     q('#map-sum').textContent = `${rows.length}건 중 기타로 분류 ${unk}건`;
 
     // 결산서
-    q('#m-org').value = B.meta.org || '서울대학교 경영대학 총동문회'; q('#m-preparer').value = B.meta.preparer || ''; q('#m-auditor').value = B.meta.auditor || ''; q('#m-notes').value = B.meta.notes || DEFAULT_NOTES;
+    q('#m-org').value = B.meta.org || '서울대학교 경영대학 총동문회'; q('#m-preparer').value = B.meta.preparer || ''; q('#m-auditor').value = B.meta.auditor || ''; q('#m-cuts').value = B.meta.fy_cuts || ''; q('#m-notes').value = B.meta.notes || DEFAULT_NOTES;
     const org = esc(B.meta.org || '서울대학교 경영대학 총동문회');
     q('#report').innerHTML = `<div class="page"><div class="cover"><div class="en">Annual Financial Statements</div><h1>${org}<br>${year} 회계연도 결산서</h1><div class="p">회계기간 ${pl}</div></div>
       <h2>1. 재무상태표</h2><div class="unit">${R.P.e.replace(/-/g, '.')} 현재 · (단위: 원)</div><table class="fs">${bsHtml}</table>
@@ -286,7 +298,7 @@
   document.addEventListener('click', async e => {
     const ed = e.target.closest('[data-jedit]'); if (ed) { editJ(Number(ed.dataset.jedit)); return; }
     const b = e.target.closest('[data-jdel]'); if (!b) return; if (!confirm('이 분개를 삭제할까요?')) return; try { await api('/books?r=journal&id=' + b.dataset.jdel, { method: 'DELETE' }); await load(); } catch (err) { toast('실패: ' + err.message); } });
-  q('#m-save').addEventListener('click', async () => { try { await api('/books', { method: 'POST', body: { r: 'meta', meta: { org: q('#m-org').value, preparer: q('#m-preparer').value, auditor: q('#m-auditor').value, notes: q('#m-notes').value } } }); await load(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
+  q('#m-save').addEventListener('click', async () => { try { await api('/books', { method: 'POST', body: { r: 'meta', meta: { org: q('#m-org').value, preparer: q('#m-preparer').value, auditor: q('#m-auditor').value, fy_cuts: q('#m-cuts').value, notes: q('#m-notes').value } } }); await load(); toast('저장'); } catch (err) { toast('실패: ' + err.message); } });
 
   await load(); resetJ();
 })();
