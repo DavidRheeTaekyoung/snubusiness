@@ -1,3 +1,8 @@
 .cf/
 docs/access-codes*.txt
 private/
+# 업체 제안서 — 공개 저장소에 올리지 않음 (배포에만 포함, 로그인 필요)
+site/public/admin/event2027/files/proposal_*
+site/public/admin/event2027/files/response_*
+*제안서*.pdf
+*rfp_response*.xlsx
