@@ -42,6 +42,7 @@
 .ht .sn{color:var(--ink-3);font-size:12.5px;line-height:1.55;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ht mark{background:#F3EAD3;padding:0 2px}
 .ht .chip{font-size:12px;padding:2px 8px;margin:0 4px 4px 0}.ht .acts{display:flex;flex-direction:column;gap:4px;align-items:flex-start}
 .ht .dt{font-size:12px;color:var(--ink-3);white-space:nowrap}.ht .src-b{white-space:nowrap}.ht .dup{font-size:12px;color:var(--gold-700,#8A6D1F);margin-top:2px;cursor:help}.more{display:block;margin:12px auto 0}
+.cd{min-width:1180px;width:100%}.cd th{padding:9px 8px;white-space:nowrap;font-size:12.5px;cursor:pointer;user-select:none}.cd th:hover{background:var(--navy-50,#EEF2F7)}.cd th.s{color:var(--navy-800)}.cd td{padding:7px 8px;vertical-align:top;font-size:13px}.cd td.n{text-align:right;white-space:nowrap}.cd td.w{white-space:nowrap}.cd .est{color:var(--ink-3)}.cd .tl{max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 </style>
 </head>
 <body>
@@ -52,12 +53,19 @@
       <div class="actions"><a class="btn sm ghost" href="/admin/event2027/">창립총회로</a></div></div>
     <div class="admin-body" id="body">
       <div class="kpi"><div class="k gold" data-go="people:확인됨"><div class="v" id="k-ok">—</div><div class="l">확인된 VIP</div></div><div class="k" data-go="people:후보"><div class="v" id="k-cand">—</div><div class="l">후보 · 확인 필요</div></div><div class="k" data-go="hits"><div class="v" id="k-hits">—</div><div class="l">검토 대기 수집 결과</div></div><div class="k" data-go="hits:dart"><div class="v" id="k-dart">—</div><div class="l">DART 상장사 스캔</div></div></div>
-      <div class="tabs" id="tabs"><button data-t="people" class="on">명단</button><button data-t="hits">수집 결과</button><button data-t="run">검색 실행</button></div>
+      <div class="tabs" id="tabs"><button data-t="people" class="on">명단</button><button data-t="cand">인물별 표</button><button data-t="hits">수집 결과</button><button data-t="run">검색 실행</button></div>
 
       <div class="pane on" id="p-people">
         <div class="bar"><div class="pill-row" id="st-f"></div><select id="fd-f"><option value="">분야 전체</option></select><input id="q-f" placeholder="이름·소속·메모 검색" style="min-width:200px"><button class="btn sm" id="add">사람 추가</button><button class="btn sm ghost" id="xl-ppl" title="이 명단(사람이 확인해 넣은 사람)만 내려받습니다. 수집된 후보 전체는 수집 결과 탭의 '인물별 엑셀'">확인된 명단 엑셀</button><span class="muted" id="ppl-n" style="font-size:13px"></span></div>
         <div style="overflow-x:auto"><table class="table ppl" id="ppl"><thead><tr><th style="width:84px">이름</th><th style="width:76px">학번</th><th style="width:76px">과정</th><th style="width:130px">소속</th><th style="width:110px">직위</th><th style="width:96px">분야</th><th style="width:62px">등급</th><th style="width:96px">상태</th><th style="width:76px">출신 고교</th><th style="width:60px">출생</th><th style="width:150px">전화할 기관 · 번호</th><th style="width:110px">연결 동문</th><th>메모</th><th style="width:150px">출처</th><th style="width:44px"></th></tr></thead><tbody></tbody></table></div>
         <div class="import"><b>자료 붙여넣기</b> (SNU Biz 앱 자료, 위원 제보 엑셀 등) — 엑셀에서 <code>이름, 학번, 과정, 소속, 직위, 분야, 메모</code> 순서로 열을 맞춰 복사해 붙여넣고 "가져오기"를 누르세요. 이름만 있어도 됩니다.<textarea id="paste" placeholder="홍길동	82	학부	○○그룹	회장	기업	"></textarea><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="do-import">가져오기</button><span class="muted" id="import-msg" style="font-size:13px"></span></div></div>
+      </div>
+
+      <div class="pane" id="p-cand">
+        <div class="bar"><input id="cd-q" placeholder="이름·소속·직위·고교 검색" style="min-width:200px"><label style="font-size:13px"><input type="checkbox" id="cd-10" checked> 최근 10년 기사만</label><label style="font-size:13px"><input type="checkbox" id="cd-b"> 출생연도 있는 사람만</label><span class="muted" id="cd-n" style="font-size:13px"></span></div>
+        <p class="muted" style="font-size:13px;margin:-4px 0 14px">수집 결과(검토 대기·보관)를 한 사람 한 줄로 묶은 표입니다. 엑셀 "인물별" 시트와 같은 자료이며, 열 제목을 누르면 정렬되고 다시 누르면 순서가 뒤집힙니다. 출생연도 뒤의 ?는 기사에 적힌 나이로 계산한 추정값입니다.</p>
+        <div style="overflow-x:auto"><table class="table cd"><thead><tr id="cd-h"></tr></thead><tbody id="cd-b2"></tbody></table></div>
+        <button class="btn sm ghost more" id="cd-more" hidden>더 보기</button>
       </div>
 
       <div class="pane" id="p-hits">
@@ -143,6 +151,7 @@
     document.querySelectorAll('[data-k]').forEach(el => { const on = S.keys[el.dataset.k]; el.className = 'key ' + (on ? 'on' : 'off'); el.textContent = on ? '연결됨' : '키 미등록'; });
     q('#dart-st').textContent = S.corps.total ? `상장사 ${S.corps.total}곳 중 ${S.corps.scanned || 0}곳 확인 · 발견 ${S.corps.found || 0}명` : '아직 스캔 전입니다';
     q('#dart-bar').style.width = S.corps.total ? Math.round(100 * (S.corps.scanned || 0) / S.corps.total) + '%' : '0';
+    renderCand();
   }
   // 명확한 중복만 묶기: 사흘 안에 이름 후보 묶음이 똑같거나, 제목 앞부분이 같은 기사 (DART는 사람·회사별이라 묶지 않음)
   let GROUPS = new Map();
@@ -216,6 +225,25 @@
     return people.map((p, i) => ({ ...p, no: i + 1 }));
   }
   const PCOLS = [['번호', 'no', 6], ['분류', 'grp', 10], ['이름', 'name', 9], ['소속', 'org', 22], ['직위', 'pos', 10], ['출신 고교', 'hs', 10], ['출생연도', 'birth', 9], ['대표번호', 'phone', 15], ['전화할 기관', 'via', 22], ['번호 근거', 'how', 20], ['전화 멘트', 'say', 70], ['기사 수', 'n', 7], ['최근 날짜', 'date', 11], ['최근 기사 제목', 'title', 44], ['원문 1', 'url', 10, 'link'], ['원문 2', 'url2', 10, 'link'], ['원문 3', 'url3', 10, 'link'], ['다른 소속 표기 (동명이인 확인)', 'other', 26], ['기관 주소', 'addr', 30], ['홈페이지', 'home', 22]];
+  // 인물별 표 (화면): 열 제목 클릭 정렬 — 빈 값은 항상 맨 아래, 출생연도는 추정(?)도 연도로 비교
+  const CCOLS = [['번호', 'no', 'n'], ['분류', 'grp'], ['이름', 'name'], ['소속', 'org'], ['직위', 'pos'], ['출신 고교', 'hs'], ['출생연도', 'birth', 'n'], ['대표번호', 'phone'], ['전화할 기관', 'via'], ['기사 수', 'n', 'n'], ['최근 날짜', 'date'], ['최근 기사', 'title'], ['다른 소속 표기', 'other']];
+  let cdSort = 'birth', cdDir = 1, cdLimit = 300, cdCache = null, cdSrc = null;
+  function renderCand() {
+    if (!q('#p-cand').classList.contains('on')) return;
+    if (!S.hitsLoaded) { q('#cd-h').innerHTML = ''; q('#cd-b2').innerHTML = '<tr><td class="muted">수집 결과를 불러오는 중…</td></tr>'; return; }
+    if (cdSrc !== S.hits) { cdCache = peopleRows(); cdSrc = S.hits; }
+    const cut = (new Date().getFullYear() - 10) + today().slice(4), kw = q('#cd-q').value.trim();
+    const val = (p, k) => k === 'birth' ? parseInt(p.birth) || null : k === 'no' || k === 'n' ? p[k] : (p[k] || null);
+    const rows = cdCache.filter(p => (!q('#cd-10').checked || !p.date || p.date >= cut) && (!q('#cd-b').checked || p.birth) && (!kw || [p.name, p.org, p.pos, p.hs, p.other].join(' ').includes(kw)));
+    rows.sort((a, b) => { const x = val(a, cdSort), y = val(b, cdSort); if (x == null || y == null) return (x == null) - (y == null) || a.no - b.no; return cdDir * (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'ko')) || a.no - b.no; });
+    q('#cd-n').textContent = `${rows.length}명 · 출생연도 있음 ${rows.filter(p => p.birth).length}명 (추정 ${rows.filter(p => /\?/.test(p.birth)).length}명)`;
+    q('#cd-h').innerHTML = CCOLS.map(c => `<th data-c="${c[1]}" class="${c[1] === cdSort ? 's' : ''}">${c[0]}${c[1] === cdSort ? (cdDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('');
+    q('#cd-b2').innerHTML = rows.slice(0, cdLimit).map(p => `<tr><td class="n">${p.no}</td><td class="w"><span class="src-b">${esc(p.grp)}</span></td><td class="w"><b>${esc(p.name)}</b></td><td>${esc(p.org)}</td><td>${esc(p.pos)}</td><td class="w">${esc(p.hs)}</td><td class="n ${/\?/.test(p.birth) ? 'est' : ''}">${esc(p.birth)}</td><td class="w">${esc(p.phone)}</td><td>${esc(p.via)}</td><td class="n">${p.n}</td><td class="w">${esc(p.date || '')}</td><td>${p.url ? `<a class="tl" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer" title="${esc(p.title)}">${esc(p.title)}</a>` : `<span class="tl">${esc(p.title || '')}</span>`}</td><td>${esc(p.other)}</td></tr>`).join('') || `<tr><td colspan="${CCOLS.length}" class="muted">이 조건에 맞는 사람이 없습니다.</td></tr>`;
+    q('#cd-more').hidden = rows.length <= cdLimit; q('#cd-more').textContent = `더 보기 (${Math.min(cdLimit, rows.length)} / ${rows.length})`;
+  }
+  q('#cd-h').addEventListener('click', e => { const th = e.target.closest('th'); if (!th) return; if (cdSort === th.dataset.c) cdDir = -cdDir; else { cdSort = th.dataset.c; cdDir = 1; } renderCand(); });
+  ['#cd-q', '#cd-10', '#cd-b'].forEach(s => q(s).addEventListener('input', renderCand));
+  q('#cd-more').addEventListener('click', () => { cdLimit += 300; renderCand(); });
   const ACOLS = [['번호', 'no', 6], ['분류', 'grp', 10], ['이름 후보', 'names', 20], ['소속', 'org', 22], ['직위', 'pos', 10], ['날짜', 'date', 11], ['제목', 'title', 50], ['원문 링크', 'url', 10, 'link'], ['같은 기사', 'dup', 8], ['요약 (서울대 경영 언급)', 'sn', 70], ['상태', 'st', 9]];
   const DCOLS = [['기관', 'name', 24], ['약칭', 'al', 34], ['대표번호', 'phone', 15], ['구분', 'kind', 11], ['확인 출처', 'src', 60]];
   q('#xl-people').addEventListener('click', async () => { if (!S.hits.length) return toast('수집 결과를 아직 불러오는 중입니다. 잠시 후 다시 눌러 주세요');
@@ -281,7 +309,7 @@
     finally { b.disabled = false; }
   });
 
-  q('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); });
+  q('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); cdSrc = null; renderCand(); });
   const h0 = location.hash.slice(1); if (h0) q(`#tabs [data-t="${h0}"]`)?.click();
   render(); loadHits().catch(e => toast('수집 결과를 불러오지 못했습니다: ' + e.message));
 })();
