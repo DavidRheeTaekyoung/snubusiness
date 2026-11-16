@@ -306,8 +306,8 @@
       <p>본인은 ${org}(이하 '동창회')의 ${kdate(P.s)}부터 ${kdate(P.e)}까지 수입 및 지출 사항을 감사하였습니다.</p>
       <p>본인의 의견으로는 본 동창회의 수입 및 지출은 정당하고 적정하게 집행 관리되었으며, 수입 및 지출 보고서는 적정하게 표시되어 있습니다.</p>
       <div class="aud">감 사 &nbsp; ${esc(B.meta.auditor || '')}</div></div>
-      <div class="page"><h2>수입 및 지출 보고서</h2><div style="font-size:14px;margin:10px 0 2px">결산 기간: ${kdate(P.s)}부터 ${kdate(P.e)}</div><div class="unit">(단위: 원)</div>
-      <table class="fs"><tbody><tr class="tot"><td>${kdate(P.s)} 잔고${P.note ? ' <span class="muted" style="font-weight:400;font-size:12px">(' + esc(P.note) + ')</span>' : ''}</td><td class="amt">${won(open)}</td></tr>
+      <div class="page"><h2>수입 및 지출 보고서</h2><div style="font-size:14px;margin:10px 0 2px">결산 기간: ${kdate(P.s)}부터 ${kdate(P.e)}${P.note ? ' <span class="muted no-print" style="font-size:12px">(' + esc(P.note) + ')</span>' : ''}</div><div class="unit">(단위: 원)</div>
+      <table class="fs"><tbody><tr class="tot"><td>${kdate(P.s)} 잔고</td><td class="amt">${won(open)}</td></tr>
       <tr class="sec"><td>수 입</td><td class="amt">${won(ti)}</td></tr>${inc.map(x => `<tr class="sub"><td class="in">${x[0]}</td><td class="amt">${won(x[1])}</td></tr>`).join('')}
       <tr class="sec"><td>지 출</td><td class="amt">${won(-to)}</td></tr>${out.map(x => `<tr class="sub"><td class="in">${x[0]}</td><td class="amt">${won(-x[1])}</td></tr>`).join('')}
       <tr class="grand"><td>${kdate(P.e)} 잔고</td><td class="amt">${won(close)}</td></tr></tbody></table></div>
