@@ -78,3 +78,20 @@
   window.WB = { api, toast, renderDoc, fmt(ts) { const d = new Date(ts); return isNaN(d) ? ts : d.toLocaleString('ko-KR', { hour12: false }); } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 })();
+
+// 휴대폰 표 카드화: 각 칸에 열 이름(data-l)을 붙이고 .cardify 를 단다. 나중에 그려지는 표도 따라간다.
+(() => {
+  const SKIP = '.sc,.rub,.month,.keep,#cmp-table';
+  function label() {
+    document.querySelectorAll('table.table').forEach(t => {
+      if (t.matches(SKIP)) return;
+      const hr = t.tHead && t.tHead.rows[t.tHead.rows.length - 1]; if (!hr) return;
+      const names = []; [...hr.cells].forEach(c => { for (let i = 0; i < (c.colSpan || 1); i++) names.push(c.textContent.trim()); });
+      t.classList.add('cardify');
+      [...t.tBodies].forEach(b => [...b.rows].forEach(r => { let i = 0; [...r.cells].forEach(c => { if (!c.hasAttribute('data-l')) c.setAttribute('data-l', (c.colSpan || 1) > 1 ? '' : (names[i] || '')); i += c.colSpan || 1; }); }));
+    });
+  }
+  let q = 0; const run = () => { if (q) return; q = requestAnimationFrame(() => { q = 0; label(); }); };
+  const start = () => { label(); new MutationObserver(run).observe(document.body, { childList: true, subtree: true }); };
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', start) : start();
+})();

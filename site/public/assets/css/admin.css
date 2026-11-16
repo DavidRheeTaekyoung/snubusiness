@@ -143,3 +143,20 @@
 @container (max-width:560px){.log li{grid-template-columns:1fr;gap:4px 12px}.log .t,.log .k{display:inline-block;padding-top:0}.log .k{margin-left:10px}.log .m{grid-column:1/-1}}
 
 .table td.date{white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* 휴대폰: 열 많은 표를 행마다 카드로 — 각 칸 앞에 열 이름(data-l, admin.js 가 붙임). 점수 입력·비교표처럼 가로로 봐야 하는 표는 제외(.keep) */
+@media (max-width:640px){
+  .table.cardify{min-width:0!important;width:100%;display:block}
+  .table.cardify thead{display:none}
+  .table.cardify tbody,.table.cardify tfoot{display:block}
+  .table.cardify tr{display:block;background:#fff;border:1px solid var(--line);border-radius:3px;padding:10px 14px;margin-bottom:10px}
+  .table.cardify tr:hover td{background:transparent}
+  .table.cardify td{display:grid;grid-template-columns:84px minmax(0,1fr);gap:10px;align-items:baseline;padding:5px 0;border:0;white-space:normal!important;word-break:keep-all;overflow-wrap:anywhere;width:auto!important;text-align:left!important}
+  .table.cardify td::before{content:attr(data-l);font-size:11.5px;font-weight:600;color:var(--ink-3);letter-spacing:0}
+  .table.cardify td:first-child{display:block;font-size:15px;padding:2px 0 7px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+  .table.cardify td:first-child::before,.table.cardify td[data-l=""]::before{content:none}
+  .table.cardify td[data-l=""]{display:block}
+  .table.cardify td:empty{display:none}
+  .table.cardify td .pill,.table.cardify td .btn{margin:2px 4px 2px 0}
+  .panel:has(> .table.cardify),.wrap:has(> .table.cardify){overflow-x:visible}
+}
