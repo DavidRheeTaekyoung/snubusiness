@@ -48,6 +48,13 @@ export async function onRequestPost({ request, env }) {
     for (let i = 0; i < stmts.length; i += 90) await db.batch(stmts.slice(i, i + 90));
     return json({ ok: true, saved: stmts.length, skipped: bad });
   }
+  if (r === 'demote') { // 게스트 등으로 잘못 들어간 계정을 평회원(동문)으로: { name } — 권한을 비우고 사전 명단 번호·학번을 붙인다
+    const name = clean(b.name, 40), a = await db.prepare("SELECT email, role FROM accounts WHERE name = ? AND role IN ('guest','member')").bind(name).first(); if (!a) return json({ ok: true, found: false });
+    const inv = await db.prepare('SELECT id, cohort, phone FROM invites WHERE nname = ? AND email IS NULL').bind(normName(name)).first();
+    await db.batch([db.prepare("UPDATE accounts SET role = 'alumni', perms = '', cohort = ?, phone = ?, note = ? WHERE email = ?").bind(inv?.cohort || '', inv?.phone || '', clean('평회원으로 전환 — ' + me.name, 200), a.email),
+      ...(inv ? [db.prepare("UPDATE invites SET email = ?, joined_at = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = ?").bind(a.email, inv.id)] : [])]);
+    return json({ ok: true, found: true, was: a.role, linked: !!inv });
+  }
   if (r === 'del') { const id = Number(b.id); const x = await db.prepare('SELECT email FROM invites WHERE id = ?').bind(id).first(); if (!x) return err('not found', 404); if (x.email) return err('이미 가입한 사람은 명단에서 지울 수 없습니다. 계정을 먼저 정리해 주세요'); await db.prepare('DELETE FROM invites WHERE id = ?').bind(id).run(); return json({ ok: true }); }
   const email = clean(b.email, 120).toLowerCase(); if (!email) return err('email required');
   const a = await db.prepare("SELECT email, status FROM accounts WHERE email = ? AND role = 'alumni'").bind(email).first(); if (!a) return err('동문 계정이 아닙니다', 404);
