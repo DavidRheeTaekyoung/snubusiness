@@ -23,10 +23,10 @@ async function eligible(db, pollId, s) {
   if (COMMITTEE.includes(s.role)) return '준비위원';
   const a = await db.prepare('SELECT phone FROM accounts WHERE email = ?').bind(s.email).first().catch(() => null);
   const ph = normPhone(a?.phone);
-  const e = ph ? await db.prepare('SELECT grp FROM poll_elig WHERE poll_id = ? AND phone = ?').bind(pollId, ph).first() : null;
-  if (e) return e.grp;
-  const byName = await db.prepare("SELECT grp FROM poll_elig WHERE poll_id = ? AND nname = ? AND phone = ''").bind(pollId, normName(s.name)).first();
-  return byName ? byName.grp : null;
+  // 동문 계정은 휴대전화로, 휴대전화가 없는 계정(행사기획팀 게스트 등)은 이름으로 대조
+  const e = ph ? await db.prepare('SELECT grp FROM poll_elig WHERE poll_id = ? AND phone = ?').bind(pollId, ph).first()
+    : await db.prepare('SELECT grp FROM poll_elig WHERE poll_id = ? AND nname = ?').bind(pollId, normName(s.name)).first();
+  return e ? e.grp : null;
 }
 const parse = p => ({ id: p.id, title: p.title, body: JSON.parse(p.body || '{}'), open: !!p.open });
 
@@ -47,11 +47,12 @@ export async function onRequestGet({ request, env }) {
       db.prepare('SELECT name, phone, grp, cohort FROM poll_elig WHERE poll_id = ? ORDER BY name').bind(id).all(),
       db.prepare("SELECT name, email FROM accounts WHERE role IN ('owner','member') AND status = 'active' ORDER BY name").all(),
     ]);
-    const alum = await db.prepare("SELECT name, email, phone FROM accounts WHERE role = 'alumni' AND status = 'active'").all();
-    const byPhone = new Map(alum.results.map(a => [normPhone(a.phone), a])), byName = new Map(alum.results.map(a => [normName(a.name), a]));
-    const voted = new Set(v.results.map(x => x.voter));
-    const roster = [...cm.results.map(a => ({ name: a.name, grp: '준비위원', joined: true, voted: voted.has(a.email) })),
-      ...el.results.map(e => { const a = (e.phone && byPhone.get(e.phone)) || (!e.phone && byName.get(normName(e.name))); return { name: e.name, grp: e.grp, cohort: e.cohort, joined: !!a, voted: !!a && voted.has(a.email) }; })];
+    const all = await db.prepare("SELECT name, email, phone, role FROM accounts WHERE status = 'active' AND role <> 'agent'").all();
+    const byPhone = new Map(all.results.filter(a => a.phone).map(a => [normPhone(a.phone), a])), byName = new Map(all.results.filter(a => !a.phone).map(a => [normName(a.name), a]));
+    const voted = new Set(v.results.map(x => x.voter)), cmNames = new Set(cm.results.map(a => normName(a.name)));
+    // 준비위원이면서 학번대표 명단에도 있는 사람은 준비위원으로 한 번만 센다
+    const roster = [...cm.results.map(a => ({ name: a.name, grp: '준비위원', joined: true, voted: voted.has(a.email), also: el.results.some(e => e.nname === normName(a.name)) ? '학번대표' : '' })),
+      ...el.results.filter(e => !cmNames.has(e.nname)).map(e => { const a = (e.phone && byPhone.get(e.phone)) || byName.get(e.nname); return { name: e.name, grp: e.grp, cohort: e.cohort, joined: !!a, voted: !!a && voted.has(a.email) }; })];
     return json({ poll: parse(p), votes: v.results.map(x => ({ ...x, answers: JSON.parse(x.answers || '{}') })), roster });
   }
   const g = await eligible(db, id, s);
