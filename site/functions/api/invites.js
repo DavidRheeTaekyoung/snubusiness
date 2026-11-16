@@ -9,7 +9,7 @@ export function normPhone(s) { let d = String(s || '').split(/\r?\n/)[0].replace
 export const okPhone = d => /^\d{9,15}$/.test(d);
 // 소속은 여럿일 수 있다 — "경영 83/대학원 87", "EMBA 9기", "경제 85/대학원 89"(타학과 학부 + 경영대 대학원).
 // 비교는 첫 줄의 숫자들(입학연도 두 자리 또는 기수)로 한다. 둘째 줄 "9대 EMBA 총동문회장" 같은 직함은 보지 않는다
-export function cohortNums(s) { return [...String(s || '').split(/\r?\n/)[0].matchAll(/\d+/g)].map(m => m[0].length === 4 ? m[0].slice(2) : String(Number(m[0]))); }
+export function cohortNums(s) { return [...String(s || '').split(/\r?\n/)[0].matchAll(/\d+/g)].map(m => String(Number(m[0].length === 4 ? m[0].slice(2) : m[0]))); }
 
 let ready = false;
 export async function ensureInvites(db) {
