@@ -6,7 +6,8 @@ import { ensureInvites, normName, normPhone, okPhone, cohortNums } from './invit
 // 1) 준비위원·행사기획팀: 명단(committee.json)의 이름과 일치해야 하고, 이름당 1계정. 명단의 perms 는 가입 시 자동 부여.
 // 2) 동문(kind=alumni, 제한 오픈): 사전 명단(invites)과 이름+휴대전화가 맞으면 자동 승인, 학번까지 다르거나 명단에 없으면 승인 대기.
 //    학번은 "과정 + 입학연도(또는 기수)" 하나만 받는다 — 명단의 여러 소속(경영 83/대학원 87) 중 하나와 숫자가 맞으면 된다.
-//    교수·교직원처럼 명단에 학번이 없으면 이름+번호만 본다. 명단에 있는지 없는지는 화면에 드러내지 않는다 — 없으면 "확인 후 승인" 으로만 답한다.
+//    과정은 경영대 학부·대학원·EMBA 셋뿐 — 타학과 학부 출신은 경영대 대학원으로, 학교측 인사도 경영 학부·대학원 학번으로 들어온다(2026-06-16 명단 확인).
+//    명단에 학번이 없으면 이름+번호만 본다. 명단에 있는지 없는지는 화면에 드러내지 않는다 — 없으면 "확인 후 승인" 으로만 답한다.
 export async function onRequestPost({ request, env }) {
   const db = getDB(env); if (!db) return err('D1 binding "DB" is not configured', 503);
   await ensureAccounts(db);
@@ -34,8 +35,8 @@ export async function onRequestPost({ request, env }) {
 async function alumni(request, db, env, b, name, email, password) {
   await ensureInvites(db);
   const phone = normPhone(b.phone), course = clean(b.course, 20), num = clean(b.num, 10), cohort = [course, num].filter(Boolean).join(' ');
-  if (!course) return err('과정을 골라 주세요');
-  if (course !== '교수·교직원' && !num) return err('입학연도 또는 기수를 입력해 주세요');
+  if (!['경영', '대학원', 'EMBA'].includes(course)) return err('과정을 골라 주세요 (경영대 학부·대학원·EMBA)');
+  if (!num) return err('입학연도 또는 기수를 입력해 주세요');
   if (!okPhone(phone)) return err('휴대전화 번호를 확인해 주세요 (예: 010-1234-5678)');
   if (!b.consent) return err('개인정보 수집·이용에 동의해 주셔야 가입할 수 있습니다');
   // 같은 곳에서 한 시간에 8번까지 — 이름·번호를 바꿔 가며 명단을 떠보는 일을 막는다
