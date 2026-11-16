@@ -160,3 +160,7 @@
   .table.cardify td .pill,.table.cardify td .btn{margin:2px 4px 2px 0}
   .panel:has(> .table.cardify),.wrap:has(> .table.cardify){overflow-x:visible}
 }
+/* 표 칸이 좁아도 낱말 가운데서 끊지 않는다(한글 낱말·영문 이름 한 글자씩 세로로 쌓이던 문제). 넘치면 패널 안에서 가로 스크롤 */
+.table th{white-space:nowrap}
+.table td{word-break:keep-all;overflow-wrap:break-word}
+.panel{overflow-x:auto}
