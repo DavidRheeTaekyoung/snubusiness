@@ -28,7 +28,7 @@ export async function onRequestGet({ request, env }) {
   if (u.searchParams.get('r') === 'results') {
     if (!(await staff(request, env, db))) return err('결과는 행사기획팀 권한자만 볼 수 있습니다', 403);
     if (!p) return err('없는 조사입니다', 404);
-    const { results } = await db.prepare('SELECT name, cohort, role, answers, created_at, updated_at FROM poll_votes WHERE poll_id = ? ORDER BY updated_at DESC').bind(id).all();
+    const { results } = await db.prepare('SELECT voter, name, cohort, role, answers, created_at, updated_at FROM poll_votes WHERE poll_id = ? ORDER BY updated_at DESC').bind(id).all();
     return json({ poll: { id: p.id, title: p.title, body: JSON.parse(p.body || '{}'), token: p.token, open: !!p.open }, votes: results.map(v => ({ ...v, answers: JSON.parse(v.answers || '{}') })) });
   }
   if (!p || u.searchParams.get('k') !== p.token) return err('링크가 맞지 않습니다. 받으신 링크 전체를 그대로 열어 주세요', 404);
@@ -38,6 +38,10 @@ export async function onRequestGet({ request, env }) {
 export async function onRequestPost({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
   let b; try { b = await request.json(); } catch { return err('invalid json'); }
+  if (b.r === 'delvote') { // 장난·중복 응답 지우기
+    if (!(await staff(request, env, db))) return err('권한이 없습니다', 403);
+    await db.prepare('DELETE FROM poll_votes WHERE poll_id = ? AND voter = ?').bind(clean(b.id, 40), String(b.voter || '')).run(); return json({ ok: true });
+  }
   if (b.r === 'save' || b.r === 'open') { // 조사 만들기·고치기·열고 닫기 — 행사기획팀 권한
     if (!(await staff(request, env, db))) return err('권한이 없습니다', 403);
     const id = clean(b.id, 40); if (!/^[a-z0-9-]+$/.test(id)) return err('id 형식');
