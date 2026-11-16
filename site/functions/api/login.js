@@ -9,6 +9,7 @@ export async function onRequestPost({ request, env }) {
   if (!email || !password) return err('이메일과 비밀번호를 입력해 주세요');
   const a = await db.prepare('SELECT * FROM accounts WHERE email = ?').bind(email).first();
   if (!a || !(await verifyPassword(password, a.pass_hash, a.salt))) return err('이메일 또는 비밀번호가 맞지 않습니다', 401);
+  if (a.status === 'pending') return err('가입 확인 중입니다. 동문회에서 확인한 뒤 승인되면 로그인할 수 있습니다', 403);
   if (a.status !== 'active') return err('사용이 중지된 계정입니다. 이태경 위원에게 문의해 주세요', 403);
   await db.prepare("UPDATE accounts SET last_login = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE email = ?").bind(email).run();
   try { const roster = await fetch(new URL('/data/committee.json', request.url)).then(r => r.json()); const want = ((roster.perms || {})[a.name]) || ((roster.guests || {})[a.name]) || []; const have = new Set((a.perms || '').split(',').filter(Boolean)); let ch = false; for (const p of want) if (!have.has(p)) { have.add(p); ch = true; } if (ch) await db.prepare('UPDATE accounts SET perms = ? WHERE email = ?').bind([...have].join(','), email).run(); } catch (e) {}

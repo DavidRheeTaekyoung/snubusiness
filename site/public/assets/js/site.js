@@ -101,7 +101,7 @@
   async function whoami() {
     try { const r = await fetch('/api/me', { cache: 'no-store' }); if (!r.ok) return; const me = await r.json(); window.SNU_ME = me;
       if (!me.name) return;
-      document.documentElement.classList.add('snu-in');
+      document.documentElement.classList.add('snu-in'); if (me.role === 'alumni') document.querySelectorAll('.wb-top, .wb-link, .wb-mobile').forEach(el => el.remove()); // 동문 계정에는 작업대 입구를 안 보인다
       document.querySelectorAll('[data-me]').forEach(el => { el.innerHTML = '<b>' + me.name + '</b>님 <a href="/api/logout" style="opacity:.6;margin-left:6px" title="다른 이름으로 입장">나가기</a>'; el.hidden = false; });
       document.dispatchEvent(new CustomEvent('snu:me', { detail: me })); } catch (e) {}
   }

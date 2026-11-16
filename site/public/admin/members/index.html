@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>동문 회원 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.note{font-size:13px;color:var(--ink-3);line-height:1.7;background:var(--ivory);border-left:3px solid var(--gold-400);padding:12px 16px;margin-bottom:18px}
+.table td{font-size:13.5px;vertical-align:middle}.table td.tiny,.tiny{font-size:12px;color:var(--ink-3)}
+.wrap{overflow-x:auto}
+.noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}
+.st{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.st.ok{background:#E3F1EA;color:var(--success)}.st.wait{background:#FFF4DC;color:#8A6D1F}.st.bad{background:#F8E3E0;color:var(--danger)}.st.no{background:#EEF0F3;color:var(--ink-3)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bar input{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line-2);min-width:200px}
+textarea.paste{width:100%;min-height:120px;font:13px var(--mono);padding:10px;border:1px solid var(--line-2)}
+.x{font:inherit;font-size:12.5px;padding:4px 10px;border:1px solid var(--line-2);background:#fff;cursor:pointer;margin-right:4px}.x:hover{border-color:var(--gold-500)}
+.x.go{background:var(--navy-800);color:#fff;border-color:var(--navy-800)}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Members · Limited Opening</span><h1>동문 회원</h1><div class="sub">준비 모임 참석자 명단과 가입 신청을 대조해 승인하는 자리. 이름과 휴대전화가 명단과 같고 학번(입학연도·기수)이 맞으면 가입 즉시 자동 승인되고, 나머지는 여기서 사람이 확인합니다.</div></div>
+      <div class="actions"><a class="btn sm ghost" href="/enter/?tab=signup" target="_blank" rel="noopener">가입 화면 보기</a></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi">
+        <div class="k gold"><div class="v" id="k-wait">—</div><div class="l">승인 대기</div></div>
+        <div class="k"><div class="v" id="k-joined">—</div><div class="l">명단 중 가입</div></div>
+        <div class="k"><div class="v" id="k-inv">—</div><div class="l">사전 명단</div></div>
+        <div class="k"><div class="v" id="k-acc">—</div><div class="l">동문 계정 (승인됨)</div></div>
+      </div>
+
+      <div class="panel"><div class="panel-head"><h2>승인 대기</h2><span class="muted" style="font-size:13px">명단에 없거나 학번이 다른 신청</span></div>
+        <div class="wrap"><table class="table" id="wait"><thead><tr><th>이름</th><th>입력한 과정·학번</th><th>휴대전화</th><th>이메일</th><th>사유</th><th>신청</th><th></th></tr></thead><tbody></tbody></table></div></div>
+
+      <div class="panel"><div class="panel-head"><h2>사전 명단</h2><span class="muted" id="inv-n" style="font-size:13px"></span></div>
+        <div class="bar"><input id="inv-q" placeholder="이름·학번·출처 검색"><div class="pill-row" id="inv-f"><button class="pill on" data-f="">전체</button><button class="pill" data-f="no">미가입</button><button class="pill" data-f="yes">가입</button></div></div>
+        <div class="wrap"><table class="table" id="inv"><thead><tr><th>이름</th><th>과정·학번</th><th>휴대전화</th><th>출처</th><th>가입</th><th></th></tr></thead><tbody></tbody></table></div>
+        <details style="margin-top:16px"><summary style="cursor:pointer;font-size:14px;color:var(--navy-800)">명단 추가 (엑셀에서 붙여넣기)</summary>
+          <p class="tiny" style="margin:10px 0 6px">엑셀에서 <b>이름 · 학번 · 휴대전화</b> 세 열을 이 순서로 복사해 붙여넣으세요. 학번 칸은 "경영 83/대학원 87", "EMBA 9기"처럼 여러 소속을 그대로 적어도 되고, 교수·교직원은 비워 두면 됩니다. 이름과 번호가 같은 줄은 학번만 갱신됩니다.</p>
+          <textarea class="paste" id="paste" placeholder="홍길동	경영 89	010-1234-5678"></textarea>
+          <div class="bar" style="margin-top:8px"><input id="src" placeholder="출처 (예: 2026 송년회 참석자)"><button class="btn sm" id="do-import">명단에 추가</button><span class="tiny" id="imp-msg"></span></div>
+        </details></div>
+
+      <div class="panel"><div class="panel-head"><h2>동문 계정</h2><span class="muted" id="acc-n" style="font-size:13px"></span></div>
+        <div class="wrap"><table class="table" id="acc"><thead><tr><th>이름</th><th>과정·학번</th><th>이메일</th><th>상태</th><th>가입</th><th>최근 로그인</th><th>처리</th><th></th></tr></thead><tbody></tbody></table></div></div>
+
+      <div class="note">명단과 휴대전화 번호는 이 사이트의 데이터베이스에만 두고 공개 저장소에는 올리지 않습니다. 화면에는 번호 가운데 자리를 가려 보여 줍니다. 가입 신청 화면은 명단에 이름이 있는지 없는지 알려 주지 않으며(없으면 "확인 후 승인"으로만 안내), 같은 곳에서 한 시간에 8번까지만 신청할 수 있습니다. 동문 계정은 홈페이지만 볼 수 있고 작업대와 내부 자료에는 들어올 수 없습니다.</div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261116a"></script><script src="/assets/js/admin.js?v=20261116a"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const me = await api('/me').catch(() => ({}));
+  if (!(me.role === 'owner' || me.role === 'agent' || (me.perms || []).includes('members'))) { q('#body').innerHTML = '<div class="noperm">동문 회원 관리 권한이 없습니다.</div>'; return; }
+  const mask = p => { p = String(p || ''); return p.length >= 10 && p.startsWith('0') ? p.slice(0, 3) + '-****-' + p.slice(-4) : p.length > 4 ? '+' + p.slice(0, -4).replace(/\d/g, '*') + p.slice(-4) : p; };
+  const day = s => s ? String(s).slice(0, 10).replace(/-/g, '.').slice(2) : '';
+  const ST = { active: ['ok', '승인'], pending: ['wait', '대기'], blocked: ['bad', '차단'] };
+  let D = { invites: [], alumni: [] }, invF = '';
+  async function load() { D = await api('/invites'); render(); }
+  function render() {
+    const wait = D.alumni.filter(a => a.status === 'pending'), act = D.alumni.filter(a => a.status !== 'pending');
+    q('#k-wait').textContent = wait.length; q('#k-inv').textContent = D.invites.length; q('#k-joined').textContent = D.invites.filter(i => i.email).length; q('#k-acc').textContent = D.alumni.filter(a => a.status === 'active').length;
+    q('#wait tbody').innerHTML = wait.map(a => `<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.cohort)}</td><td>${esc(mask(a.phone))}</td><td>${esc(a.email)}</td><td class="tiny">${esc(a.note || '')}</td><td class="tiny">${day(a.created_at)}</td><td style="white-space:nowrap"><button class="x go" data-a="approve" data-e="${esc(a.email)}">승인</button><button class="x" data-a="reject" data-e="${esc(a.email)}">거절</button></td></tr>`).join('') || '<tr><td colspan="7" class="muted">대기 중인 신청이 없습니다.</td></tr>';
+    const kw = q('#inv-q').value.trim(), inv = D.invites.filter(i => (!invF || (invF === 'yes') === !!i.email) && (!kw || [i.name, i.cohort, i.source].join(' ').includes(kw)));
+    q('#inv-n').textContent = `${inv.length}명 표시 · 전체 ${D.invites.length}명`;
+    q('#inv tbody').innerHTML = inv.map(i => `<tr><td><b>${esc(i.name)}</b></td><td>${esc(i.cohort) || '<span class="tiny">—</span>'}</td><td>${esc(mask(i.phone))}</td><td class="tiny">${esc(i.source || '')}</td><td>${i.email ? `<span class="st ok">가입</span> <span class="tiny">${day(i.joined_at)}</span>` : '<span class="st no">미가입</span>'}</td><td>${i.email ? '' : `<button class="x" data-del="${i.id}" title="명단에서 지우기">×</button>`}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">명단이 없습니다. 아래 "명단 추가"로 넣어 주세요.</td></tr>';
+    q('#acc-n').textContent = act.length + '명';
+    q('#acc tbody').innerHTML = act.map(a => { const s = ST[a.status] || ['no', a.status]; return `<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.cohort)}</td><td>${esc(a.email)}</td><td><span class="st ${s[0]}">${s[1]}</span></td><td class="tiny">${day(a.created_at)}</td><td class="tiny">${day(a.last_login)}</td><td class="tiny">${esc(a.note || '')}</td><td>${a.status === 'active' ? `<button class="x" data-a="block" data-e="${esc(a.email)}">차단</button>` : `<button class="x" data-a="approve" data-e="${esc(a.email)}">다시 허용</button>`}</td></tr>`; }).join('') || '<tr><td colspan="8" class="muted">아직 가입한 동문이 없습니다.</td></tr>';
+  }
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-a]'), d = e.target.closest('[data-del]'), f = e.target.closest('#inv-f [data-f]');
+    if (f) { invF = f.dataset.f; document.querySelectorAll('#inv-f .pill').forEach(x => x.classList.toggle('on', x === f)); render(); return; }
+    if (b) { const a = b.dataset.a, label = { approve: '승인', reject: '거절(신청 삭제)', block: '차단' }[a]; if (a !== 'approve' && !confirm(b.dataset.e + ' — ' + label + '할까요?')) return;
+      try { await api('/invites', { method: 'POST', body: { r: a, email: b.dataset.e } }); toast(label + ' 처리했습니다'); load(); } catch (x) { toast(x.message); } }
+    if (d) { if (!confirm('명단에서 지울까요?')) return; try { await api('/invites', { method: 'POST', body: { r: 'del', id: Number(d.dataset.del) } }); load(); } catch (x) { toast(x.message); } }
+  });
+  q('#inv-q').addEventListener('input', render);
+  q('#do-import').addEventListener('click', async () => {
+    const rows = q('#paste').value.split(/\r?\n/).map(l => l.split(/\t|,/).map(x => x.trim())).filter(c => c[0] && !/^이름$/.test(c[0])).map(c => ({ name: c[0], cohort: c[1] || '', phone: c[2] || '' }));
+    if (!rows.length) return toast('붙여넣은 줄이 없습니다');
+    try { const r = await api('/invites', { method: 'POST', body: { r: 'import', rows, source: q('#src').value.trim() } }); q('#imp-msg').textContent = `${r.saved}명 저장` + (r.skipped.length ? ` · 번호가 없거나 이상해 건너뜀: ${r.skipped.join(', ')}` : ''); q('#paste').value = ''; load(); } catch (x) { toast(x.message); }
+  });
+  load().catch(x => toast(x.message));
+})();
+</script>
+</body></html>
