@@ -9,7 +9,7 @@ function tempPassword() { const a = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvw
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensureAccounts(db);
   if (!(await owner(request, env, db))) return err('owner only', 403);
-  const { results } = await db.prepare('SELECT email, name, role, status, created_at, last_login, note, perms FROM accounts WHERE role != 'alumni' ORDER BY created_at').all();
+  const { results } = await db.prepare('SELECT email, name, role, status, created_at, last_login, note, perms FROM accounts WHERE role <> ?1 ORDER BY created_at').bind('alumni').all();
   const roster = await fetch(new URL('/data/committee.json', request.url)).then(r => r.json()).catch(() => ({ members: [] }));
   const joined = new Set(results.map(r => r.name));
   return json({ accounts: results, not_joined: roster.members.filter(n => !joined.has(n)) });
