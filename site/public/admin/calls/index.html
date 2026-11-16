@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>동문 연락 할당 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261109b"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}.tiny{font-size:12px;color:var(--ink-3)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.bar input{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line-2);min-width:220px}
+.callers{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.caller{font:inherit;text-align:left;border:1px solid var(--line-2);background:#fff;padding:9px 11px;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-radius:2px}
+.caller:hover{border-color:var(--gold-500)}
+.caller.on{background:var(--navy-800);border-color:var(--navy-800);color:#fff}.caller.on .c,.caller.on .n{color:#D9DCE4}
+.caller b{font-size:15px}.caller .c{font-size:12px;color:var(--ink-3)}.caller .n{font-size:12px;color:var(--navy-800);font-weight:600}
+.grp-h{font-size:13px;font-weight:600;color:var(--navy-800);margin:16px 0 8px}
+.detail{margin-top:18px}
+.table td{font-size:13.5px;vertical-align:top}.table td.no{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
+.how{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;background:#EEF2F8;color:var(--navy-800);white-space:nowrap}.how.far{background:#FFF4DC;color:#8A6D1F}.how.none{background:#EEF0F3;color:var(--ink-3)}
+.wrap{overflow-x:auto}
+.note{font-size:13px;color:var(--ink-3);line-height:1.7;background:var(--ivory);border-left:3px solid var(--gold-400);padding:12px 16px;margin-bottom:18px}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Event 2027 · Alumni Calls</span><h1>동문 연락 할당</h1><div class="sub">VIP 후보 명단을 준비위원·학번대표가 나눠 전화합니다. 같은 학번대 동문이 연락처를 가장 잘 구하므로, 출생연도로 학번을 추정해 가장 가까운 학번의 담당자에게 배정했습니다. 이름을 누르면 그분이 맡은 동문이 아래에 열립니다.</div></div>
+      <div class="actions"><a class="btn sm ghost" href="/admin/event2027/">창립총회</a><a class="btn sm ghost" href="/admin/vip/">VIP 동문 발굴</a></div></div>
+    <div class="admin-body" id="body">
+      <div class="kpi">
+        <div class="k gold"><div class="v" id="k-p">—</div><div class="l">연락 대상</div></div>
+        <div class="k"><div class="v" id="k-c">—</div><div class="l">담당자 (준비위원 · 학번대표)</div></div>
+        <div class="k"><div class="v" id="k-r">—</div><div class="l">1인당 담당 (최소~최대)</div></div>
+        <div class="k"><div class="v" id="k-h">—</div><div class="l">같은 학번대 / 가까운 / 학번 모름</div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><h2>담당자</h2><span class="tiny" id="sum"></span></div>
+        <div class="bar"><div class="pill-row" id="gf"><button class="pill on" data-g="">전체</button><button class="pill" data-g="학번대표">학번대표</button><button class="pill" data-g="준비위원">준비위원</button></div><input id="q" placeholder="담당자 또는 동문 이름 검색"></div>
+        <div id="callers"></div>
+        <div class="detail" id="detail"></div></div>
+      <div class="note">명단은 기사·공시에서 자동으로 뽑은 후보라 동명이인·타교 출신이 섞여 있어, 담당자가 먼저 동문인지 확인합니다. 추정 학번은 출생연도 + 19입니다. 담당자별 엑셀(채울 칸 포함)은 PM이 개인 카톡으로 한 개씩 보냅니다. 이 명단은 외부 공유 금지입니다.</div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261116b"></script><script src="/assets/js/admin.js?v=20261116c"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api } = WB, q = s => document.querySelector(s);
+  let D; try { D = await api('/calls'); } catch (e) { q('#body').innerHTML = `<div class="noperm">${esc(e.message)}</div>`; return; }
+  const C = D.callers, P = D.people, by = {}; P.forEach(p => (by[p.caller] ||= []).push(p));
+  const loads = C.map(c => (by[c.no] || []).length), hw = k => P.filter(p => p.info.how === k).length;
+  q('#k-p').textContent = P.length + '명'; q('#k-c').textContent = `${C.length}명 (${C.filter(c => c.grp === '준비위원').length} · ${C.filter(c => c.grp !== '준비위원').length})`;
+  q('#k-r').textContent = loads.length ? `${Math.min(...loads)}~${Math.max(...loads)}명` : '—'; q('#k-h').textContent = `${hw('같은 학번대')} / ${hw('가까운 학번')} / ${hw('학번 모름 — 고르게 배분')}`;
+  let grp = '', sel = location.hash.slice(1) || '';
+  const howTag = h => `<span class="how ${h === '같은 학번대' ? '' : h === '가까운 학번' ? 'far' : 'none'}">${h === '학번 모름 — 고르게 배분' ? '학번 모름' : esc(h)}</span>`;
+  function render() {
+    const kw = q('#q').value.trim(), hit = kw ? new Set(P.filter(p => p.name.includes(kw)).map(p => p.caller)) : null;
+    const list = C.filter(c => (!grp || c.grp === grp) && (!kw || c.name.includes(kw) || hit.has(c.no)));
+    const groups = grp ? [[grp, list]] : [['학번대표', list.filter(c => c.grp !== '준비위원')], ['준비위원', list.filter(c => c.grp === '준비위원')]];
+    q('#callers').innerHTML = groups.filter(g => g[1].length).map(([g, cs]) => `<div class="grp-h">${g} ${cs.length}명</div><div class="callers">${cs.map(c => `<button class="caller ${c.no === sel ? 'on' : ''}" data-no="${c.no}"><b>${esc(c.name)}</b><span class="c">${esc(c.cohort.split('/')[0])}</span><span class="n">${(by[c.no] || []).length}명 담당${hit && hit.has(c.no) && !c.name.includes(kw) ? ' · 검색 동문 있음' : ''}</span></button>`).join('')}</div>`).join('') || '<p class="muted">맞는 담당자가 없습니다.</p>';
+    q('#sum').textContent = `${list.length}명 표시`;
+    const c = C.find(x => x.no === sel);
+    if (!c) { q('#detail').innerHTML = '<p class="tiny">위에서 담당자 이름을 누르면 맡은 동문 명단이 여기에 열립니다.</p>'; return; }
+    const ps = (by[c.no] || []).filter(p => !kw || c.name.includes(kw) || p.name.includes(kw));
+    q('#detail').innerHTML = `<div class="panel-head" style="padding:0;margin-bottom:8px"><h2 style="font-size:18px">${esc(c.no)}. ${esc(c.name)} <span class="tiny">${esc(c.cohort)} · ${esc(c.grp)} · ${ps.length}명</span></h2><span class="tiny">엑셀: ${esc(c.file)}</span></div>
+      <div class="wrap"><table class="table"><thead><tr><th>번호</th><th>이름</th><th>추정 학번</th><th>배정</th><th>기사상 소속 · 직위</th><th>기관 대표번호</th><th>최근 기사</th><th>동명이인 주의</th></tr></thead><tbody>${ps.map(p => { const i = p.info; return `<tr><td class="no">${esc(p.vid)}</td><td><b>${esc(p.name)}</b></td><td style="white-space:nowrap">${esc(i.est || '학번 모름')}</td><td>${howTag(i.how)}</td><td>${esc(i.org || '')}${i.pos ? ' · ' + esc(i.pos) : ''}</td><td style="white-space:nowrap">${esc(i.phone || '')}</td><td>${i.url ? `<a href="${esc(i.url)}" target="_blank" rel="noopener noreferrer">${esc(i.title || '기사')}</a>` : esc(i.title || '')}</td><td class="tiny">${esc(i.other || '')}</td></tr>`; }).join('')}</tbody></table></div>`;
+  }
+  q('#callers').addEventListener('click', e => { const b = e.target.closest('[data-no]'); if (!b) return; sel = sel === b.dataset.no ? '' : b.dataset.no; history.replaceState(null, '', sel ? '#' + sel : location.pathname); render(); if (sel) q('#detail').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  q('#gf').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; grp = b.dataset.g; document.querySelectorAll('#gf .pill').forEach(x => x.classList.toggle('on', x === b)); render(); });
+  q('#q').addEventListener('input', render);
+  render();
+})();
+</script>
+</body></html>
