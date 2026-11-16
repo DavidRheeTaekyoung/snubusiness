@@ -139,9 +139,9 @@
 <script>
 (async () => {
   const { json, fmtDate, esc, t } = SNU;
-  // 진행 중인 의견 조사(초청연사 투표 등) — 로그인한 준비위원에게 큰 카드로
+  // 진행 중인 투표(초청연사 등) — 투표 자격자(준비위원·학번대표)에게만 큰 카드로
   fetch('/api/poll?r=active', { cache: 'no-store' }).then(r => r.ok ? r.json() : { polls: [] }).then(({ polls }) => { if (!polls || !polls.length) return;
-    document.getElementById('poll-cards').innerHTML = polls.map(p => `<div class="poll-card"><div><div class="eb">2027 창립총회 · 의견 조사</div><h3>${esc(p.title)}</h3><p>${esc(p.card || p.subtitle)}</p></div><a class="btn gold" href="${esc(p.url)}">투표하러 가기 <span class="arrow">→</span></a></div>`).join('');
+    document.getElementById('poll-cards').innerHTML = polls.map(p => `<div class="poll-card"><div><div class="eb">2027 창립총회 · 의견 조사</div><h3>${esc(p.title)}</h3><p>${esc(p.card || p.subtitle)}</p></div><a class="btn gold" href="${esc(p.url)}">${p.voted ? '투표 완료 · 바꾸기' : '투표하러 가기'} <span class="arrow">→</span></a></div>`).join('');
     document.getElementById('poll-band').hidden = false; }).catch(() => {});
   try {
     const n = await json('/data/notices.json');

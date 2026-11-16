@@ -4,7 +4,7 @@ import { liveSession, isOpen } from './_auth.js';
 // 게스트(준비위원이 아닌 행사기획팀원 등)는 허용된 경로만 — 그 밖은 자기 페이지로 보낸다.
 // 동문(alumni, 제한 오픈으로 가입)은 홈페이지만 — 작업대(/admin)와 내부 API 는 막는다.
 const GUEST_PATHS = { event2027: ['/admin/event2027', '/api/event2027'] };
-const ALUMNI_API = ['/api/me', '/api/logout'];
+const ALUMNI_API = ['/api/me', '/api/logout', '/api/poll'];
 const GUEST_COMMON = ['/api/me', '/api/logout', '/assets/', '/data/committee.json', '/favicon'];
 
 export async function onRequest({ request, env, next }) {
