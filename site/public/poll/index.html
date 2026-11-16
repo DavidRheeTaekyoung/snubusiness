@@ -57,12 +57,14 @@ h2.sec{font-family:var(--serif);font-size:19px;color:var(--navy-800);margin:30px
   const B = P.body || {}, C = B.candidates || [], Q = B.questions || [], M = P.mine || {}, me = P.me || {};
   document.title = P.title + ' | 서울대학교 경영대학 총동문회';
   const nm = no => (C.find(c => c.no === no) || {}).name || no;
-  const qHtml = q => q.type === 'multi'
+  const qHtml = q => q.type === 'text' ? `<div class="q"><label class="ql" for="${q.id}">${esc(q.label)} <span style="font-weight:400;font-size:13px;color:var(--ink-3)">(선택)</span></label><textarea id="${q.id}" name="${q.id}" placeholder="${esc(q.placeholder || '')}">${esc(M[q.id] || '')}</textarea></div>`
+    : q.type === 'multi'
     ? `<div class="q"><span class="ql">${esc(q.label)}</span><div class="opts" data-multi="${q.id}">${C.map(c => `<label><input type="checkbox" name="${q.id}" value="${esc(c.no)}" ${(M[q.id] || []).includes(c.no) ? 'checked' : ''}> ${esc(c.no)} ${esc(c.name)}</label>`).join('')}</div><div class="tiny" id="cnt-${q.id}" style="margin-top:6px;font-size:13px;color:var(--ink-3)"></div></div>`
     : `<div class="q"><span class="ql">${esc(q.label)}</span><div class="opts">${(q.options || []).map(o => `<label><input type="radio" name="${q.id}" value="${esc(o)}" ${M[q.id] === o ? 'checked' : ''}> ${esc(o)}</label>`).join('')}</div></div>`;
   const vote = !me.group ? `<div class="closed" style="background:#EEF0F3;color:var(--ink-2)">이 투표는 준비위원·학번대표만 참여할 수 있습니다. 후보 소개는 보실 수 있습니다.</div>`
     : `<form class="form" id="f"><div style="font-size:14px;color:var(--ink-2);margin-bottom:16px"><b>${esc(me.name)}</b> 님 (${esc(me.group)})${P.mine ? ' · 이미 투표하셨습니다. 다시 내시면 앞의 투표가 바뀝니다.' : ''}</div>
       ${Q.map(qHtml).join('')}
+      ${B.note ? `<div class="intro" style="margin:0 0 16px">${esc(B.note)}</div>` : ''}
       <button class="btn wide" type="submit" ${P.open ? '' : 'disabled'}>${P.mine ? '투표 바꾸기' : '투표하기'}</button>
       <div class="err" id="err"></div><div id="done"></div></form>`;
   app.innerHTML = `<div class="top"><div class="seal" data-seal></div><div class="org">서울대학교 경영대학 총동문회</div><h1>${esc(P.title)}</h1>${B.subtitle ? `<div class="org" style="margin-top:6px">${esc(B.subtitle)}</div>` : ''}</div>
@@ -82,8 +84,8 @@ h2.sec{font-family:var(--serif);font-size:19px;color:var(--navy-800);margin:30px
     document.getElementById('cnt-' + q.id).textContent = `${n}명 선택 (${q.min || 1}~${q.max || 3}명)`; } };
   f.addEventListener('change', sync); sync();
   f.addEventListener('submit', async e => { e.preventDefault(); const err = document.getElementById('err'), done = document.getElementById('done'); err.textContent = ''; done.innerHTML = '';
-    const answers = {}; for (const q of Q) answers[q.id] = q.type === 'multi' ? [...f.querySelectorAll(`input[name="${q.id}"]:checked`)].map(i => i.value) : (f.querySelector(`input[name="${q.id}"]:checked`)?.value || '');
-    for (const q of Q) { if (q.type === 'multi' && (answers[q.id].length < (q.min || 1))) { err.textContent = '초청하고 싶은 연사를 1명 이상 골라 주세요'; return; } if (q.type !== 'multi' && q.required && !answers[q.id]) { err.textContent = q.label.split('.')[0] + ' 문항을 골라 주세요'; return; } }
+    const answers = {}; for (const q of Q) answers[q.id] = q.type === 'text' ? f.querySelector('#' + q.id).value.trim() : q.type === 'multi' ? [...f.querySelectorAll(`input[name="${q.id}"]:checked`)].map(i => i.value) : (f.querySelector(`input[name="${q.id}"]:checked`)?.value || '');
+    for (const q of Q) { if (q.type === 'multi' && (answers[q.id].length < (q.min || 1))) { err.textContent = '초청하고 싶은 연사를 1명 이상 골라 주세요'; return; } if (q.type === 'choice' && q.required && !answers[q.id]) { err.textContent = q.label.split('.')[0] + ' 문항을 골라 주세요'; return; } }
     const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
     const r = await fetch('/api/poll', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id, answers }) }); const j = await r.json().catch(() => ({})); btn.disabled = false;
     if (!r.ok) { err.textContent = j.error || '보내지 못했습니다. 잠시 후 다시 시도해 주세요'; return; }
