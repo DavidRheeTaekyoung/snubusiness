@@ -37,6 +37,10 @@
   </div>
 </section>
 
+<section class="section tight" id="poll-band" hidden style="padding-bottom:0">
+  <div class="container"><div id="poll-cards"></div></div>
+</section>
+
 <section class="section">
   <div class="container">
     <div class="section-head reveal">
@@ -125,9 +129,20 @@
 
 <div id="site-footer"></div>
 <script src="/assets/js/site.js?v=20261116b"></script>
+<style>
+.poll-card{display:grid;grid-template-columns:1fr auto;gap:18px 28px;align-items:center;background:var(--navy-900);color:var(--paper);border-left:4px solid var(--gold-400);padding:clamp(20px,4vw,30px) clamp(18px,4vw,34px);margin-bottom:14px}
+.poll-card .eb{font-family:var(--display);letter-spacing:.14em;font-size:12px;color:var(--gold-300);text-transform:uppercase}
+.poll-card h3{font-family:var(--serif);font-size:clamp(19px,3.4vw,24px);margin:6px 0 6px;color:#fff;line-height:1.4}
+.poll-card p{margin:0;font-size:14.5px;line-height:1.7;color:#D9DCE4}
+@media (max-width:640px){.poll-card{grid-template-columns:1fr}.poll-card .btn{width:100%;justify-content:center}}
+</style>
 <script>
 (async () => {
   const { json, fmtDate, esc, t } = SNU;
+  // 진행 중인 의견 조사(초청연사 투표 등) — 로그인한 준비위원에게 큰 카드로
+  fetch('/api/poll?r=active', { cache: 'no-store' }).then(r => r.ok ? r.json() : { polls: [] }).then(({ polls }) => { if (!polls || !polls.length) return;
+    document.getElementById('poll-cards').innerHTML = polls.map(p => `<div class="poll-card"><div><div class="eb">2027 창립총회 · 의견 조사</div><h3>${esc(p.title)}</h3><p>${esc(p.card || p.subtitle)}</p></div><a class="btn gold" href="${esc(p.url)}">투표하러 가기 <span class="arrow">→</span></a></div>`).join('');
+    document.getElementById('poll-band').hidden = false; }).catch(() => {});
   try {
     const n = await json('/data/notices.json');
     const items = n.items;
