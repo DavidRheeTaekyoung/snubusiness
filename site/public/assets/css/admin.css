@@ -164,3 +164,8 @@
 .table th{white-space:nowrap}
 .table td{word-break:keep-all;overflow-wrap:break-word}
 .panel{overflow-x:auto}
+@media (max-width:640px){
+  .table.cardify td{display:block;position:relative;padding:5px 0 5px 94px;min-height:24px}
+  .table.cardify td::before{position:absolute;left:0;top:7px;width:84px;line-height:1.35}
+  .table.cardify td:first-child,.table.cardify td[data-l=""]{padding-left:0}
+}
