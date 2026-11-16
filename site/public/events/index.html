@@ -61,7 +61,7 @@
 </div></section>
 
 <div id="site-footer"></div>
-<script src="/assets/js/site.js?v=20261116a"></script>
+<script src="/assets/js/site.js?v=20261116b"></script>
 <script>
 (async () => {
   const { json, esc, t } = SNU; const EN = SNU.lang === 'en';
@@ -78,7 +78,7 @@
     document.getElementById('ev-list').innerHTML = rows.map(i => { const d = new Date(i.date); const s = ST[i.status]||ST.plan; return `
       <div class="ev"><div class="d"><div class="m">${d.toLocaleString('en',{month:'short'})} ${d.getFullYear()}</div><div class="n">${String(d.getDate()).padStart(2,'0')}</div><div class="w">${W[d.getDay()]}${EN?'':'요일'} ${i.time}</div></div>
       <div><span class="badge ${s[1]}" style="margin-bottom:8px">${esc(t(i,'kind'))}</span><h3>${esc(t(i,'title'))}</h3><div class="i">${esc(t(i,'place'))} · ${esc(t(i,'desc'))}</div></div>
-      <div>${i.status==='done'?`<span class="badge soon">${s[0]}</span>`:i.status==='open'?`<a class="btn sm" href="mailto:alumni@snubusiness.com?subject=행사 참가 신청">${EN?'Register':'참가 신청'}</a>`:`<span class="badge soon">${s[0]}</span>`}</div></div>`; }).join('');
+      <div>${i.status==='done'?`<span class="badge soon">${s[0]}</span>`:i.status==='open'?`<a class="btn sm" href="mailto:pm@snubusiness.com?subject=행사 참가 신청">${EN?'Register':'참가 신청'}</a>`:`<span class="badge soon">${s[0]}</span>`}</div></div>`; }).join('');
   }
   render();
 })();

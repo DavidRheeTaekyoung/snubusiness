@@ -70,7 +70,7 @@
     return `<footer class="footer"><div class="container">
       <div class="cols">
         <div>${brand(true)}
-          <p style="margin-top:22px;max-width:360px;line-height:1.8">서울대학교 경영대학 동문의 우의를 다지고 모교의 발전에 기여합니다.<br>08826 서울특별시 관악구 관악로 1 서울대학교 경영대학<br>Tel 02-880-0000 · alumni@snubusiness.com</p></div>
+          <p style="margin-top:22px;max-width:360px;line-height:1.8">서울대학교 경영대학 동문의 우의를 다지고 모교의 발전에 기여합니다.<br>08826 서울특별시 관악구 관악로 1 서울대학교 경영대학<br>전화 추후 공지 · pm@snubusiness.com</p></div>
         <div><h4>About</h4><ul><li><a href="/about/#greeting">회장 인사말</a></li><li><a href="/about/#history">연혁</a></li><li><a href="/about/#bylaws">회칙</a></li><li><a href="/about/#officers">임원 · 조직</a></li><li><a href="/about/#office">사무국 안내</a></li></ul></div>
         <div><h4>Connect</h4><ul><li><a href="/news/">소식</a></li><li><a href="/events/">행사</a></li><li><a href="/members/#directory">동문 찾기</a></li><li><a href="/members/#mentoring">멘토링</a></li><li><a href="/media/#newsletter">동문회보</a></li></ul></div>
         <div><h4>Support</h4><ul><li><a href="/giving/#dues">동문회비 납부</a></li><li><a href="/giving/#scholarship">장학사업</a></li><li><a href="/giving/#donate">기부 안내</a></li><li><a href="/media/#forms">서식 다운로드</a></li><li><a href="/admin/">Workbench</a></li></ul></div>
