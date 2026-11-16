@@ -48,9 +48,14 @@
 .report .sign{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px;font-size:14px}
 .report .sign div{border-top:1px solid var(--ink-3);padding-top:8px;text-align:center}
 .report .notes{white-space:pre-wrap;font-size:13.5px;line-height:1.8}
+/* 수입·지출 보고서 (감사보고서 양식) · 누적 기부금 */
+.wr h1{font-family:var(--serif);text-align:center;font-size:24px;letter-spacing:.5em;color:var(--navy-900);margin:30px 0 34px}
+.wr .to{font-size:15px;font-weight:600;margin-bottom:6px}.wr .dt{font-size:14px;margin-bottom:28px}.wr p{font-size:15px;line-height:2;margin:0 0 16px}
+.wr .aud{text-align:center;font-size:16px;letter-spacing:.3em;margin:70px 0 20px}
+.wr h2{text-align:center}.wr .fs td.in{padding-left:28px}.wr .dn{width:100%}.wr .dn td,.wr .dn th{font-size:13px;padding:5px 8px}.wr .dn .gap{border:0;width:18px;background:#fff}
+.don th{cursor:pointer;user-select:none;white-space:nowrap}.don th.s{color:var(--navy-800)}.don td.amt,.don th.amt{white-space:nowrap}
 @media print{
-  .admin-side,.admin-top,.tabs,.no-print,.pane:not(#p-report){display:none!important}
-  #p-report{display:block!important}
+  .admin-side,.admin-top,.tabs,.no-print,.pane:not(.on){display:none!important}
   .admin-shell{display:block}.admin-body{padding:0;max-width:none}body{background:#fff}
   .report{border:0;padding:0;max-width:none}
   .report .page{break-after:page}
@@ -75,7 +80,7 @@
       <div id="balance-check" style="margin:-8px 0 18px"></div>
 
       <div class="tabs" id="tabs">
-        <button data-t="tb" class="on">합계잔액시산표</button><button data-t="bs">재무상태표</button><button data-t="is">운영성과표</button><button data-t="gl">계정별 원장</button><button data-t="jr">분개장</button><button data-t="adj">수동 분개</button><button data-t="coa">계정과목 · 매핑</button><button data-t="report">결산서 (인쇄)</button>
+        <button data-t="tb" class="on">합계잔액시산표</button><button data-t="bs">재무상태표</button><button data-t="is">운영성과표</button><button data-t="gl">계정별 원장</button><button data-t="jr">분개장</button><button data-t="adj">수동 분개</button><button data-t="coa">계정과목 · 매핑</button><button data-t="wr">수입·지출 보고서</button><button data-t="don">누적 기부금</button><button data-t="report">결산서 (인쇄)</button>
       </div>
 
       <div class="pane on" id="p-tb"><div class="panel"><div class="panel-head"><h2>합계잔액시산표</h2><span class="muted" id="tb-period" style="font-size:13px"></span></div>
@@ -113,6 +118,17 @@
         <div class="panel"><div class="panel-head"><h2>거래별 계정 확인</h2><span class="muted" style="font-size:13px" id="map-sum"></span></div>
           <div class="hint" style="font-size:13px;color:var(--ink-3);margin:-6px 0 12px">자동 분류가 틀린 거래만 오른쪽에서 계정을 바꾸면 됩니다. 노란 줄은 규칙에 안 걸려 "기타"로 간 거래입니다.</div>
           <div class="wrap"><table class="fs map" id="map"></table></div></div>
+      </div>
+
+      <div class="pane" id="p-wr">
+        <div class="panel no-print"><div class="panel-head"><h2>수입·지출 보고서</h2><button class="btn sm" onclick="window.print()">인쇄 · PDF 저장</button></div>
+          <p class="muted" style="font-size:13px;margin:0">작년 송년회 보고에 쓴 워드 양식(감사보고서 → 수입 및 지출 보고서 → 기부금 내역)과 같은 순서입니다. 위의 연도를 누르면 그 회기로 바뀌고, 단체명·감사 이름은 "결산서 (인쇄)" 탭의 설정을 씁니다. 감사보고서 문안은 서명 전 초안입니다.</p><div id="wr-chk" style="margin-top:8px"></div></div>
+        <div class="report wr" id="wr"></div>
+      </div>
+      <div class="pane" id="p-don">
+        <div class="panel"><div class="panel-head"><h2>누적 기부금 — 인별 · 연도별</h2><span class="muted" id="don-sum" style="font-size:13px"></span></div>
+          <div class="no-print" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><div class="pill-row" id="don-mode"><button class="pill on" data-m="fy">회기 기준</button><button class="pill" data-m="cal">달력 연도 기준</button></div><input id="don-q" placeholder="이름 검색" style="font:inherit;padding:7px 10px;border:1px solid var(--line-2)"><span class="muted" style="font-size:13px">장부에 "기부금"으로 적힌 수입만 모읍니다. 열 제목을 누르면 정렬됩니다.</span></div>
+          <div class="wrap"><table class="fs don" id="don"></table></div></div>
       </div>
 
       <div class="pane" id="p-report">
@@ -269,7 +285,49 @@
       <h2>4. 주석</h2><div class="notes">${esc(B.meta.notes || DEFAULT_NOTES)}</div></div>
       <div class="page"><h2>5. 분개 목록 · 증빙 번호</h2><div class="unit">${pl} · 번호 = 증빙 관리 번호 · (단위: 원)</div><table class="fs"><thead><tr><th>번호</th><th>일자</th><th>적요</th><th>차변</th><th>대변</th><th class="amt">금액</th><th class="amt">증빙</th></tr></thead><tbody>${R.inPeriod.map(j => { const d = j.lines.filter(l => l.dr), c = j.lines.filter(l => l.cr); const n = j.refKind ? EV.of(j.refKind, j.refId).length : 0; return `<tr><td class="code" style="white-space:nowrap">${esc(j.no || '')}</td><td style="white-space:nowrap">${j.date}</td><td>${esc(j.memo)}</td><td>${d.map(l => esc(nm(l.code))).join('<br>')}</td><td>${c.map(l => esc(nm(l.code))).join('<br>')}</td><td class="amt">${won(d.reduce((a, l) => a + l.dr, 0))}</td><td class="amt">${n || ''}</td></tr>`; }).join('') || '<tr><td colspan="7" class="muted">—</td></tr>'}</tbody></table>
       <div class="sign"><div>작성자 ${esc(B.meta.preparer || '')} (인)</div><div>감사 ${esc(B.meta.auditor || '')} (인)</div></div></div>`;
+    renderWr(R); renderDon(yrs);
   }
+
+  // 수입·지출 보고서 — 작년 감사보고서(워드) 양식: 현금주의, 항목 묶음은 장부의 "항목" 기준
+  const WR_IN = [['기 부 금', /기부|찬조|후원/], ['식대입금', /식대|참가비/], ['이자수익', /이자/]];
+  const WR_OUT = [['서울대발전기금 · 외부 기부', /기부|발전기금|찬조/], ['창립총회 예약금', /예치금|예약금/], ['행사진행비', /행사진행/], ['행사 식대', /식대|회식|송년회|준비모임|조찬/], ['강연료 및 공연료', /강연|공연/]];
+  const kdate = d => { const [y, m, x] = d.split('-').map(Number); return `${y}년 ${m}월 ${x}일`; };
+  const donorOf = e => (e.counterparty || String(e.item || '').replace(/\s*-\s*기부.*$/, '')).trim() || '(이름 없음)';
+  function renderWr(R) {
+    const P = R.P, rows = L.filter(e => !e.planned && P.has(e.date, e.no, true)), org = esc(B.meta.org || '서울대학교 경영대학 총동문회');
+    const group = (type, G, rest) => { const out = G.map(g => [g[0], 0]); out.push([rest, 0]); for (const e of rows) { if (e.type !== type) continue; const i = G.findIndex(g => g[1].test(e.category || '')); out[i < 0 ? G.length : i][1] += e.amount; } return out.filter(x => x[1]); };
+    const inc = group('income', WR_IN, '기타수입'), out = group('expense', WR_OUT, '기타잡비'), ti = inc.reduce((a, x) => a + x[1], 0), to = out.reduce((a, x) => a + x[1], 0);
+    const cash = k => ['101', '102', '103'].reduce((a, c) => a + (k === 'open' ? (R.acc[c] || { open: 0 }).open : R.bal(c)), 0), open = cash('open'), close = cash('close');
+    const gap = Math.round(open + ti - to - close);
+    q('#wr-chk').innerHTML = gap === 0 ? '<span class="chk ok">기초 잔고 + 수입 − 지출 = 기말 잔고 일치</span>' : `<span class="chk bad">기초 + 수입 − 지출이 기말 잔고와 ${won(gap)} 다릅니다 — 수동 분개나 선급·예수 처리 거래를 확인하세요</span>`;
+    const D = {}; for (const e of rows) if (e.type === 'income' && /기부금/.test(e.category || '')) D[donorOf(e)] = (D[donorOf(e)] || 0) + e.amount;
+    const dl = Object.entries(D).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'ko')), half = Math.ceil(dl.length / 2), cell = i => dl[i] ? `<td class="amt">${i + 1}</td><td>${esc(dl[i][0])}</td><td class="amt">${won(dl[i][1])}</td>` : '<td></td><td></td><td></td>';
+    q('#wr').innerHTML = `<div class="page"><h1>감 사 보 고 서</h1><div class="to">${org} 귀중</div><div class="dt">${kdate(P.e)}</div>
+      <p>본인은 ${org}(이하 '동창회')의 ${kdate(P.s)}부터 ${kdate(P.e)}까지 수입 및 지출 사항을 감사하였습니다.</p>
+      <p>본인의 의견으로는 본 동창회의 수입 및 지출은 정당하고 적정하게 집행 관리되었으며, 수입 및 지출 보고서는 적정하게 표시되어 있습니다.</p>
+      <div class="aud">감 사 &nbsp; ${esc(B.meta.auditor || '')}</div></div>
+      <div class="page"><h2>수입 및 지출 보고서</h2><div style="font-size:14px;margin:10px 0 2px">결산 기간: ${kdate(P.s)}부터 ${kdate(P.e)}</div><div class="unit">(단위: 원)</div>
+      <table class="fs"><tbody><tr class="tot"><td>${kdate(P.s)} 잔고${P.note ? ' <span class="muted" style="font-weight:400;font-size:12px">(' + esc(P.note) + ')</span>' : ''}</td><td class="amt">${won(open)}</td></tr>
+      <tr class="sec"><td>수 입</td><td class="amt">${won(ti)}</td></tr>${inc.map(x => `<tr class="sub"><td class="in">${x[0]}</td><td class="amt">${won(x[1])}</td></tr>`).join('')}
+      <tr class="sec"><td>지 출</td><td class="amt">${won(-to)}</td></tr>${out.map(x => `<tr class="sub"><td class="in">${x[0]}</td><td class="amt">${won(-x[1])}</td></tr>`).join('')}
+      <tr class="grand"><td>${kdate(P.e)} 잔고</td><td class="amt">${won(close)}</td></tr></tbody></table></div>
+      <div class="page"><h2>기부금 내역</h2><div class="unit">${dl.length}명 · 합계 ${won(dl.reduce((a, x) => a + x[1], 0))}원 · (단위: 원)</div>
+      <table class="fs dn"><thead><tr><th class="amt">No</th><th>기부자</th><th class="amt">금액</th><th class="gap"></th><th class="amt">No</th><th>기부자</th><th class="amt">금액</th></tr></thead><tbody>${Array.from({ length: half }, (_, i) => `<tr>${cell(i)}<td class="gap"></td>${cell(i + half)}</tr>`).join('') || '<tr><td colspan="7" class="muted">이 기간의 기부금이 없습니다.</td></tr>'}</tbody></table></div>`;
+  }
+  // 누적 기부금: 인별 × 연도별(회기 또는 달력 연도)
+  let donMode = 'fy', donSort = 'total', donDir = -1;
+  function renderDon(yrs) {
+    const Ps = yrs.map(y => [y, period(y)]), col = e => donMode === 'cal' ? e.date.slice(0, 4) : (Ps.find(([, P]) => P.has(e.date, e.no, true)) || [e.date.slice(0, 4)])[0];
+    const D = {}, used = new Set(); for (const e of L) { if (e.planned || e.type !== 'income' || !/기부금/.test(e.category || '')) continue; const n = donorOf(e), c = col(e); used.add(c); const d = (D[n] ||= { name: n, total: 0, n: 0, last: '' }); d[c] = (d[c] || 0) + e.amount; d.total += e.amount; d.n++; if (e.date > d.last) d.last = e.date; }
+    const cols = [...used].sort(), kw = q('#don-q').value.trim(), rows = Object.values(D).filter(d => !kw || d.name.includes(kw));
+    rows.sort((a, b) => { const x = a[donSort] || 0, y = b[donSort] || 0; return (typeof x === 'string' || typeof y === 'string' ? String(x).localeCompare(String(y), 'ko') : x - y) * donDir || b.total - a.total || a.name.localeCompare(b.name, 'ko'); });
+    const th = (k, t, amt) => `<th data-s="${k}" class="${amt ? 'amt ' : ''}${k === donSort ? 's' : ''}">${t}${k === donSort ? (donDir > 0 ? ' ▲' : ' ▼') : ''}</th>`, sum = k => rows.reduce((a, d) => a + (d[k] || 0), 0);
+    q('#don-sum').textContent = `${rows.length}명 · ${won(sum('total'))}원 · ${sum('n')}건`;
+    q('#don').innerHTML = `<thead><tr><th class="amt">No</th>${th('name', '기부자')}${cols.map(c => th(c, donMode === 'cal' ? c + '년' : c + ' 회기', 1)).join('')}${th('total', '누계', 1)}${th('n', '건수', 1)}${th('last', '최근')}</tr></thead><tbody>${rows.map((d, i) => `<tr><td class="amt">${i + 1}</td><td>${esc(d.name)}</td>${cols.map(c => `<td class="amt">${won(d[c])}</td>`).join('')}<td class="amt"><b>${won(d.total)}</b></td><td class="amt">${d.n}</td><td class="date">${ymd(d.last)}</td></tr>`).join('') || `<tr><td colspan="${cols.length + 5}" class="muted">기부금 내역이 없습니다.</td></tr>`}<tr class="grand"><td></td><td>합 계</td>${cols.map(c => `<td class="amt">${won(sum(c))}</td>`).join('')}<td class="amt">${won(sum('total'))}</td><td class="amt">${sum('n')}</td><td></td></tr></tbody>`;
+  }
+  q('#don').addEventListener('click', e => { const t = e.target.closest('[data-s]'); if (!t) return; if (donSort === t.dataset.s) donDir = -donDir; else { donSort = t.dataset.s; donDir = t.dataset.s === 'name' ? 1 : -1; } render(); });
+  q('#don-mode').addEventListener('click', e => { const b = e.target.closest('[data-m]'); if (!b) return; donMode = b.dataset.m; document.querySelectorAll('#don-mode .pill').forEach(x => x.classList.toggle('on', x === b)); if (!['name', 'total', 'n', 'last'].includes(donSort)) { donSort = 'total'; donDir = -1; } render(); });
+  q('#don-q').addEventListener('input', () => render());
 
   // 이벤트
   q('#years').addEventListener('click', e => { const b = e.target.closest('[data-y]'); if (b) { year = b.dataset.y; render(); } });
