@@ -37,7 +37,7 @@
 .doc h3 .mn{font-size:12.5px;color:var(--ink-3);font-weight:400}.doc h3{border-bottom:1px solid var(--line-2);padding-bottom:4px;margin-top:22px}
 .tp-d{margin:10px 0 14px}.tp-d h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}.tp-d .nt{white-space:pre-wrap;padding-left:12px;border-left:2px solid var(--gold-400)}.tp-d .nt.none{color:#B9B3A8;border-color:var(--line-2)}
 .tp-d .dc{white-space:pre-wrap;margin-top:4px;padding-left:12px;font-size:14px}.tp-d .dc b{font-size:12px;color:var(--navy-800);margin-right:4px}
-.tp-d .pp{margin-top:4px;padding-left:12px;font-size:12.5px;color:var(--ink-3)}.tp-d .pp summary{cursor:pointer}.tp-d .pp div{white-space:pre-wrap;margin-top:4px}
+.tp-d .pp{margin-top:4px;padding-left:12px;font-size:12.5px;color:var(--ink-3)}.tp-d .pp summary{cursor:pointer}.tp-d .pp.open{white-space:pre-wrap;font-size:13.5px;color:var(--ink-2,#444);background:#FBFAF7;padding:8px 12px;border-left:2px solid var(--line-2)}.doc .intro{background:var(--ivory);padding:8px 12px;font-size:14px}.tp-d .pp div{white-space:pre-wrap;margin-top:4px}
 .files{margin:14px 0 4px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line)}.files .fh{font-size:12.5px;font-weight:600;color:var(--navy-800);margin-bottom:8px}
 .fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.fg figure{margin:0}.fg video{width:100%;background:#000;display:block}.fg figcaption{font-size:12.5px;color:var(--ink-2,#444);margin-top:4px}.fg figcaption a{font-size:12px;margin-left:6px}
 @media (max-width:640px){.ag,.ag tbody,.ag tr,.ag td{display:block;width:auto!important}.ag thead,.ag colgroup{display:none}.ag tr{position:relative;border-bottom:1px solid var(--line-2);padding:6px 0}.ag td{border:0;padding:3px 34px 3px 4px}.ag td.x{position:absolute;right:0;top:6px;padding:0}.ag td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3)}}
@@ -183,7 +183,7 @@
   function docOf(id) {
     return sections(id).map(s => `${s.head ? `<h3>${esc(s.head.topic)}${s.head.mins ? `<span class="mn"> · ${s.head.mins}분</span>` : ''}</h3>` : ''}${s.topics.filter(t => !String(t.topic).startsWith('__')).map(t => {
       const note = (t.note || '').trim(), dec = (t.decision || '').trim(), prep = (t.prep || '').trim();
-      return `<div class="tp-d"><h4>${esc(t.topic || '(주제 없음)')}</h4>${note ? `<div class="nt">${esc(note)}</div>` : '<div class="nt none">논의 기록 없음</div>'}${dec ? `<div class="dc"><b>결정 · 후속</b> ${esc(dec)}</div>` : ''}${prep ? `<details class="pp"><summary>사전 자료</summary><div>${esc(prep)}</div></details>` : ''}</div>`; }).join('')}`).join('');
+      return `<div class="tp-d"><h4>${esc(t.topic || '(주제 없음)')}</h4>${note ? `<div class="nt">${esc(note)}</div>` : ''}${dec ? `<div class="dc"><b>결정 · 후속</b> ${esc(dec)}</div>` : ''}${prep ? (note || dec ? `<details class="pp"><summary>사전 자료</summary><div>${esc(prep)}</div></details>` : `<div class="pp open">${esc(prep)}</div>`) : ''}</div>`; }).join('')}`).join('');
   }
   function renderBoard() {
     const all = done(), gs = [...new Set(all.map(m => m.grp).filter(Boolean))];
@@ -194,7 +194,7 @@
   function article(m) {
     const meta = [m.held_at && '일시 ' + m.held_at, m.place && '장소 ' + m.place, m.attendees && '참석 ' + m.attendees, m.closed_by && '정리 ' + m.closed_by].filter(Boolean).map(esc).join(' · ');
     const rows = rowsOf(m.id).length; // 회의실에서 적은 회의는 그 글 그대로, 옛 회의(9월)는 옮겨 적은 글
-    return `<div class="post"><div class="pm">${meta}</div>${filesBox(m)}${rows ? `<div class="doc">${docOf(m.id)}</div>` : editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">기록이 없습니다.</p>'}</div>`}
+    return `<div class="post"><div class="pm">${meta}</div>${filesBox(m)}${rows ? `<div class="doc">${m.summary ? `<p class="intro">${esc(m.summary)}</p>` : ''}${docOf(m.id)}</div>` : editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">기록이 없습니다.</p>'}</div>`}
       <div class="bt">${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `${rows ? '' : `<button class="pill" data-edit="${m.id}">글 고치기</button>`}<button class="pill" data-reopen="${m.id}">회의실로 되돌려 고치기</button>` : ''}</div></div>`;
   }
   q('#bf').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) { bgrp = b.dataset.g; renderBoard(); } });
