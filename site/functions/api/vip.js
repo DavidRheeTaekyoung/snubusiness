@@ -44,12 +44,12 @@ const NEWS_Q = {
   law: Q('검사장 지검장 고검장 부장검사 검찰_인사 법원장 부장판사 고법_판사 대법관_후보 헌법재판관 법관_인사 판사_출신 검사_출신'),
 };
 const WEB_Q = ['서울대 경영학과 졸업 대표이사 인사말', '서울대학교 경영학과 졸업 회장 약력', '서울대 경영학과 졸업 사장 프로필'];
-const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo', 'hs', 'birth', 'phone'];
+const FIELDS = ['name', 'cohort', 'degree', 'org', 'position', 'field', 'tier', 'status', 'link', 'memo', 'hs', 'birth', 'phone', 'excl'];  // excl: 제외·확인 필요 사유
 let migrated = false;
 async function migrate(db) { // 나중에 붙인 칸 — 한 번 조회해서 빠진 칸이 있을 때만 ALTER (요청마다 ALTER를 돌리면 느려짐)
-  const have = await db.prepare("SELECT (SELECT COUNT(*) FROM pragma_table_info('vip_hits') WHERE name = 'birth') + (SELECT COUNT(*) FROM pragma_table_info('vip_corps') WHERE name = 'homepage') + (SELECT COUNT(*) FROM pragma_table_info('vip_people') WHERE name = 'phone') AS n").first();
-  if (have?.n === 3) return;
-  for (const sql of ["ALTER TABLE vip_people ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN phone TEXT NOT NULL DEFAULT ''",
+  const have = await db.prepare("SELECT (SELECT COUNT(*) FROM pragma_table_info('vip_hits') WHERE name = 'birth') + (SELECT COUNT(*) FROM pragma_table_info('vip_corps') WHERE name = 'homepage') + (SELECT COUNT(*) FROM pragma_table_info('vip_people') WHERE name = 'phone') + (SELECT COUNT(*) FROM pragma_table_info('vip_people') WHERE name = 'excl') AS n").first();
+  if (have?.n === 4) return;
+  for (const sql of ["ALTER TABLE vip_people ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_people ADD COLUMN excl TEXT NOT NULL DEFAULT ''",
     "ALTER TABLE vip_hits ADD COLUMN hs TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_hits ADD COLUMN birth TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN phone TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN addr TEXT NOT NULL DEFAULT ''", "ALTER TABLE vip_corps ADD COLUMN homepage TEXT NOT NULL DEFAULT ''"]) { try { await db.prepare(sql).run(); } catch {} }
 }
 
@@ -180,11 +180,13 @@ export async function onRequestGet({ request, env }) {
     ]);
     return json({ hits, orgs, dir });
   }
-  const [people, corps, counts] = await Promise.all([
+  const [people0, calls, corps, counts] = await Promise.all([
     db.prepare('SELECT * FROM vip_people ORDER BY id DESC').all().then(r => r.results.map(p => ({ ...p, sources: JSON.parse(p.sources || '[]') }))),
+    db.prepare('SELECT p.vip_id, p.vid, c.no, c.name FROM call_people p JOIN call_callers c ON c.no = p.caller WHERE p.vip_id IS NOT NULL').all().then(r => r.results).catch(() => []),
     db.prepare('SELECT COUNT(*) AS total, SUM(CASE WHEN scanned_at IS NOT NULL THEN 1 ELSE 0 END) AS scanned, SUM(found) AS found FROM vip_corps').first(),
     db.prepare("SELECT source, status, COUNT(*) AS n FROM vip_hits GROUP BY source, status").all().then(r => r.results),
   ]);
+  const cm = new Map(calls.map(c => [c.vip_id, c])), people = people0.map(p => { const c = cm.get(p.id); return c ? { ...p, caller: c.name, caller_no: c.no, call_vid: c.vid } : p; });  // 동문 연락 할당과 연동
   return json({ people, counts, corps, keys: keys(env), presets: { news: NEWS_Q, web: WEB_Q }, me: s.name, role: s.role });
 }
 
@@ -275,6 +277,12 @@ export async function onRequestPost({ request, env }) {
     if (src) { const p = await db.prepare('SELECT sources FROM vip_people WHERE id = ?').bind(id).first(); const list = JSON.parse(p?.sources || '[]');
       if (!list.some(x => x.url === src.url)) { list.push(src); await db.prepare('UPDATE vip_people SET sources = ?, updated_by = ?, updated_at = ? WHERE id = ?').bind(JSON.stringify(list.slice(-30)), s.name, now, id).run(); } }
     return json({ ok: true, id });
+  }
+  if (b.r === 'bulk') { // 상태·사유 등 여러 사람 한꺼번에: { rows: [{ id, status?, excl?, name?, org?, position?, birth? }] } — 연락 할당 거르기 결과 반영용
+    const rows = Array.isArray(b.rows) ? b.rows : [], ok = ['status', 'excl', 'name', 'org', 'position', 'birth', 'phone'];
+    const st = rows.filter(x => Number(x.id)).map(x => { const f = ok.filter(k => k in x); return f.length ? db.prepare(`UPDATE vip_people SET ${f.map(k => k + ' = ?').join(', ')}, updated_by = ?, updated_at = ? WHERE id = ?`).bind(...f.map(k => clean(x[k], 300)), s.name, now, Number(x.id)) : null; }).filter(Boolean);
+    for (let i = 0; i < st.length; i += 90) await db.batch(st.slice(i, i + 90));
+    return json({ ok: true, n: st.length });
   }
   if (b.r === 'people') { // 붙여넣기 일괄 추가 (SNU Biz 앱 자료 등)
     const rows = (Array.isArray(b.rows) ? b.rows : []).filter(x => clean(x.name, 40)).slice(0, 1000); // 수집 결과를 통째로 옮길 때도 쓴다 (출처 링크 포함)
