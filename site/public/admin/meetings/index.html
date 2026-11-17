@@ -33,6 +33,7 @@
 .post .bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .raw{margin-top:12px;overflow-x:auto}.raw table{min-width:640px}.raw td{white-space:pre-wrap;vertical-align:top;font-size:13px}
 .empty{padding:28px 0;color:var(--ink-3)}
+.warn{background:#FFF4DC;border:1px solid #E5C77A;color:#7A5A12;padding:9px 14px;margin-bottom:12px;font-size:13.5px;font-weight:500}
 .doc h3 .mn{font-size:12.5px;color:var(--ink-3);font-weight:400}.doc h3{border-bottom:1px solid var(--line-2);padding-bottom:4px;margin-top:22px}
 .tp-d{margin:10px 0 14px}.tp-d h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}.tp-d .nt{white-space:pre-wrap;padding-left:12px;border-left:2px solid var(--gold-400)}.tp-d .nt.none{color:#B9B3A8;border-color:var(--line-2)}
 .tp-d .dc{white-space:pre-wrap;margin-top:4px;padding-left:12px;font-size:14px}.tp-d .dc b{font-size:12px;color:var(--navy-800);margin-right:4px}
@@ -50,7 +51,7 @@
       <div class="actions"><button class="btn sm gold" id="new">새 회의 열기</button></div></div>
     <div class="admin-body" id="body">
       <div class="tabs" id="tabs"><button data-t="room">회의실</button><button data-t="board">회의록</button></div>
-      <div class="pane" id="p-room"><div class="pill-row" id="room-sel" style="margin-bottom:12px"></div><div class="panel" id="room"></div></div>
+      <div class="pane" id="p-room"><div class="warn" id="unsaved" hidden></div><div class="pill-row" id="room-sel" style="margin-bottom:12px"></div><div class="panel" id="room"></div></div>
       <div class="pane" id="p-board"><div class="panel"><div class="pill-row" id="bf" style="margin-bottom:14px"></div><div id="board"></div></div></div>
     </div>
   </main>
@@ -127,8 +128,14 @@
     let body;
     if (mt) { const m = S.meetings.find(x => x.id === roomId); if (m[mt] === v) return; body = { r: 'meet', id: roomId, field: mt, value: v }; m[mt] = v; }
     else { const id = Number(el.closest('[data-row]').dataset.row), r = S.minutes.find(x => x.id === id); const cur = f === 'mins' ? String(r.mins || '') : (r[f] || ''); if (cur === v) return; body = { r: 'min', id, field: f, value: v }; r[f] = f === 'mins' ? (parseInt(v, 10) || 0) : v; }
-    saving++; try { await post(body); if (mt === 'title') { counts(); q('#room .panel-head h2').textContent = v; } } catch (e) { toast('저장 실패: ' + e.message); } finally { saving--; }
+    const key = (mt ? 'm' + roomId + ':' + mt : 'r' + body.id + ':' + f); PEND[key] = body; keep();
+    saving++; try { await post(body); delete PEND[key]; keep(); if (mt === 'title') { counts(); q('#room .panel-head h2').textContent = v; } } catch (e) { toast('저장 실패 — 이 PC 에 보관하고 자동으로 다시 저장합니다'); } finally { saving--; }
   }
+  // 저장이 안 된 글은 이 브라우저에 보관해 두고 5초마다 다시 보낸다 — 연결이 끊기거나 로그인이 풀려도 쓴 글이 사라지지 않게
+  let PEND = {}; try { PEND = JSON.parse(localStorage.getItem('mtg-pending') || '{}'); } catch (e) {}
+  function keep() { try { localStorage.setItem('mtg-pending', JSON.stringify(PEND)); } catch (e) {} const n = Object.keys(PEND).length, w = q('#unsaved'); if (w) { w.hidden = !n; w.textContent = n ? `아직 서버에 저장되지 않은 글 ${n}칸 — 이 PC 에 보관 중이며 자동으로 다시 저장합니다. 이 창을 닫지 마세요.` : ''; } }
+  function applyPend() { for (const b of Object.values(PEND)) { if (b.r === 'meet') { const m = S.meetings.find(x => x.id === b.id); if (m) m[b.field] = b.value; } else { const r = S.minutes.find(x => x.id === b.id); if (r) r[b.field] = b.field === 'mins' ? (parseInt(b.value, 10) || 0) : b.value; } } }
+  setInterval(async () => { for (const [k, b] of Object.entries(PEND)) { if (saving) return; try { await post(b); delete PEND[k]; keep(); } catch (e) { return; } } }, 5000);
   const timers = new Map();
   q('#room').addEventListener('input', e => { const t = e.target; if (!t.classList.contains('ce')) return; clearTimeout(timers.get(t)); timers.set(t, setTimeout(() => { timers.delete(t); saveCe(t); }, 700)); });
   q('#room').addEventListener('focusout', e => { const t = e.target; if (t.classList.contains('ce')) { clearTimeout(timers.get(t)); timers.delete(t); saveCe(t); } });
@@ -204,8 +211,8 @@
 
   // 여럿이 함께 적을 때: 15초마다 다른 사람이 쓴 칸을 반영 (내가 쓰는 칸은 건드리지 않음)
   setInterval(async () => {
-    if (document.hidden || !q('#p-room').classList.contains('on') || saving || timers.size || closing) return; if ([...document.querySelectorAll('video')].some(v => !v.paused)) return;
-    try { const n = await api('/meetings'); if (saving || timers.size) return;
+    if (document.hidden || !q('#p-room').classList.contains('on') || saving || timers.size || closing || Object.keys(PEND).length) return; if ([...document.querySelectorAll('video')].some(v => !v.paused)) return;
+    try { const n = await api('/meetings'); if (saving || timers.size || Object.keys(PEND).length) return;
       const sig = x => open().map(m => m.id).join() + '|' + rowsOf(roomId).map(r => r.id).join();
       const before = sig(); S.meetings = n.meetings; S.minutes = n.minutes; counts();
       if (sig() !== before) { if (!document.activeElement?.classList.contains('ce')) renderRoom(); return; }
@@ -218,7 +225,7 @@
 
   const h = location.hash.slice(1);
   if (h.startsWith('board-')) openPost = Number(h.slice(6));
-  counts(); renderRoom(); renderBoard();
+  applyPend(); counts(); renderRoom(); renderBoard(); keep();
   tab(h.startsWith('board') || (!h && !open().length) ? 'board' : 'room');
   if (openPost) document.getElementById('m' + openPost)?.scrollIntoView({ block: 'start' });
 })();
