@@ -11,11 +11,11 @@ async function ensure(db) {
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_meetings (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL DEFAULT '', held_at TEXT NOT NULL DEFAULT '', place TEXT NOT NULL DEFAULT '', attendees TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS ev_minutes (id INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id INTEGER NOT NULL, kind TEXT NOT NULL DEFAULT 'topic', block TEXT NOT NULL DEFAULT '', seq REAL NOT NULL DEFAULT 0, mins INTEGER NOT NULL DEFAULT 0, topic TEXT NOT NULL DEFAULT '', prep TEXT NOT NULL DEFAULT '', note TEXT NOT NULL DEFAULT '', decision TEXT NOT NULL DEFAULT '', updated_by TEXT, updated_at TEXT)`),
   ]);
-  for (const c of ["grp TEXT NOT NULL DEFAULT ''", "status TEXT NOT NULL DEFAULT '진행'", "summary TEXT NOT NULL DEFAULT ''", "day TEXT NOT NULL DEFAULT ''", "src TEXT NOT NULL DEFAULT ''", "closed_by TEXT", "closed_at TEXT"])
+  for (const c of ["grp TEXT NOT NULL DEFAULT ''", "status TEXT NOT NULL DEFAULT '진행'", "summary TEXT NOT NULL DEFAULT ''", "day TEXT NOT NULL DEFAULT ''", "src TEXT NOT NULL DEFAULT ''", "closed_by TEXT", "closed_at TEXT", "files TEXT NOT NULL DEFAULT ''"])
     try { await db.prepare('ALTER TABLE ev_meetings ADD COLUMN ' + c).run(); } catch {}
 }
 const ok = s => hasPerm(s, 'event2027') || hasPerm(s, 'meeting');
-const MF = ['title', 'held_at', 'place', 'attendees', 'grp', 'day', 'summary'];
+const MF = ['title', 'held_at', 'place', 'attendees', 'grp', 'day', 'summary', 'files']; // files: 한 줄에 「이름 | 주소」
 
 export async function onRequestGet({ request, env }) {
   const db = getDB(env); if (!db) return err('no db', 503); await ensure(db);
@@ -41,7 +41,7 @@ export async function onRequestPost({ request, env }) {
   }
   if (b.r === 'meet') { // 회의 머리 칸 하나 저장
     if (!MF.includes(b.field)) return err('bad field');
-    await db.prepare(`UPDATE ev_meetings SET ${b.field} = ?, updated_by = ?, updated_at = ? WHERE id = ?`).bind(clean(b.value, b.field === 'summary' ? 20000 : 300), s.name, now, Number(b.id)).run();
+    await db.prepare(`UPDATE ev_meetings SET ${b.field} = ?, updated_by = ?, updated_at = ? WHERE id = ?`).bind(clean(b.value, ['summary', 'files'].includes(b.field) ? 20000 : 300), s.name, now, Number(b.id)).run();
     return json({ ok: true });
   }
   if (b.r === 'close') { // 회의 마치기 → 회의록 게시판으로

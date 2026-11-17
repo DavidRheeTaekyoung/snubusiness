@@ -33,6 +33,8 @@
 .post .bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .raw{margin-top:12px;overflow-x:auto}.raw table{min-width:640px}.raw td{white-space:pre-wrap;vertical-align:top;font-size:13px}
 .empty{padding:28px 0;color:var(--ink-3)}
+.files{margin:14px 0 4px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line)}.files .fh{font-size:12.5px;font-weight:600;color:var(--navy-800);margin-bottom:8px}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.fg figure{margin:0}.fg video{width:100%;background:#000;display:block}.fg figcaption{font-size:12.5px;color:var(--ink-2,#444);margin-top:4px}.fg figcaption a{font-size:12px;margin-left:6px}
 @media (max-width:640px){.ag,.ag tbody,.ag tr,.ag td{display:block;width:auto!important}.ag thead,.ag colgroup{display:none}.ag tr{position:relative;border-bottom:1px solid var(--line-2);padding:6px 0}.ag td{border:0;padding:3px 34px 3px 4px}.ag td.x{position:absolute;right:0;top:6px;padding:0}.ag td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3)}}
 </style>
 </head>
@@ -84,15 +86,20 @@
         <div><label>일시</label>${ce('data-mt="held_at"', m.held_at, '일시')}</div>
         <div><label>장소</label>${ce('data-mt="place"', m.place, '장소')}</div>
         <div style="grid-column:1/-1"><label>참석자</label>${ce('data-mt="attendees"', m.attendees, '참석자')}</div></div>
+      ${filesBox(m)}
       ${sections(m.id).map(s => `<div class="sec">${s.head ? `<div class="sec-h" data-row="${s.head.id}">${ce('data-f="topic"', s.head.topic, '안건 제목')}<span class="mn">${ce('data-f="mins"', s.head.mins || '', '0')}분</span><button class="xb" title="안건 지우기" data-del="${s.head.id}">&times;</button></div>` : ''}
-        <table class="ag keep"><colgroup><col style="width:16%"><col style="width:30%"><col><col style="width:26%"><col style="width:30px"></colgroup><thead><tr><th>주제</th><th>자료</th><th>논의</th><th>결정 · 후속</th><th></th></tr></thead><tbody>
-        ${s.topics.map(t => `<tr data-row="${t.id}"><td class="tp">${ce('data-f="topic"', t.topic, '주제')}</td><td class="pr" data-l="자료">${ce('data-f="prep"', t.prep, '')}</td><td data-l="논의">${ce('data-f="note"', t.note, '논의 내용')}</td><td data-l="결정 · 후속">${ce('data-f="decision"', t.decision, '결정 · 담당 · 기한')}</td><td class="x"><button class="xb" title="이 줄 지우기" data-del="${t.id}">&times;</button></td></tr>`).join('')}
+        <table class="ag keep"><colgroup><col style="width:17%"><col style="width:33%"><col><col style="width:30px"></colgroup><thead><tr><th>주제</th><th>자료</th><th>논의 · 결정</th><th></th></tr></thead><tbody>
+        ${s.topics.map(t => `<tr data-row="${t.id}"><td class="tp">${ce('data-f="topic"', t.topic, '주제')}</td><td class="pr" data-l="자료">${ce('data-f="prep"', t.prep, '')}</td><td data-l="논의">${ce('data-f="note"', t.note, '논의 · 결정 · 담당 · 기한')}</td><td class="x"><button class="xb" title="이 줄 지우기" data-del="${t.id}">&times;</button></td></tr>`).join('')}
         </tbody></table><div class="addrow"><button class="pill" data-addtopic="${s.head ? s.head.id : 0}">주제 추가</button></div></div>`).join('')}
       <div class="addrow" style="margin-top:14px"><button class="pill" id="addsec">안건 추가</button></div>
       <div class="closebox" id="closebox">${closing ? '' : `<button class="btn gold" id="close">회의 마치기 → 회의록으로</button><span class="tiny">논의·결정을 글로 정리해 보여 드립니다. 확인하고 보내면 회의록 게시판으로 옮겨집니다.</span>${lead ? '<button class="pill" id="delmt" style="margin-left:auto">이 회의 지우기</button>' : ''}`}</div>
       <div class="preview" id="preview"></div>`;
     if (closing) showPreview();
   }
+  // 회의 자료 — files 칸: 한 줄에 「이름 | 주소」. 동영상은 바로 재생
+  const filesOf = m => String(m.files || '').split('\n').map(x => x.split('|').map(y => y.trim())).filter(x => x[1]);
+  function filesBox(m) { const fs = filesOf(m); if (!fs.length) return '';
+    return `<div class="files"><div class="fh">회의 자료</div><div class="fg">${fs.map(([n, u]) => /\.(mp4|webm|mov)$/i.test(u) ? `<figure><video controls preload="metadata" playsinline src="${esc(u)}"></video><figcaption>${esc(n)} <a href="${esc(u)}" target="_blank" rel="noopener">새 창</a></figcaption></figure>` : `<a class="pill" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a>`).join('')}</div></div>`; }
   function summarize(id) {
     const L = [];
     for (const s of sections(id)) {
@@ -101,7 +108,7 @@
       if (!ts.length) { L.push('- 기록 없음'); L.push(''); continue; }
       for (const t of ts) { L.push('- ' + (t.topic || '(주제 없음)'));
         if ((t.decision || '').trim()) L.push('  - 결정: ' + t.decision.trim().split(/\n+/).join(' / '));
-        if ((t.note || '').trim()) L.push('  - 논의: ' + t.note.trim().split(/\n+/).join(' / ')); }
+        if ((t.note || '').trim()) t.note.trim().split(/\n+/).forEach(x => L.push('  - ' + x.trim())); }
       L.push('');
     }
     return L.join('\n').trim();
@@ -174,7 +181,7 @@
     const meta = [m.held_at && '일시 ' + m.held_at, m.place && '장소 ' + m.place, m.attendees && '참석 ' + m.attendees, m.closed_by && '정리 ' + m.closed_by].filter(Boolean).map(esc).join(' · ');
     const hasRaw = rowsOf(m.id).length;
     return `<div class="post"><div class="pm">${meta}</div>${editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">정리된 글이 없습니다.</p>'}</div>`}
-      <div class="bt">${hasRaw ? `<button class="pill" data-raw="${m.id}">회의 당시 표 보기</button>` : ''}${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `<button class="pill" data-edit="${m.id}">글 고치기</button><button class="pill" data-reopen="${m.id}">회의실로 되돌리기</button>` : ''}</div><div class="raw" id="raw${m.id}" hidden></div></div>`;
+      ${filesBox(m)}<div class="bt">${hasRaw ? `<button class="pill" data-raw="${m.id}">회의 당시 표 보기</button>` : ''}${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `<button class="pill" data-edit="${m.id}">글 고치기</button><button class="pill" data-reopen="${m.id}">회의실로 되돌리기</button>` : ''}</div><div class="raw" id="raw${m.id}" hidden></div></div>`;
   }
   q('#bf').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) { bgrp = b.dataset.g; renderBoard(); } });
   q('#board').addEventListener('click', async e => {
@@ -191,7 +198,7 @@
 
   // 여럿이 함께 적을 때: 15초마다 다른 사람이 쓴 칸을 반영 (내가 쓰는 칸은 건드리지 않음)
   setInterval(async () => {
-    if (document.hidden || !q('#p-room').classList.contains('on') || saving || timers.size || closing) return;
+    if (document.hidden || !q('#p-room').classList.contains('on') || saving || timers.size || closing) return; if ([...document.querySelectorAll('video')].some(v => !v.paused)) return;
     try { const n = await api('/meetings'); if (saving || timers.size) return;
       const sig = x => open().map(m => m.id).join() + '|' + rowsOf(roomId).map(r => r.id).join();
       const before = sig(); S.meetings = n.meetings; S.minutes = n.minutes; counts();
