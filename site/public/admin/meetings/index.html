@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>회의실 · 회의록 | Workbench</title><meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/main.css?v=20261020c"><link rel="stylesheet" href="/assets/css/admin.css?v=20261117a"><link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<style>
+.noperm{padding:60px 20px;text-align:center;color:var(--ink-3)}.tiny{font-size:12px;color:var(--ink-3)}
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-size:15px;padding:11px 16px;background:none;border:0;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;margin-bottom:-1px;font-weight:500}
+.tabs button.on{color:var(--navy-800);border-color:var(--gold-500);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.ce{min-height:22px;outline:0;line-height:1.55;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}.ce:focus{background:#FBF4E6}.ce:empty::before{content:attr(data-ph);color:#B9B3A8}
+.meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px 18px;margin-bottom:6px}.meta label{display:block;font-size:11.5px;color:var(--ink-3)}.meta .ce,.meta select{font-size:14px;border-bottom:1px solid var(--line-2)}.meta select{font:inherit;font-size:14px;border:0;border-bottom:1px solid var(--line-2);background:none;padding:0 0 2px;width:100%}
+.sec{margin-top:20px}.sec-h{display:flex;align-items:baseline;gap:8px;border-bottom:2px solid var(--navy-800);padding-bottom:5px}.sec-h .ce[data-f=topic]{font-weight:700;font-size:16px;color:var(--navy-800);flex:1}.sec-h .mn{font-size:12.5px;color:var(--ink-3);white-space:nowrap}.sec-h .mn .ce{display:inline-block;min-width:18px;text-align:right}
+.ag{width:100%;border-collapse:collapse;table-layout:fixed}.ag th{font-size:12px;color:var(--ink-3);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line-2)}.ag td{vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line);font-size:13.5px}
+.ag td.pr{color:var(--ink-3);font-size:12.5px;background:#FBFAF7}.ag td.tp .ce{font-weight:600}.ag td.x{width:30px;text-align:center}
+.xb{all:unset;cursor:pointer;color:#B9B3A8;font-size:15px;line-height:1;padding:2px 4px}.xb:hover{color:#9B2C2C}
+.addrow{display:flex;gap:8px;margin-top:8px}
+.closebox{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.preview textarea,.post textarea{width:100%;min-height:340px;font:inherit;font-size:14px;line-height:1.7;padding:12px;border:1px solid var(--line-2);box-sizing:border-box}
+.list{border-top:2px solid var(--navy-800)}
+.lh,.lr{display:grid;grid-template-columns:40px 96px 1fr 130px 20px;gap:10px;align-items:center;padding:9px 10px}
+.lh{font-size:12px;color:var(--ink-3);font-weight:600;background:var(--ivory);border-bottom:1px solid var(--line-2);padding:7px 10px}
+.lr{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:40px 96px 1fr 130px 20px;gap:10px;align-items:center;padding:10px;cursor:pointer;font-size:14.5px;border-bottom:1px solid var(--line)}
+.lr:hover{background:#FCFBF8}.lr .no,.lr .dt{font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}.lr .t{font-weight:600}.lr .g{font-size:12.5px;color:var(--ink-3)}.lr .ar{color:var(--ink-3);transition:transform .15s}.it.on .lr{background:var(--ivory)}.it.on .ar{transform:rotate(90deg)}
+@media (max-width:640px){.lh,.lr{grid-template-columns:30px 1fr 16px}.lh .dt,.lh .g,.lr .dt,.lr .g{display:none}}
+.post{background:var(--ivory);padding:16px 22px 22px;border-bottom:1px solid var(--line)}
+.post .pm{font-size:12.5px;color:var(--ink-3);margin-bottom:10px;line-height:1.7}
+.doc{font-size:14.5px;line-height:1.75;max-width:780px}.doc h3{font-size:15px;color:var(--navy-800);margin:16px 0 4px}.doc h3:first-child{margin-top:0}.doc ul{margin:2px 0 6px;padding-left:20px}.doc ul ul{padding-left:18px;color:var(--ink-2,#444)}.doc p{margin:4px 0}
+.post .bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.raw{margin-top:12px;overflow-x:auto}.raw table{min-width:640px}.raw td{white-space:pre-wrap;vertical-align:top;font-size:13px}
+.empty{padding:28px 0;color:var(--ink-3)}
+@media (max-width:640px){.ag,.ag tbody,.ag tr,.ag td{display:block;width:auto!important}.ag thead,.ag colgroup{display:none}.ag tr{position:relative;border-bottom:1px solid var(--line-2);padding:6px 0}.ag td{border:0;padding:3px 34px 3px 4px}.ag td.x{position:absolute;right:0;top:6px;padding:0}.ag td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3)}}
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <div id="admin-side"></div>
+  <main class="admin-main">
+    <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Meetings</span><h1>회의실 · 회의록</h1><div class="sub">회의는 회의실에서 함께 적고, 「회의 마치기」를 누르면 정리된 글이 회의록 게시판으로 옮겨집니다. 운영위원회와 창립총회 행사기획 회의를 모두 여기에 모읍니다.</div></div>
+      <div class="actions"><button class="btn sm gold" id="new">새 회의 열기</button></div></div>
+    <div class="admin-body" id="body">
+      <div class="tabs" id="tabs"><button data-t="room">회의실</button><button data-t="board">회의록</button></div>
+      <div class="pane" id="p-room"><div class="pill-row" id="room-sel" style="margin-bottom:12px"></div><div class="panel" id="room"></div></div>
+      <div class="pane" id="p-board"><div class="panel"><div class="pill-row" id="bf" style="margin-bottom:14px"></div><div id="board"></div></div></div>
+    </div>
+  </main>
+</div>
+<script src="/assets/js/site.js?v=20261116b"></script><script src="/assets/js/admin.js?v=20261117a"></script>
+<script>
+(async () => {
+  const esc = SNU.esc, { api, toast } = WB, q = s => document.querySelector(s);
+  const GRPS = ['운영위원회', '창립총회 행사기획'];
+  let S; try { S = await api('/meetings'); } catch (e) { q('#body').innerHTML = `<div class="noperm">${e.status === 401 ? '로그인이 필요합니다.' : esc(e.message)}</div>`; return; }
+  const lead = ['owner', 'agent'].includes(S.role);
+  const open = () => S.meetings.filter(m => m.status !== '완료'), done = () => S.meetings.filter(m => m.status === '완료');
+  const rowsOf = id => S.minutes.filter(r => r.meeting_id === id).sort((a, b) => a.seq - b.seq || a.id - b.id);
+  const post = b => api('/meetings', { method: 'POST', body: b });
+  let roomId = 0, openPost = 0, bgrp = '', editing = 0, closing = false, saving = 0;
+  const ce = (attr, v, ph) => `<div class="ce" contenteditable="plaintext-only" ${attr} data-ph="${ph}">${esc(v ?? '')}</div>`;
+  const sections = id => { const out = []; rowsOf(id).forEach(r => { if (r.kind === 'section' || !out.length) out.push({ head: r.kind === 'section' ? r : null, topics: [] }); if (r.kind !== 'section') out[out.length - 1].topics.push(r); }); return out; };
+  const fmtDay = d => d ? d.slice(2).replace(/-/g, '.') : '';
+
+  // 탭
+  function tab(t) { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + t)); history.replaceState(null, '', '#' + t); }
+  q('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { tab(b.dataset.t); } });
+  function counts() { q('#tabs [data-t=room]').textContent = `회의실 ${open().length}`; q('#tabs [data-t=board]').textContent = `회의록 ${done().length}`; }
+
+  // ---------- 회의실 ----------
+  function renderRoom() {
+    const ms = open(); if (!ms.find(m => m.id === roomId)) roomId = ms[0]?.id || 0;
+    q('#room-sel').innerHTML = ms.length > 1 ? ms.map(m => `<button class="pill ${m.id === roomId ? 'on' : ''}" data-room="${m.id}">${esc(m.title)}</button>`).join('') : '';
+    const m = ms.find(x => x.id === roomId);
+    if (!m) { q('#room').innerHTML = '<div class="empty">지금 열린 회의가 없습니다. 오른쪽 위 「새 회의 열기」로 시작하세요.</div>'; return; }
+    const total = sections(m.id).reduce((a, s) => a + (s.head?.mins || 0), 0);
+    q('#room').innerHTML = `<div class="panel-head" style="margin-bottom:10px"><h2 style="flex:1">${esc(m.title)}</h2><span class="tiny">${total ? '총 ' + total + '분' : ''}</span></div>
+      <div class="meta" data-mid="${m.id}">
+        <div style="grid-column:1/-1"><label>회의명</label>${ce('data-mt="title"', m.title, '회의명')}</div>
+        <div><label>종류</label><select data-mt="grp">${['', ...GRPS, ...(m.grp && !GRPS.includes(m.grp) ? [m.grp] : [])].map(g => `<option ${g === m.grp ? 'selected' : ''} value="${esc(g)}">${g || '고르세요'}</option>`).join('')}</select></div>
+        <div><label>날짜 (예: 2026-11-17)</label>${ce('data-mt="day"', m.day, '날짜')}</div>
+        <div><label>일시</label>${ce('data-mt="held_at"', m.held_at, '일시')}</div>
+        <div><label>장소</label>${ce('data-mt="place"', m.place, '장소')}</div>
+        <div style="grid-column:1/-1"><label>참석자</label>${ce('data-mt="attendees"', m.attendees, '참석자')}</div></div>
+      ${sections(m.id).map(s => `<div class="sec">${s.head ? `<div class="sec-h" data-row="${s.head.id}">${ce('data-f="topic"', s.head.topic, '안건 제목')}<span class="mn">${ce('data-f="mins"', s.head.mins || '', '0')}분</span><button class="xb" title="안건 지우기" data-del="${s.head.id}">&times;</button></div>` : ''}
+        <table class="ag keep"><colgroup><col style="width:16%"><col style="width:30%"><col><col style="width:26%"><col style="width:30px"></colgroup><thead><tr><th>주제</th><th>자료</th><th>논의</th><th>결정 · 후속</th><th></th></tr></thead><tbody>
+        ${s.topics.map(t => `<tr data-row="${t.id}"><td class="tp">${ce('data-f="topic"', t.topic, '주제')}</td><td class="pr" data-l="자료">${ce('data-f="prep"', t.prep, '')}</td><td data-l="논의">${ce('data-f="note"', t.note, '논의 내용')}</td><td data-l="결정 · 후속">${ce('data-f="decision"', t.decision, '결정 · 담당 · 기한')}</td><td class="x"><button class="xb" title="이 줄 지우기" data-del="${t.id}">&times;</button></td></tr>`).join('')}
+        </tbody></table><div class="addrow"><button class="pill" data-addtopic="${s.head ? s.head.id : 0}">주제 추가</button></div></div>`).join('')}
+      <div class="addrow" style="margin-top:14px"><button class="pill" id="addsec">안건 추가</button></div>
+      <div class="closebox" id="closebox">${closing ? '' : `<button class="btn gold" id="close">회의 마치기 → 회의록으로</button><span class="tiny">논의·결정을 글로 정리해 보여 드립니다. 확인하고 보내면 회의록 게시판으로 옮겨집니다.</span>${lead ? '<button class="pill" id="delmt" style="margin-left:auto">이 회의 지우기</button>' : ''}`}</div>
+      <div class="preview" id="preview"></div>`;
+    if (closing) showPreview();
+  }
+  function summarize(id) {
+    const L = [];
+    for (const s of sections(id)) {
+      const ts = s.topics.filter(t => (t.note || '').trim() || (t.decision || '').trim());
+      L.push('## ' + ((s.head?.topic || '안건').replace(/^\d+\.\s*/, '')));
+      if (!ts.length) { L.push('- 기록 없음'); L.push(''); continue; }
+      for (const t of ts) { L.push('- ' + (t.topic || '(주제 없음)'));
+        if ((t.decision || '').trim()) L.push('  - 결정: ' + t.decision.trim().split(/\n+/).join(' / '));
+        if ((t.note || '').trim()) L.push('  - 논의: ' + t.note.trim().split(/\n+/).join(' / ')); }
+      L.push('');
+    }
+    return L.join('\n').trim();
+  }
+  function showPreview() {
+    const m = S.meetings.find(x => x.id === roomId);
+    q('#closebox').innerHTML = '';
+    q('#preview').innerHTML = `<div class="panel-head" style="margin-top:20px"><h2>회의록으로 보낼 글</h2></div><p class="tiny" style="margin:0 0 8px">고칠 곳이 있으면 여기서 고치세요. 「## 」는 소제목, 「- 」는 항목, 「  - 」는 하위 항목입니다.</p><textarea id="sum">${esc(m.summary || summarize(m.id))}</textarea><div class="addrow" style="margin-top:10px"><button class="btn gold" id="send">회의록으로 보내기</button><button class="btn ghost" id="cancel">계속 회의하기</button></div>`;
+  }
+  async function saveCe(el) {
+    const mt = el.dataset.mt, f = el.dataset.f, v = el.tagName === 'SELECT' ? el.value : el.textContent;
+    let body;
+    if (mt) { const m = S.meetings.find(x => x.id === roomId); if (m[mt] === v) return; body = { r: 'meet', id: roomId, field: mt, value: v }; m[mt] = v; }
+    else { const id = Number(el.closest('[data-row]').dataset.row), r = S.minutes.find(x => x.id === id); const cur = f === 'mins' ? String(r.mins || '') : (r[f] || ''); if (cur === v) return; body = { r: 'min', id, field: f, value: v }; r[f] = f === 'mins' ? (parseInt(v, 10) || 0) : v; }
+    saving++; try { await post(body); if (mt === 'title') { counts(); q('#room .panel-head h2').textContent = v; } } catch (e) { toast('저장 실패: ' + e.message); } finally { saving--; }
+  }
+  const timers = new Map();
+  q('#room').addEventListener('input', e => { const t = e.target; if (!t.classList.contains('ce')) return; clearTimeout(timers.get(t)); timers.set(t, setTimeout(() => { timers.delete(t); saveCe(t); }, 700)); });
+  q('#room').addEventListener('focusout', e => { const t = e.target; if (t.classList.contains('ce')) { clearTimeout(timers.get(t)); timers.delete(t); saveCe(t); } });
+  q('#room').addEventListener('change', e => { if (e.target.tagName === 'SELECT') saveCe(e.target); });
+  q('#room-sel').addEventListener('click', e => { const b = e.target.closest('[data-room]'); if (b) { roomId = Number(b.dataset.room); closing = false; renderRoom(); } });
+  q('#room').addEventListener('click', async e => {
+    const t = e.target;
+    try {
+      if (t.dataset.del) { const id = Number(t.dataset.del), r = S.minutes.find(x => x.id === id); let ids = [id];
+        if (r.kind === 'section') { const sec = sections(roomId).find(s => s.head?.id === id); ids = [id, ...sec.topics.map(x => x.id)]; if (!confirm(`안건 「${r.topic}」과 그 아래 ${sec.topics.length}줄을 지울까요?`)) return; }
+        else if ((r.note || r.decision || r.prep) && !confirm('적힌 내용이 있는 줄입니다. 지울까요?')) return;
+        await post({ r: 'min_del', ids }); S.minutes = S.minutes.filter(x => !ids.includes(x.id)); renderRoom(); return; }
+      if (t.dataset.addtopic !== undefined) { const hid = Number(t.dataset.addtopic), rs = rowsOf(roomId), sec = sections(roomId).find(s => (s.head?.id || 0) === hid);
+        const after = sec.topics.length ? sec.topics[sec.topics.length - 1] : sec.head, i = rs.indexOf(after), next = rs[i + 1];
+        const seq = next ? (after.seq + next.seq) / 2 : (after?.seq || 0) + 1;
+        const r = await post({ r: 'min', meeting_id: roomId, kind: 'topic', seq }); S.minutes.push({ id: r.id, meeting_id: roomId, kind: 'topic', seq, mins: 0, topic: '', prep: '', note: '', decision: '' }); renderRoom();
+        q(`[data-row="${r.id}"] .ce`)?.focus(); return; }
+      if (t.id === 'addsec') { const rs = rowsOf(roomId), seq = (rs.length ? rs[rs.length - 1].seq : 0) + 1, n = sections(roomId).filter(s => s.head).length + 1;
+        const a = await post({ r: 'min', meeting_id: roomId, kind: 'section', seq, mins: 10, topic: n + '. ' }); const b = await post({ r: 'min', meeting_id: roomId, kind: 'topic', seq: seq + 0.5 });
+        S.minutes.push({ id: a.id, meeting_id: roomId, kind: 'section', seq, mins: 10, topic: n + '. ', prep: '', note: '', decision: '' }, { id: b.id, meeting_id: roomId, kind: 'topic', seq: seq + 0.5, mins: 0, topic: '', prep: '', note: '', decision: '' }); renderRoom(); return; }
+      if (t.id === 'close') { closing = true; showPreview(); q('#sum').focus(); return; }
+      if (t.id === 'cancel') { closing = false; renderRoom(); return; }
+      if (t.id === 'send') { const txt = q('#sum').value.trim(); if (!txt) return toast('정리 글이 비어 있습니다');
+        const m = S.meetings.find(x => x.id === roomId); if (!m.day) return toast('날짜를 먼저 적어 주세요 (예: 2026-11-17)');
+        await post({ r: 'close', id: roomId, summary: txt }); Object.assign(m, { status: '완료', summary: txt, closed_by: S.me }); closing = false; openPost = m.id; counts(); renderRoom(); renderBoard(); tab('board'); toast('회의록으로 옮겼습니다'); return; }
+      if (t.id === 'delmt') { const m = S.meetings.find(x => x.id === roomId); if (!confirm(`「${m.title}」 회의를 통째로 지울까요? 되돌릴 수 없습니다.`)) return; await post({ r: 'del', id: roomId }); S.meetings = S.meetings.filter(x => x.id !== roomId); counts(); renderRoom(); return; }
+    } catch (x) { toast('실패: ' + x.message); }
+  });
+  q('#new').addEventListener('click', async () => {
+    const title = prompt('회의 이름', '운영위원회 회의'); if (!title) return;
+    const d = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+    try { const r = await post({ r: 'new', title, day: d, grp: /행사|창립총회/.test(title) ? '창립총회 행사기획' : '운영위원회' }); S = await api('/meetings'); roomId = r.id; closing = false; counts(); renderRoom(); tab('room'); } catch (e) { toast('실패: ' + e.message); }
+  });
+
+  // ---------- 회의록 게시판 ----------
+  function md(t) { // ## 소제목 / - 항목 / "  - " 하위 항목
+    let h = '', lv = 0; const close = n => { while (lv > n) { h += '</li></ul>'; lv--; } };
+    for (const raw of String(t || '').split('\n')) {
+      const m = raw.match(/^(\s*)- (.*)$/);
+      if (m) { const want = m[1].length >= 2 ? 2 : 1; if (want > lv) { while (lv < want) { h += '<ul><li>'; lv++; } } else { close(want); h += '</li><li>'; } h += esc(m[2]); continue; }
+      close(0); if (/^##\s*/.test(raw)) h += '<h3>' + esc(raw.replace(/^##\s*/, '')) + '</h3>'; else if (raw.trim()) h += '<p>' + esc(raw) + '</p>';
+    }
+    close(0); return h;
+  }
+  function rawTable(id) { const rs = rowsOf(id); if (!rs.length) return '';
+    return `<table class="table keep"><thead><tr><th style="width:18%">주제</th><th style="width:30%">자료</th><th>논의</th><th style="width:26%">결정 · 후속</th></tr></thead><tbody>${rs.map(r => r.kind === 'section' ? `<tr><td colspan="4" style="font-weight:700;color:var(--navy-800);background:var(--ivory)">${esc(r.topic)}${r.mins ? ` · ${r.mins}분` : ''}</td></tr>` : `<tr><td><b>${esc(r.topic)}</b></td><td class="tiny">${esc(r.prep)}</td><td>${esc(r.note)}</td><td>${esc(r.decision)}</td></tr>`).join('')}</tbody></table>`; }
+  function renderBoard() {
+    const all = done(), gs = [...new Set(all.map(m => m.grp).filter(Boolean))];
+    q('#bf').innerHTML = ['', ...gs].map(g => `<button class="pill ${g === bgrp ? 'on' : ''}" data-g="${esc(g)}">${g || '전체'} ${g ? all.filter(m => m.grp === g).length : all.length}</button>`).join('');
+    const list = all.filter(m => !bgrp || m.grp === bgrp);
+    q('#board').innerHTML = list.length ? `<div class="list"><div class="lh"><span>번호</span><span class="dt">날짜</span><span>회의</span><span class="g">종류</span><span></span></div>${list.map((m, k) => `<div class="it ${m.id === openPost ? 'on' : ''}" id="m${m.id}"><button class="lr" data-post="${m.id}"><span class="no">${list.length - k}</span><span class="dt">${esc(fmtDay(m.day))}</span><span class="t">${esc(m.title)}</span><span class="g">${esc(m.grp)}</span><span class="ar">&rsaquo;</span></button>${m.id === openPost ? article(m) : ''}</div>`).join('')}</div>` : '<div class="empty">아직 정리된 회의록이 없습니다.</div>';
+  }
+  function article(m) {
+    const meta = [m.held_at && '일시 ' + m.held_at, m.place && '장소 ' + m.place, m.attendees && '참석 ' + m.attendees, m.closed_by && '정리 ' + m.closed_by].filter(Boolean).map(esc).join(' · ');
+    const hasRaw = rowsOf(m.id).length;
+    return `<div class="post"><div class="pm">${meta}</div>${editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">정리된 글이 없습니다.</p>'}</div>`}
+      <div class="bt">${hasRaw ? `<button class="pill" data-raw="${m.id}">회의 당시 표 보기</button>` : ''}${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `<button class="pill" data-edit="${m.id}">글 고치기</button><button class="pill" data-reopen="${m.id}">회의실로 되돌리기</button>` : ''}</div><div class="raw" id="raw${m.id}" hidden></div></div>`;
+  }
+  q('#bf').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) { bgrp = b.dataset.g; renderBoard(); } });
+  q('#board').addEventListener('click', async e => {
+    const t = e.target.closest('[data-post],[data-raw],[data-edit],[data-save],[data-edcancel],[data-reopen]'); if (!t) return;
+    try {
+      if (t.dataset.post) { const id = Number(t.dataset.post); openPost = openPost === id ? 0 : id; editing = 0; renderBoard(); history.replaceState(null, '', openPost ? '#board-' + openPost : '#board'); return; }
+      if (t.dataset.raw) { const box = q('#raw' + t.dataset.raw); if (box.hidden) { box.innerHTML = rawTable(Number(t.dataset.raw)); box.hidden = false; t.textContent = '표 접기'; } else { box.hidden = true; t.textContent = '회의 당시 표 보기'; } return; }
+      if (t.dataset.edit) { editing = Number(t.dataset.edit); renderBoard(); q('#ed').focus(); return; }
+      if (t.dataset.edcancel) { editing = 0; renderBoard(); return; }
+      if (t.dataset.save) { const id = Number(t.dataset.save), v = q('#ed').value; await post({ r: 'meet', id, field: 'summary', value: v }); S.meetings.find(x => x.id === id).summary = v; editing = 0; renderBoard(); toast('저장했습니다'); return; }
+      if (t.dataset.reopen) { const id = Number(t.dataset.reopen); if (!confirm('이 회의를 회의실로 되돌릴까요? 회의록 게시판에서는 빠집니다.')) return; await post({ r: 'reopen', id }); S.meetings.find(x => x.id === id).status = '진행'; roomId = id; openPost = 0; counts(); renderBoard(); renderRoom(); tab('room'); return; }
+    } catch (x) { toast('실패: ' + x.message); }
+  });
+
+  // 여럿이 함께 적을 때: 15초마다 다른 사람이 쓴 칸을 반영 (내가 쓰는 칸은 건드리지 않음)
+  setInterval(async () => {
+    if (document.hidden || !q('#p-room').classList.contains('on') || saving || timers.size || closing) return;
+    try { const n = await api('/meetings'); if (saving || timers.size) return;
+      const sig = x => open().map(m => m.id).join() + '|' + rowsOf(roomId).map(r => r.id).join();
+      const before = sig(); S.meetings = n.meetings; S.minutes = n.minutes; counts();
+      if (sig() !== before) { if (!document.activeElement?.classList.contains('ce')) renderRoom(); return; }
+      const a = document.activeElement;
+      q('#room').querySelectorAll('.ce').forEach(el => { if (el === a) return; const mt = el.dataset.mt, f = el.dataset.f;
+        const v = mt ? (S.meetings.find(x => x.id === roomId)?.[mt] ?? '') : (() => { const r = S.minutes.find(x => x.id === Number(el.closest('[data-row]').dataset.row)); return r ? (f === 'mins' ? String(r.mins || '') : (r[f] ?? '')) : el.textContent; })();
+        if (el.textContent !== v) el.textContent = v; });
+    } catch (e) {}
+  }, 15000);
+
+  const h = location.hash.slice(1);
+  if (h.startsWith('board-')) openPost = Number(h.slice(6));
+  counts(); renderRoom(); renderBoard();
+  tab(h.startsWith('board') || (!h && !open().length) ? 'board' : 'room');
+  if (openPost) document.getElementById('m' + openPost)?.scrollIntoView({ block: 'start' });
+})();
+</script>
+</body></html>
