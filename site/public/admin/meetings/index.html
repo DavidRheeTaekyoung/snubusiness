@@ -33,6 +33,10 @@
 .post .bt{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .raw{margin-top:12px;overflow-x:auto}.raw table{min-width:640px}.raw td{white-space:pre-wrap;vertical-align:top;font-size:13px}
 .empty{padding:28px 0;color:var(--ink-3)}
+.doc h3 .mn{font-size:12.5px;color:var(--ink-3);font-weight:400}.doc h3{border-bottom:1px solid var(--line-2);padding-bottom:4px;margin-top:22px}
+.tp-d{margin:10px 0 14px}.tp-d h4{font-size:14.5px;margin:0 0 3px;color:var(--ink)}.tp-d .nt{white-space:pre-wrap;padding-left:12px;border-left:2px solid var(--gold-400)}.tp-d .nt.none{color:#B9B3A8;border-color:var(--line-2)}
+.tp-d .dc{white-space:pre-wrap;margin-top:4px;padding-left:12px;font-size:14px}.tp-d .dc b{font-size:12px;color:var(--navy-800);margin-right:4px}
+.tp-d .pp{margin-top:4px;padding-left:12px;font-size:12.5px;color:var(--ink-3)}.tp-d .pp summary{cursor:pointer}.tp-d .pp div{white-space:pre-wrap;margin-top:4px}
 .files{margin:14px 0 4px;padding:12px 14px;background:var(--ivory);border:1px solid var(--line)}.files .fh{font-size:12.5px;font-weight:600;color:var(--navy-800);margin-bottom:8px}
 .fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}.fg figure{margin:0}.fg video{width:100%;background:#000;display:block}.fg figcaption{font-size:12.5px;color:var(--ink-2,#444);margin-top:4px}.fg figcaption a{font-size:12px;margin-left:6px}
 @media (max-width:640px){.ag,.ag tbody,.ag tr,.ag td{display:block;width:auto!important}.ag thead,.ag colgroup{display:none}.ag tr{position:relative;border-bottom:1px solid var(--line-2);padding:6px 0}.ag td{border:0;padding:3px 34px 3px 4px}.ag td.x{position:absolute;right:0;top:6px;padding:0}.ag td[data-l]::before{content:attr(data-l);display:block;font-size:11px;color:var(--ink-3)}}
@@ -92,7 +96,7 @@
         ${s.topics.map(t => `<tr data-row="${t.id}"><td class="tp">${ce('data-f="topic"', t.topic, '주제')}</td><td class="pr" data-l="자료">${ce('data-f="prep"', t.prep, '')}</td><td data-l="논의">${ce('data-f="note"', t.note, '논의 · 결정 · 담당 · 기한')}</td><td class="x"><button class="xb" title="이 줄 지우기" data-del="${t.id}">&times;</button></td></tr>`).join('')}
         </tbody></table><div class="addrow"><button class="pill" data-addtopic="${s.head ? s.head.id : 0}">주제 추가</button></div></div>`).join('')}
       <div class="addrow" style="margin-top:14px"><button class="pill" id="addsec">안건 추가</button></div>
-      <div class="closebox" id="closebox">${closing ? '' : `<button class="btn gold" id="close">회의 마치기 → 회의록으로</button><span class="tiny">논의·결정을 글로 정리해 보여 드립니다. 확인하고 보내면 회의록 게시판으로 옮겨집니다.</span>${lead ? '<button class="pill" id="delmt" style="margin-left:auto">이 회의 지우기</button>' : ''}`}</div>
+      <div class="closebox" id="closebox">${closing ? '' : `<button class="btn gold" id="close">회의 마치기 → 회의록으로</button><span class="tiny">적은 내용이 그대로 회의록 게시판으로 옮겨집니다.</span>${lead ? '<button class="pill" id="delmt" style="margin-left:auto">이 회의 지우기</button>' : ''}`}</div>
       <div class="preview" id="preview"></div>`;
     if (closing) showPreview();
   }
@@ -145,11 +149,10 @@
       if (t.id === 'addsec') { const rs = rowsOf(roomId), seq = (rs.length ? rs[rs.length - 1].seq : 0) + 1, n = sections(roomId).filter(s => s.head).length + 1;
         const a = await post({ r: 'min', meeting_id: roomId, kind: 'section', seq, mins: 10, topic: n + '. ' }); const b = await post({ r: 'min', meeting_id: roomId, kind: 'topic', seq: seq + 0.5 });
         S.minutes.push({ id: a.id, meeting_id: roomId, kind: 'section', seq, mins: 10, topic: n + '. ', prep: '', note: '', decision: '' }, { id: b.id, meeting_id: roomId, kind: 'topic', seq: seq + 0.5, mins: 0, topic: '', prep: '', note: '', decision: '' }); renderRoom(); return; }
-      if (t.id === 'close') { closing = true; showPreview(); q('#sum').focus(); return; }
-      if (t.id === 'cancel') { closing = false; renderRoom(); return; }
-      if (t.id === 'send') { const txt = q('#sum').value.trim(); if (!txt) return toast('정리 글이 비어 있습니다');
+      if (t.id === 'close') { // 회의 마치기 — 적은 내용 그대로 회의록이 된다 (요약하지 않음)
         const m = S.meetings.find(x => x.id === roomId); if (!m.day) return toast('날짜를 먼저 적어 주세요 (예: 2026-11-17)');
-        await post({ r: 'close', id: roomId, summary: txt }); Object.assign(m, { status: '완료', summary: txt, closed_by: S.me }); closing = false; openPost = m.id; counts(); renderRoom(); renderBoard(); tab('board'); toast('회의록으로 옮겼습니다'); return; }
+        if (!confirm('회의를 마치고 회의록으로 옮길까요? 적은 내용은 그대로 회의록이 됩니다.')) return;
+        await post({ r: 'close', id: roomId, summary: '' }); Object.assign(m, { status: '완료', summary: '', closed_by: S.me }); openPost = m.id; counts(); renderRoom(); renderBoard(); tab('board'); toast('회의록으로 옮겼습니다'); return; }
       if (t.id === 'delmt') { const m = S.meetings.find(x => x.id === roomId); if (!confirm(`「${m.title}」 회의를 통째로 지울까요? 되돌릴 수 없습니다.`)) return; await post({ r: 'del', id: roomId }); S.meetings = S.meetings.filter(x => x.id !== roomId); counts(); renderRoom(); return; }
     } catch (x) { toast('실패: ' + x.message); }
   });
@@ -169,8 +172,12 @@
     }
     close(0); return h;
   }
-  function rawTable(id) { const rs = rowsOf(id); if (!rs.length) return '';
-    return `<table class="table keep"><thead><tr><th style="width:18%">주제</th><th style="width:30%">자료</th><th>논의</th><th style="width:26%">결정 · 후속</th></tr></thead><tbody>${rs.map(r => r.kind === 'section' ? `<tr><td colspan="4" style="font-weight:700;color:var(--navy-800);background:var(--ivory)">${esc(r.topic)}${r.mins ? ` · ${r.mins}분` : ''}</td></tr>` : `<tr><td><b>${esc(r.topic)}</b></td><td class="tiny">${esc(r.prep)}</td><td>${esc(r.note)}</td><td>${esc(r.decision)}</td></tr>`).join('')}</tbody></table>`; }
+  // 회의록 문서 — 회의실에서 적은 그대로: 안건 → 주제 → 논의(적은 글 그대로) → 결정 → 사전 자료
+  function docOf(id) {
+    return sections(id).map(s => `${s.head ? `<h3>${esc(s.head.topic)}${s.head.mins ? `<span class="mn"> · ${s.head.mins}분</span>` : ''}</h3>` : ''}${s.topics.filter(t => !String(t.topic).startsWith('__')).map(t => {
+      const note = (t.note || '').trim(), dec = (t.decision || '').trim(), prep = (t.prep || '').trim();
+      return `<div class="tp-d"><h4>${esc(t.topic || '(주제 없음)')}</h4>${note ? `<div class="nt">${esc(note)}</div>` : '<div class="nt none">논의 기록 없음</div>'}${dec ? `<div class="dc"><b>결정 · 후속</b> ${esc(dec)}</div>` : ''}${prep ? `<details class="pp"><summary>사전 자료</summary><div>${esc(prep)}</div></details>` : ''}</div>`; }).join('')}`).join('');
+  }
   function renderBoard() {
     const all = done(), gs = [...new Set(all.map(m => m.grp).filter(Boolean))];
     q('#bf').innerHTML = ['', ...gs].map(g => `<button class="pill ${g === bgrp ? 'on' : ''}" data-g="${esc(g)}">${g || '전체'} ${g ? all.filter(m => m.grp === g).length : all.length}</button>`).join('');
@@ -179,16 +186,15 @@
   }
   function article(m) {
     const meta = [m.held_at && '일시 ' + m.held_at, m.place && '장소 ' + m.place, m.attendees && '참석 ' + m.attendees, m.closed_by && '정리 ' + m.closed_by].filter(Boolean).map(esc).join(' · ');
-    const hasRaw = rowsOf(m.id).length;
-    return `<div class="post"><div class="pm">${meta}</div>${editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">정리된 글이 없습니다.</p>'}</div>`}
-      ${filesBox(m)}<div class="bt">${hasRaw ? `<button class="pill" data-raw="${m.id}">회의 당시 표 보기</button>` : ''}${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `<button class="pill" data-edit="${m.id}">글 고치기</button><button class="pill" data-reopen="${m.id}">회의실로 되돌리기</button>` : ''}</div><div class="raw" id="raw${m.id}" hidden></div></div>`;
+    const rows = rowsOf(m.id).length; // 회의실에서 적은 회의는 그 글 그대로, 옛 회의(9월)는 옮겨 적은 글
+    return `<div class="post"><div class="pm">${meta}</div>${filesBox(m)}${rows ? `<div class="doc">${docOf(m.id)}</div>` : editing === m.id ? `<textarea id="ed">${esc(m.summary)}</textarea><div class="bt"><button class="btn sm gold" data-save="${m.id}">저장</button><button class="btn sm ghost" data-edcancel="1">취소</button></div>` : `<div class="doc">${md(m.summary) || '<p class="tiny">기록이 없습니다.</p>'}</div>`}
+      <div class="bt">${m.src ? `<a class="pill" href="${esc(m.src)}">원래 회의 페이지</a>` : ''}${lead && editing !== m.id ? `${rows ? '' : `<button class="pill" data-edit="${m.id}">글 고치기</button>`}<button class="pill" data-reopen="${m.id}">회의실로 되돌려 고치기</button>` : ''}</div></div>`;
   }
   q('#bf').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) { bgrp = b.dataset.g; renderBoard(); } });
   q('#board').addEventListener('click', async e => {
-    const t = e.target.closest('[data-post],[data-raw],[data-edit],[data-save],[data-edcancel],[data-reopen]'); if (!t) return;
+    const t = e.target.closest('[data-post],[data-edit],[data-save],[data-edcancel],[data-reopen]'); if (!t) return;
     try {
       if (t.dataset.post) { const id = Number(t.dataset.post); openPost = openPost === id ? 0 : id; editing = 0; renderBoard(); history.replaceState(null, '', openPost ? '#board-' + openPost : '#board'); return; }
-      if (t.dataset.raw) { const box = q('#raw' + t.dataset.raw); if (box.hidden) { box.innerHTML = rawTable(Number(t.dataset.raw)); box.hidden = false; t.textContent = '표 접기'; } else { box.hidden = true; t.textContent = '회의 당시 표 보기'; } return; }
       if (t.dataset.edit) { editing = Number(t.dataset.edit); renderBoard(); q('#ed').focus(); return; }
       if (t.dataset.edcancel) { editing = 0; renderBoard(); return; }
       if (t.dataset.save) { const id = Number(t.dataset.save), v = q('#ed').value; await post({ r: 'meet', id, field: 'summary', value: v }); S.meetings.find(x => x.id === id).summary = v; editing = 0; renderBoard(); toast('저장했습니다'); return; }
