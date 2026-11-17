@@ -37,12 +37,6 @@
     <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">Event 2027 · Alumni Calls</span><h1>동문 연락 할당</h1><div class="sub">VIP 동문 발굴 명단에서 연락 대상(후보)인 동문, 곧 학부가 경영학과(옛 상대 포함)로 확인된 동문을 준비위원·학번대표가 나눠 전화합니다. 경영대학원·최고경영자과정만 다닌 분, 교수, 사전 가입 명단(252명)에 이미 있는 분, 담당자 본인은 뺐습니다. 같은 학번대 동문이 연락처를 가장 잘 구하므로, 출생연도로 학번을 추정해 가장 가까운 학번의 담당자에게 배정했습니다. 줄을 누르면 그분이 맡은 동문이 바로 아래에 펼쳐집니다.</div></div>
       <div class="actions"><a class="btn sm ghost" href="/admin/event2027/">창립총회</a><a class="btn sm ghost" href="/admin/vip/">VIP 동문 발굴</a></div></div>
     <div class="admin-body" id="body">
-      <div class="kpi">
-        <div class="k gold"><div class="v" id="k-p">—</div><div class="l">연락 대상</div></div>
-        <div class="k"><div class="v" id="k-c">—</div><div class="l">담당자 (준비위원 · 학번대표)</div></div>
-        <div class="k"><div class="v" id="k-r">—</div><div class="l">1인당 담당 (최소~최대)</div></div>
-        <div class="k"><div class="v" id="k-h">—</div><div class="l">같은 학번대 / 가까운 / 학번 모름</div></div>
-      </div>
       <div class="panel"><div class="panel-head"><h2>담당자</h2><span class="tiny" id="sum"></span></div>
         <div class="bar"><div class="pill-row" id="gf"><button class="pill on" data-g="">전체</button><button class="pill" data-g="학번대표">학번대표</button><button class="pill" data-g="준비위원">준비위원</button></div><input id="q" placeholder="담당자 또는 동문 이름 검색"></div>
         <div id="callers"></div></div>
@@ -59,8 +53,6 @@
   if ((D.dropped || []).length) { const n = q('#drop-note'); n.hidden = false; n.innerHTML = `VIP 동문 발굴 명단에서 제외·확인 필요로 바뀐 ${D.dropped.length}명은 연락 목록에서 자동으로 빠졌습니다: ${D.dropped.slice(0, 30).map(x => esc(x.name)).join(', ')}${D.dropped.length > 30 ? ' 외' : ''}. <a href="/admin/vip/">VIP 명단에서 보기</a>`; }
   const C = D.callers, P = D.people, by = {}; P.forEach(p => (by[p.caller] ||= []).push(p));
   const loads = C.map(c => (by[c.no] || []).length).filter(n => n), hw = k => P.filter(p => p.info.how === k).length;
-  q('#k-p').textContent = P.length + '명'; q('#k-c').textContent = `${C.length}명 (${C.filter(c => c.grp === '준비위원').length} · ${C.filter(c => c.grp !== '준비위원').length})`;
-  q('#k-r').textContent = loads.length ? `${Math.min(...loads)}~${Math.max(...loads)}명` : '—'; q('#k-h').textContent = `${hw('같은 학번대')} / ${hw('가까운 학번')} / ${hw('학번 모름 — 고르게 배분')}`;
   let grp = '', sel = location.hash.slice(1) || '';
   const howTag = h => `<span class="how ${h === '같은 학번대' ? '' : h === '가까운 학번' ? 'far' : 'none'}">${h === '학번 모름 — 고르게 배분' ? '학번 모름' : esc(h)}</span>`;
   function people(c, kw) {

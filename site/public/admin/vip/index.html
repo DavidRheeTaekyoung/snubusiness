@@ -13,7 +13,10 @@
 .pane{display:none}.pane.on{display:block}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .bar input,.bar select,.run input,.run select{font:inherit;font-size:13.5px;padding:7px 10px;border:1px solid var(--line-2);background:var(--paper)}
-.ppl{table-layout:fixed;min-width:1260px}.ppl td{font-size:13.5px;vertical-align:top;padding:9px 8px}.ppl th{padding:9px 8px;white-space:nowrap}
+.ppl{width:100%;min-width:1100px}.ppl td{font-size:13px;vertical-align:top;padding:5px 8px;line-height:1.45}.ppl th{padding:7px 8px;white-space:nowrap;font-size:12.5px;cursor:pointer;user-select:none}.ppl th.s{color:var(--navy-800)}
+.ppl tr.pr{cursor:pointer}.ppl tr.pr:hover td{background:#FCFBF8}.ppl tr.pr.open td{background:var(--ivory)}.ppl td.cut{max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ppl td.nw{white-space:nowrap}
+.ppl tr.ed td{background:var(--ivory);padding:10px 12px}.edg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px 14px}.edg label{font-size:11.5px;color:var(--ink-3);display:block}.edg .ce{border-bottom:1px solid var(--line-2);font-size:13.5px}
+.st-b{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:999px;background:#EEF2F8;color:var(--navy-800)}.st-b.x9{background:#EEF0F3;color:var(--ink-3)}.st-b.x1{background:#FFF4DC;color:#8A6D1F}
 .ppl select{font:inherit;font-size:12.5px;padding:3px 4px;border:1px solid var(--line-2);background:var(--paper);width:100%}
 .ce{min-height:20px;outline:0;line-height:1.55;white-space:pre-wrap;word-break:break-word}.ce:focus{background:#FBF4E6}.ce:empty::before{content:attr(data-ph);color:var(--ink-3)}
 .src a{font-size:12px;display:block;color:var(--navy-700);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -50,14 +53,15 @@
   <div id="admin-side"></div>
   <main class="admin-main">
     <div class="admin-top"><div><span class="eyebrow" style="margin-bottom:6px">행사기획팀 전용 · 명단은 이 페이지에만 저장</span><h1>VIP 동문 발굴</h1><div class="sub">뉴스 인사 기사, 웹, DART 임원현황, 국회의원 약력에서 서울대 경영 동문 후보를 모으고, 확인한 사람만 명단으로 옮깁니다.</div></div>
-      <div class="actions"><a class="btn sm ghost" href="/admin/event2027/">창립총회로</a></div></div>
+      <div class="actions"><a class="btn sm ghost" href="/admin/event2027/">창립총회로</a><a class="btn sm gold" href="/admin/calls/">학번대표별 연락 배정</a></div></div>
     <div class="admin-body" id="body">
-      <div class="kpi"><div class="k gold" data-go="people:확인됨"><div class="v" id="k-ok">—</div><div class="l">확인된 VIP</div></div><div class="k" data-go="people:후보"><div class="v" id="k-cand">—</div><div class="l">후보 · 확인 필요</div></div><div class="k" data-go="hits"><div class="v" id="k-hits">—</div><div class="l">검토 대기 수집 결과</div></div><div class="k" data-go="hits:dart"><div class="v" id="k-dart">—</div><div class="l">DART 상장사 스캔</div></div></div>
+      <div class="kpi"><div class="k gold" data-go="people:확인됨"><div class="v" id="k-ok">—</div><div class="l">확인된 VIP</div></div><div class="k" data-go="people:후보·확인 필요"><div class="v" id="k-cand">—</div><div class="l">후보 · 확인 필요</div></div><div class="k" data-go="hits"><div class="v" id="k-hits">—</div><div class="l">검토 대기 수집 결과</div></div><div class="k" data-go="hits:dart"><div class="v" id="k-dart">—</div><div class="l">DART 상장사 스캔</div></div></div>
       <div class="tabs" id="tabs"><button data-t="people" class="on">명단</button><button data-t="cand">인물별 표</button><button data-t="hits">수집 결과</button><button data-t="run">검색 실행</button></div>
 
       <div class="pane on" id="p-people">
         <div class="bar"><div class="pill-row" id="st-f"></div><select id="fd-f"><option value="">분야 전체</option></select><input id="q-f" placeholder="이름·소속·메모 검색" style="min-width:200px"><button class="btn sm" id="add">사람 추가</button><button class="btn sm ghost" id="xl-ppl" title="이 명단(사람이 확인해 넣은 사람)만 내려받습니다. 수집된 후보 전체는 수집 결과 탭의 '인물별 엑셀'">확인된 명단 엑셀</button><span class="muted" id="ppl-n" style="font-size:13px"></span></div>
-        <div style="overflow-x:auto"><table class="table ppl" id="ppl"><thead><tr><th style="width:84px">이름</th><th style="width:76px">학번</th><th style="width:76px">과정</th><th style="width:130px">소속</th><th style="width:110px">직위</th><th style="width:96px">분야</th><th style="width:62px">등급</th><th style="width:96px">상태</th><th style="width:84px">연락 담당</th><th style="width:220px">제외 · 확인 사유</th><th style="width:76px">출신 고교</th><th style="width:60px">출생</th><th style="width:150px">전화할 기관 · 번호</th><th style="width:110px">연결 동문</th><th>메모</th><th style="width:150px">출처</th><th style="width:44px"></th></tr></thead><tbody></tbody></table></div>
+        <div style="overflow-x:auto"><table class="table ppl keep" id="ppl"><thead><tr id="ppl-h"></tr></thead><tbody></tbody></table></div>
+        <button class="btn sm ghost more" id="ppl-more" hidden>더 보기</button>
         <div class="import"><b>자료 붙여넣기</b> (SNU Biz 앱 자료, 위원 제보 엑셀 등) — 엑셀에서 <code>이름, 학번, 과정, 소속, 직위, 분야, 메모</code> 순서로 열을 맞춰 복사해 붙여넣고 "가져오기"를 누르세요. 이름만 있어도 됩니다.<textarea id="paste" placeholder="홍길동	82	학부	○○그룹	회장	기업	"></textarea><div style="display:flex;gap:10px;align-items:center;margin-top:8px"><button class="btn sm" id="do-import">가져오기</button><span class="muted" id="import-msg" style="font-size:13px"></span></div></div>
       </div>
 
@@ -117,12 +121,12 @@
   const grp = h => h.source === 'dart' ? 'DART 임원' : h.source === 'web' ? '웹' : h.source === 'assembly' ? '국회' : /판사|법원장|대법관|재판관|지검장|고검장|검사장|검사$|법관/.test(h.position || '') ? '판검사' : /장관|차관|청장|국장|실장|처장|차관보|위원장|총재|기획관|정책관|심의관|비서관|대변인|수석|교육감|이사관|국회의원/.test(h.position || '') && !/변호사|회계사/.test(h.position || '') ? '고위공무원' : /회장|사장|대표|전무|상무|이사|CEO|CFO|센터장|본부장|행장|파트너|변호사|회계사/.test(h.position || '') ? '기업·금융' : /판사|검사|검찰|법원|법관|재판관|대법/.test(h.query) ? '판검사' : /장관|차관|청장|실장|국장|처장|대사|공무원|행정고시|행시|기획재정부|위원회|국세청|감사원/.test(h.query) ? '고위공무원' : '기업·금융';
   let limit = 200;
   const SNU_RE = /서울대(?:학교)?\s*\(?\s*(?:경영|상과|상대)[가-힣]*/g;
-  let S = null, stF = '', fdF = '', qF = '', srcF = '', hsF = 'new';
+  let S = null, stF = '후보·확인 필요', fdF = '', qF = '', srcF = '', hsF = 'new';
   try { S = { ...(await api('/vip')), hits: [], orgs: [], dir: [] }; } catch (e) { q('#body').innerHTML = '<div class="noperm">' + esc(e.status === 403 ? e.message : '불러오지 못했습니다: ' + e.message) + '</div>'; return; }
   q('#fd-f').innerHTML += FIELD.map(f => `<option>${f}</option>`).join('');
   // 숫자·명단을 먼저 그리고, 수집 결과 목록(용량이 큼)은 뒤따라 받는다
   async function loadHits() { Object.assign(S, await api('/vip?part=hits'), { hitsLoaded: true }); render(); }
-  async function reload() { const [a, b] = await Promise.all([api('/vip'), api('/vip?part=hits')]); S = { ...a, ...b, hitsLoaded: true }; render(); }
+  async function reload() { const a = await api('/vip'); S = { ...S, ...a }; if (S.hitsLoaded) Object.assign(S, await api('/vip?part=hits')); render(); }
   const opt = (v, list) => list.map(x => `<option ${x === v ? 'selected' : ''} value="${esc(x)}">${esc(x || '—')}</option>`).join('');
   const ce = (p, f, ph) => `<div class="ce" contenteditable="true" data-f="${f}" data-ph="${ph}">${esc(p[f] || '')}</div>`;
 
@@ -130,14 +134,8 @@
     const P = S.people, live = S.hits.filter(h => h.status === 'new');
     q('#k-ok').textContent = P.filter(p => p.status === '확인됨').length; q('#k-cand').textContent = P.filter(p => p.status === '후보' || p.status === '확인 필요').length;
     q('#k-hits').textContent = S.hitsLoaded ? dedup(live).length : (S.counts || []).filter(c => c.status === 'new').reduce((a, c) => a + c.n, 0); q('#k-dart').textContent = S.corps.total ? `${S.corps.scanned || 0}/${S.corps.total}` : '—';
-    q('#st-f').innerHTML = ['', ...STATUS].map(s => `<button class="pill ${s === stF ? 'on' : ''}" data-st="${s}">${s || '전체'} ${s ? P.filter(p => p.status === s).length : P.length}</button>`).join('');
-    const rows = P.filter(p => (!stF || p.status === stF) && (!fdF || p.field === fdF) && (!qF || [p.name, p.org, p.position, p.memo, p.link, p.cohort, p.excl, p.caller].join(' ').includes(qF)));
-    q('#ppl-n').textContent = rows.length + '명';
-    q('#ppl tbody').innerHTML = rows.map(p => `<tr data-id="${p.id}"><td><b>${ce(p, 'name', '이름')}</b></td><td>${ce(p, 'cohort', '학번')}</td><td>${ce(p, 'degree', '학부/대학원')}</td><td>${ce(p, 'org', '소속')}</td><td>${ce(p, 'position', '직위')}</td>
-      <td><select data-f="field">${opt(p.field, ['', ...FIELD])}</select></td><td><select data-f="tier">${opt(p.tier, TIER)}</select></td><td><select data-f="status">${opt(p.status, STATUS)}</select></td><td style="white-space:nowrap">${p.caller ? `<a href="/admin/calls/#${esc(p.caller_no)}" title="동문 연락 할당에서 보기">${esc(p.caller)}</a>` : ''}</td><td class="muted" style="font-size:12px;min-width:200px">${esc(p.excl || '')}</td><td>${ce(p, 'hs', '고교')}</td><td>${ce(p, 'birth', '연도')}</td><td>${ce(p, 'phone', '대표번호')}</td><td>${ce(p, 'link', '아는 동문')}</td><td>${ce(p, 'memo', '메모')}</td>
-      <td class="src">${p.sources.map(s => s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" title="${esc(s.title)}">${esc(SRC[s.from] || s.from || '')} ${esc(s.title || s.url)}</a>` : `<span class="muted" style="font-size:12px">${esc(s.title)}</span>`).join('') || '<span class="muted" style="font-size:12px">—</span>'}</td>
-      <td><button class="x" data-del="${p.id}" title="삭제">×</button></td></tr>`).join('') || '<tr><td colspan="17" class="muted">아직 명단이 없습니다. 수집 결과에서 이름을 누르거나, 사람 추가·자료 붙여넣기로 넣어 주세요.</td></tr>';
-
+    renderPeople();
+    if (!S.hitsLoaded) return;
     const cnt = g => dedup(S.hits.filter(h => h.status === hsF && (!g || grp(h) === g))).length;
     q('#src-f').innerHTML = ['', ...GRP].map(g => `<button class="pill ${g === srcF ? 'on' : ''}" data-src="${g}">${g || '전체'} ${cnt(g)}</button>`).join('');
     const names = new Set(P.map(p => p.name));
@@ -151,8 +149,47 @@
     document.querySelectorAll('[data-k]').forEach(el => { const on = S.keys[el.dataset.k]; el.className = 'key ' + (on ? 'on' : 'off'); el.textContent = on ? '연결됨' : '키 미등록'; });
     q('#dart-st').textContent = S.corps.total ? `상장사 ${S.corps.total}곳 중 ${S.corps.scanned || 0}곳 확인 · 발견 ${S.corps.found || 0}명` : '아직 스캔 전입니다';
     q('#dart-bar').style.width = S.corps.total ? Math.round(100 * (S.corps.scanned || 0) / S.corps.total) + '%' : '0';
-    renderCand();
+    if (q('#p-cand').classList.contains('on')) renderCand();
   }
+
+  // 명단 — 읽기 전용 표(빠르게). 줄을 누르면 그 아래에 편집 칸이 열린다
+  const REVIEW = '후보·확인 필요';
+  let pSort = 'status', pDir = 1, pLimit = 300, openId = 0;
+  const PCOLS = [['이름', 'name'], ['소속', 'org'], ['직위', 'position'], ['분류', 'field'], ['출생', 'birth'], ['상태', 'status'], ['연락 담당', 'caller'], ['제외 · 확인 사유', 'excl'], ['대표번호', 'phone'], ['출처', 'src']];
+  const SORD = { '후보': 0, '확인 필요': 1, '확인됨': 2, '제외': 3 };
+  const stCls = s => s === '제외' ? 'x9' : s === '확인 필요' ? 'x1' : '';
+  function editRow(p) {
+    const fields = [['name', '이름'], ['cohort', '학번'], ['degree', '과정'], ['org', '소속'], ['position', '직위'], ['hs', '출신 고교'], ['birth', '출생연도'], ['phone', '대표번호'], ['link', '연결 동문']];
+    const fl = ['', ...new Set([...FIELD, p.field].filter(Boolean))];
+    const srcs = p.sources.map(x => x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener noreferrer">${esc(SRC[x.from] || x.from || '')} ${esc(x.title || x.url)}</a>` : esc(x.title)).join(' · ');
+    return `<tr class="ed" data-id="${p.id}"><td colspan="${PCOLS.length}"><div class="edg">`
+      + fields.map(([f, l]) => `<div><label>${l}</label>${ce(p, f, l)}</div>`).join('')
+      + `<div><label>분야</label><select data-f="field">${opt(p.field, fl)}</select></div><div><label>등급</label><select data-f="tier">${opt(p.tier, TIER)}</select></div><div><label>상태</label><select data-f="status">${opt(p.status, STATUS)}</select></div>`
+      + `<div style="grid-column:1/-1"><label>제외 · 확인 사유</label>${ce(p, 'excl', '사유')}</div><div style="grid-column:1/-1"><label>메모</label>${ce(p, 'memo', '메모')}</div>`
+      + `<div style="grid-column:1/-1;font-size:12.5px">${srcs} <button class="x" data-del="${p.id}" style="margin-left:10px">명단에서 지우기</button></div></div></td></tr>`;
+  }
+  const inReview = p => p.status === '후보' || p.status === '확인 필요';
+  function renderPeople() {
+    const P = S.people;
+    q('#st-f').innerHTML = [REVIEW, '', ...STATUS].map(s => `<button class="pill ${s === stF ? 'on' : ''}" data-st="${s}">${s || '전체'} ${s === REVIEW ? P.filter(inReview).length : s ? P.filter(p => p.status === s).length : P.length}</button>`).join('');
+    const rows = P.filter(p => (!stF || (stF === REVIEW ? inReview(p) : p.status === stF)) && (!fdF || p.field === fdF) && (!qF || [p.name, p.org, p.position, p.memo, p.link, p.cohort, p.excl, p.caller].join(' ').includes(qF)));
+    const key = p => pSort === 'status' ? (SORD[p.status] ?? 9) : pSort === 'src' ? (p.sources[0]?.title || '') : String(p[pSort] || '');
+    const blank = v => v === '' || v === 9;
+    rows.sort((a, b) => { const x = key(a), y = key(b); return (blank(x) - blank(y)) || (x < y ? -pDir : x > y ? pDir : a.name.localeCompare(b.name, 'ko')); });
+    q('#ppl-n').textContent = rows.length + '명';
+    q('#ppl-h').innerHTML = PCOLS.map(c => `<th data-k="${c[1]}" class="${c[1] === pSort ? 's' : ''}">${c[0]}${c[1] === pSort ? (pDir > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('');
+    q('#ppl tbody').innerHTML = rows.slice(0, pLimit).map(p => {
+      const s0 = p.sources[0];
+      const src = s0 ? (s0.url ? `<a href="${esc(s0.url)}" target="_blank" rel="noopener noreferrer" title="${esc(s0.title)}">${esc(s0.title || s0.url)}</a>` : esc(s0.title)) : '';
+      return `<tr class="pr ${p.id === openId ? 'open' : ''}" data-pid="${p.id}"><td class="nw"><b>${esc(p.name)}</b></td><td class="cut" title="${esc(p.org)}">${esc(p.org)}</td><td class="cut" title="${esc(p.position)}">${esc(p.position)}</td><td class="nw">${esc(p.field)}</td><td class="nw">${esc(p.birth)}</td><td class="nw"><span class="st-b ${stCls(p.status)}">${esc(p.status)}</span></td>`
+        + `<td class="nw">${p.caller ? `<a href="/admin/calls/#${esc(p.caller_no)}">${esc(p.caller)}</a>` : ''}</td><td class="cut muted" title="${esc(p.excl)}" style="font-size:12px">${esc(p.excl)}</td><td class="nw">${esc(p.phone)}</td>`
+        + `<td class="cut" style="font-size:12px">${src}${p.sources.length > 1 ? ` <span class="muted">외 ${p.sources.length - 1}</span>` : ''}</td></tr>${p.id === openId ? editRow(p) : ''}`;
+    }).join('') || `<tr><td colspan="${PCOLS.length}" class="muted">맞는 사람이 없습니다.</td></tr>`;
+    q('#ppl-more').hidden = rows.length <= pLimit; q('#ppl-more').textContent = `더 보기 (${Math.min(pLimit, rows.length)} / ${rows.length})`;
+  }
+  q('#ppl-h').addEventListener('click', e => { const th = e.target.closest('th'); if (!th) return; if (pSort === th.dataset.k) pDir = -pDir; else { pSort = th.dataset.k; pDir = 1; } renderPeople(); });
+  q('#ppl-more').addEventListener('click', () => { pLimit += 300; renderPeople(); });
+  q('#ppl').addEventListener('click', e => { if (e.target.closest('a,button,select,.ce,tr.ed')) return; const tr = e.target.closest('tr.pr'); if (!tr) return; const id = Number(tr.dataset.pid); openId = openId === id ? 0 : id; renderPeople(); });
   // 명확한 중복만 묶기: 사흘 안에 이름 후보 묶음이 똑같거나, 제목 앞부분이 같은 기사 (DART는 사람·회사별이라 묶지 않음)
   let GROUPS = new Map();
   function dedup(list) {
@@ -266,11 +303,11 @@
   async function saveField(tr, f, value) { const id = Number(tr.dataset.id); try { await api('/vip', { method: 'POST', body: { r: 'person', id, [f]: value } }); const p = S.people.find(x => x.id === id); if (p) p[f] = value; } catch (e) { toast('저장 실패: ' + e.message); } }
   q('#ppl').addEventListener('input', e => { const el = e.target.closest('.ce'); if (!el) return; const tr = el.closest('tr'), key = tr.dataset.id + el.dataset.f;
     clearTimeout(timers.get(key)); timers.set(key, setTimeout(() => { timers.delete(key); saveField(tr, el.dataset.f, el.innerText.trim()); }, 700)); });
-  q('#ppl').addEventListener('change', e => { const el = e.target.closest('select[data-f]'); if (el) saveField(el.closest('tr'), el.dataset.f, el.value).then(() => el.dataset.f === 'status' && render()); });
+  q('#ppl').addEventListener('change', e => { const el = e.target.closest('select[data-f]'); if (el) saveField(el.closest('tr'), el.dataset.f, el.value).then(() => el.dataset.f === 'status' && renderPeople()); });
   q('#ppl').addEventListener('click', async e => { const b = e.target.closest('[data-del]'); if (!b) return; const p = S.people.find(x => x.id === Number(b.dataset.del)); if (!confirm((p?.name || '') + ' 님을 명단에서 지울까요?')) return; await api('/vip', { method: 'POST', body: { r: 'person_del', id: Number(b.dataset.del) } }); reload(); });
-  q('#st-f').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (b) { stF = b.dataset.st; render(); } });
-  q('#fd-f').addEventListener('change', e => { fdF = e.target.value; render(); });
-  q('#q-f').addEventListener('input', e => { qF = e.target.value.trim(); render(); });
+  q('#st-f').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (b) { stF = b.dataset.st; pLimit = 300; renderPeople(); } });
+  q('#fd-f').addEventListener('change', e => { fdF = e.target.value; renderPeople(); });
+  let qT; q('#q-f').addEventListener('input', e => { clearTimeout(qT); qT = setTimeout(() => { qF = e.target.value.trim(); pLimit = 300; renderPeople(); }, 180); });
   q('#add').addEventListener('click', async () => { const name = prompt('이름'); if (!name) return; await api('/vip', { method: 'POST', body: { r: 'person', name: name.trim() } }); stF = ''; await reload(); });
   q('#do-import').addEventListener('click', async () => { const txt = q('#paste').value.trim(); if (!txt) return;
     const rows = txt.split(/\r?\n/).map(l => l.split('\t').map(s => s.trim())).filter(c => c[0] && c[0] !== '이름').map(c => ({ name: c[0], cohort: c[1] || '', degree: c[2] || '', org: c[3] || '', position: c[4] || '', field: c[5] || '', memo: c[6] || '', src: '붙여넣기 ' + new Date().toISOString().slice(0, 10) }));
@@ -309,9 +346,9 @@
     finally { b.disabled = false; }
   });
 
-  q('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); cdSrc = null; renderCand(); });
+  q('#tabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.t)); history.replaceState(null, '', '#' + b.dataset.t); cdSrc = null; if (['hits', 'cand'].includes(b.dataset.t) && !S.hitsLoaded) { loadHits().catch(x => toast('수집 결과를 불러오지 못했습니다: ' + x.message)); } else if (b.dataset.t === 'cand') renderCand(); });
   const h0 = location.hash.slice(1); if (h0) q(`#tabs [data-t="${h0}"]`)?.click();
-  render(); loadHits().catch(e => toast('수집 결과를 불러오지 못했습니다: ' + e.message));
+  render();
 })();
 </script>
 </body></html>
