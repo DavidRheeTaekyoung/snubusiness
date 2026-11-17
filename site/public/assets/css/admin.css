@@ -38,7 +38,7 @@
 .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 @media (max-width:900px){.kpi{grid-template-columns:repeat(2,1fr)}}
 .kpi .k{background:var(--paper);border:1px solid var(--line);padding:20px 22px}
-.kpi .k .v{font-family:var(--display);font-size:34px;color:var(--navy-800);line-height:1;font-weight:600}
+.kpi .k .v{font-family:var(--sans);font-size:28px;color:var(--navy-800);line-height:1.2;font-weight:700;font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.01em;white-space:nowrap}
 .kpi .k .l{font-size:12.5px;letter-spacing:.06em;color:var(--ink-3);margin-top:8px}
 .kpi .k.gold .v{color:var(--gold-500)}
 .table{width:100%;border-collapse:collapse;font-size:14px}
@@ -127,7 +127,7 @@
   .admin-top h1{font-size:22px}
   .panel{padding:18px 16px;overflow-x:auto}
   .prose{overflow-x:auto}
-  .kpi{gap:10px}.kpi .k{padding:14px 16px}.kpi .k .v{font-size:26px}
+  .kpi{gap:10px}.kpi .k{padding:14px 16px}.kpi .k .v{font-size:21px;white-space:normal}
   .chapter{flex-wrap:wrap;gap:8px 12px}.chapter .d{margin-left:0;width:100%}
   .dec{padding:18px 16px}.opt{padding:10px 12px}
   .composer{padding:16px}
@@ -169,3 +169,4 @@
   .table.cardify td::before{position:absolute;left:0;top:7px;width:84px;line-height:1.35}
   .table.cardify td:first-child,.table.cardify td[data-l=""]{padding-left:0}
 }
+.admin-shell{font-variant-numeric:lining-nums}
