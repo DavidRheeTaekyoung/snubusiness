@@ -1,104 +1,129 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>결산 보고 발표 | Workbench</title><meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <style>
-:root{--navy:#0F2340;--navy-2:#1B3560;--gold:#B8955A;--gold-2:#D8C29A;--ivory:#F7F3EC;--paper:#FFFFFF;--ink:#1D232C;--ink-2:#4A5361;--ink-3:#7A8392;--line:#E4DED3;--neg:#8A3B2E}
+/* 새 PPT(2026년 결산 및 누적 기부금)와 같은 디자인 · 1600×900 한 장을 화면에 맞춰 축소 */
+:root{--navy:#13294B;--navy2:#1E3A66;--gold:#B08D57;--gold2:#D9C39B;--ink:#1F2937;--gray:#6B7280;--light:#F2F4F7;--line:#E3E6EB}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#0B1830;color:var(--ink);font-family:'Noto Sans KR',sans-serif;overflow:hidden}
-#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
-.deck{position:relative;width:1600px;height:900px;transform-origin:center center}
-.slide{position:absolute;inset:0;background:var(--paper);display:none;flex-direction:column;padding:72px 96px 64px;overflow:hidden}
-.slide.on{display:flex}
-.slide::after{content:'';position:absolute;left:0;right:0;bottom:0;height:8px;background:linear-gradient(90deg,var(--navy) 0,var(--navy-2) 60%,var(--gold) 100%)}
-.kicker{font-family:'Cormorant Garamond',serif;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);font-size:20px;font-weight:600;margin-bottom:10px}
-h2{font-family:'Noto Serif KR',serif;font-weight:600;font-size:46px;color:var(--navy);letter-spacing:-.01em;line-height:1.25}
-h2 small{font-size:24px;color:var(--ink-3);font-weight:400;margin-left:14px}
-.rule{width:64px;height:3px;background:var(--gold);margin:22px 0 36px}
-.foot{position:absolute;left:96px;right:96px;bottom:30px;display:flex;justify-content:space-between;font-size:15px;color:var(--ink-3);letter-spacing:.02em}
-.num{font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
-.neg{color:var(--neg)}
-/* cover */
-.cover{background:var(--navy);color:#fff;justify-content:center;padding:0 140px}
-.cover::after{background:var(--gold)}
-.cover .kicker{color:var(--gold-2);font-size:22px}
-.cover h1{font-family:'Noto Serif KR',serif;font-weight:600;font-size:76px;line-height:1.2;letter-spacing:-.01em}
-.cover .org{font-size:28px;color:var(--gold-2);margin-top:28px;font-family:'Noto Serif KR',serif}
-.cover .meta{margin-top:56px;display:flex;gap:56px;font-size:20px;color:#C9D2E0}
-.cover .meta b{display:block;color:#fff;font-size:26px;font-weight:500;margin-top:6px}
-/* summary */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:2px solid var(--navy);border-bottom:1px solid var(--line)}
-.kpi{padding:30px 28px 32px;border-right:1px solid var(--line)}
-.kpi:last-child{border-right:0;background:var(--ivory)}
-.kpi .l{font-size:19px;color:var(--ink-2);margin-bottom:14px}
-.kpi .v{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:600;color:var(--navy);line-height:1}
-.kpi .v .u{font-family:'Noto Sans KR';font-size:20px;color:var(--ink-3);margin-left:6px;font-weight:400}
-.kpi .s{font-size:16px;color:var(--ink-3);margin-top:12px}
-.twocol{display:grid;grid-template-columns:1fr 1fr;gap:64px;margin-top:44px;flex:1;min-height:0}
-.block h3{font-family:'Noto Serif KR',serif;font-size:24px;color:var(--navy);font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between;align-items:baseline}
-.block h3 span{font-family:'Noto Sans KR';font-size:16px;color:var(--ink-3);font-weight:400}
-.bars .row{display:grid;grid-template-columns:220px 1fr 170px;align-items:center;gap:16px;padding:9px 0;border-bottom:1px solid var(--line);font-size:19px}
-.bars .bar{height:12px;background:var(--ivory)}
-.bars .bar i{display:block;height:100%;background:var(--navy-2)}
-.bars .bar i.g{background:var(--gold)}
-.bars .a{text-align:right}
-/* statement */
-.stmt{width:100%;border-collapse:collapse;font-size:21px}
-.stmt td{padding:7px 18px;border-bottom:1px solid var(--line)}
-.stmt td:last-child{text-align:right;width:300px}
-.stmt td.n{font-size:16px;color:var(--ink-3);width:auto;text-align:left}
-.stmt tr.h td{font-weight:700;color:var(--navy);background:var(--ivory)}
-.stmt tr.s td:first-child{padding-left:52px;color:var(--ink-2)}
-.stmt tr.end td{font-weight:700;background:var(--navy);color:#fff;border:0}
-.stmt tr.end td.n{color:#C9D2E0}
-/* donors */
-.tiers{display:flex;flex-direction:column;gap:0;border-top:2px solid var(--navy);flex:1;min-height:0}
-.tier{display:grid;grid-template-columns:170px 1fr;gap:28px;padding:8px 0;border-bottom:1px solid var(--line);align-items:baseline}
-.tier .amt{font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--gold);font-size:27px;text-align:right;white-space:nowrap}
-.tier .amt .u{font-family:'Noto Sans KR';font-size:16px;color:var(--ink-3);margin-left:3px;font-weight:400}
-.tier .ppl{display:flex;flex-wrap:wrap;gap:2px 22px;font-size:20px;line-height:1.5}
-.tier .ppl span{white-space:nowrap}
-.tier .ppl em{font-style:normal;color:var(--ink-3);font-size:.78em;margin-left:5px}
-.dense .tier{padding:9px 0}
-.dense .tier .ppl{font-size:16.5px;gap:2px 16px;line-height:1.5}
-.dense .tier .amt{font-size:26px}
-.thanks{margin-top:auto;padding-top:22px;font-family:'Noto Serif KR',serif;font-size:21px;color:var(--ink-2)}
-.big .tier .ppl{font-size:26px}
-.big .tier .amt{font-size:36px}
-/* audit */
-.audit{max-width:1040px;font-family:'Noto Serif KR',serif;font-size:27px;line-height:2;color:var(--ink)}
-.audit p+p{margin-top:28px}
-.sign{margin-top:60px;font-family:'Noto Serif KR',serif;font-size:30px;color:var(--navy);letter-spacing:.3em}
-/* chrome */
-#bar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:10px;padding:10px;opacity:0;transition:opacity .25s;z-index:5}
-body:hover #bar{opacity:1}
-#bar button,#bar a{font:inherit;font-size:13px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:2px;cursor:pointer;text-decoration:none}
-#bar span{color:#C9D2E0;font-size:13px;align-self:center;min-width:60px;text-align:center}
+html,body{height:100%;background:#0B1730;color:var(--ink);font-family:'Noto Sans KR','Malgun Gothic',sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
+#stage{position:fixed;inset:0 0 52px 0;overflow:hidden}
+.deck{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;flex:none}
+.slide{position:absolute;inset:0;background:#fff;display:none;padding:54px 72px 0;overflow:hidden}
+.slide.on{display:block}
+.slide.dark{background:var(--navy);color:#fff}
+.num{font-variant-numeric:tabular-nums}
+.kick{font-size:15px;font-weight:700;letter-spacing:.32em;color:var(--gold);margin-bottom:12px}
+.ttl{font-size:40px;font-weight:800;color:var(--navy);letter-spacing:-.01em;line-height:1.25}
+.dark .ttl{color:#fff}
+.ttl small{font-size:19px;font-weight:400;color:var(--gray);margin-left:18px;letter-spacing:0}
+.dark .ttl small{color:var(--gold2)}
+.foot{position:absolute;left:72px;right:72px;bottom:26px;display:flex;justify-content:space-between;font-size:13px;color:var(--gray)}
+.foot b{color:var(--gold);font-weight:500;margin-left:24px}
+.dark .foot{display:none}
+/* 표지 */
+.cover{padding:0 108px}
+.cover .kick{margin-top:205px;font-size:17px}
+.cover h1{font-size:68px;font-weight:800;line-height:1.2;margin-top:14px}
+.cover .org{font-size:27px;color:var(--gold2);margin-top:18px}
+.cover .stats{position:absolute;left:108px;right:88px;top:588px;display:flex;gap:36px}
+.cover .st{background:var(--navy2);padding:22px 36px 26px}
+.cover .st span{display:block;font-size:16px;color:var(--gold2);margin-bottom:12px}
+.cover .st b{font-size:28px;font-weight:700;white-space:nowrap}
+/* 요약 */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;margin-top:48px}
+.card{background:var(--light);border-radius:8px;padding:30px 34px;height:312px;display:flex;flex-direction:column}
+.card.hi{background:var(--navy);color:#fff}
+.card .l{font-size:18px;color:var(--gray)}
+.card.hi .l,.card.hi .s{color:var(--gold2)}
+.card .v{font-size:31px;font-weight:800;color:var(--navy);margin-top:auto;white-space:nowrap}
+.card.hi .v{color:#fff}
+.card .s{font-size:15px;color:var(--gray);margin-top:18px;margin-bottom:auto}
+.eq{margin-top:52px;border:1px solid var(--line);height:138px;display:flex;align-items:center;justify-content:space-around;padding:0 30px}
+.eq div{text-align:center}
+.eq span{display:block;font-size:15px;color:var(--gray);margin-bottom:8px}
+.eq b{font-size:23px;font-weight:700}
+.eq b.last{color:var(--navy)}
+.eq i{font-style:normal;font-size:30px;color:var(--gold);font-weight:700}
+/* 수입·지출 */
+.io{display:grid;grid-template-columns:520px 1fr;gap:56px;margin-top:40px}
+.inc{background:var(--light);border-radius:8px;padding:32px 40px;height:570px;position:relative}
+.inc .l{font-size:19px;color:var(--gray)}
+.inc .big{font-size:42px;font-weight:800;color:var(--navy);margin:8px 0 34px}
+.inc .r{display:flex;justify-content:space-between;font-size:19px;padding:13px 0}
+.inc .r b{font-weight:700}
+.inc .end{position:absolute;left:40px;bottom:36px;font-size:17px;color:var(--gray)}
+.inc .end b{color:var(--navy);font-size:20px;margin-left:10px}
+.exp h3{font-size:19px;color:var(--gray);font-weight:400}
+.exp h3 b{font-size:27px;color:var(--navy);font-weight:800;margin-left:10px}
+.bars{margin-top:44px}
+.bars .row{display:grid;grid-template-columns:200px 1fr;align-items:center;gap:18px;height:84px}
+.bars .row>span{text-align:right;font-size:17px}
+.bars .bt{display:flex;align-items:center;gap:12px;height:100%;border-left:1px solid #C9CED6;padding-left:0}
+.bars .bt i{display:block;height:46px;background:var(--navy)}
+.bars .bt em{font-style:normal;font-size:16px;white-space:nowrap}
+/* 결산서 */
+.stmt{width:100%;border-collapse:collapse;margin-top:38px;font-size:19px}
+.stmt td{border:1px solid var(--line);padding:0 18px;height:52px}
+.stmt td:last-child{text-align:right;width:260px}
+.stmt td.n{color:var(--gray);font-size:16px}
+.stmt tr.h td{background:var(--light);font-weight:700;color:var(--navy)}
+.stmt tr.s td:first-child{padding-left:44px}
+.stmt tr.end td{background:var(--navy);color:#fff;font-weight:700;border-color:var(--navy)}
+/* 기부자 */
+.total{font-size:36px;font-weight:800;color:var(--gold);margin-top:14px}
+.total i{font-style:normal;color:var(--gold2);font-weight:400;margin:0 18px}
+.tiers{margin-top:34px}
+.tier{display:grid;grid-template-columns:178px 1fr;gap:26px;align-items:center;border-bottom:1px solid var(--line);padding:var(--pad,12px) 0}
+.dark .tier{border-color:var(--navy2)}
+.tier:last-child{border-bottom:0}
+.tier .a{text-align:right;color:var(--gold);font-weight:700;font-size:var(--as,21px);white-space:nowrap}
+.tier .p{display:grid;grid-template-columns:repeat(auto-fill,var(--cw,200px));row-gap:var(--rg,8px)}
+.tier .p span{white-space:nowrap;font-size:var(--ns,21px);font-weight:700}
+.tier .p em{font-style:normal;font-weight:400;font-size:.72em;color:var(--gray);margin-left:6px}
+.dark .tier .p em{color:var(--gold2)}
+.thanks{position:absolute;left:72px;bottom:44px;font-size:17px;color:var(--gold2)}
+.grid100{display:grid;grid-auto-flow:column;grid-template-rows:repeat(11,1fr);grid-template-columns:repeat(7,1fr);height:640px;margin-top:30px}
+.grid100 span{font-size:18px;font-weight:700;white-space:nowrap;align-self:center}
+.grid100 em{font-style:normal;font-weight:400;font-size:14px;color:var(--gray);margin-left:5px}
+/* 감사 의견 */
+.audit{margin-top:90px;font-size:28px;line-height:1.75;max-width:1330px}
+.audit p+p{margin-top:24px}
+.sign{margin-top:110px;font-size:22px;color:var(--gold2)}
+.sign b{font-size:34px;color:#fff;letter-spacing:.3em;margin-left:16px}
+/* 조작 막대 */
+#bar{position:fixed;left:0;right:0;bottom:0;height:52px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 10px env(safe-area-inset-bottom);background:#0B1730;z-index:5}
+#bar button,#bar a{font:inherit;font-size:13px;white-space:nowrap;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.22);padding:7px 12px;border-radius:3px;cursor:pointer;text-decoration:none}
+#bar span{color:#C9D2E0;font-size:13px;min-width:46px;text-align:center}
+#rot{display:none;position:fixed;left:0;right:0;top:12px;text-align:center;color:#C9D2E0;font-size:13px;z-index:4}
+@media (orientation:portrait) and (max-width:700px){#rot{display:block}#fs,#home{display:none}}
 #msg{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#C9D2E0;font-size:16px}
 @media print{
   @page{size:1600px 900px;margin:0}
-  html,body{overflow:visible;background:#fff}
-  #stage{position:static;display:block}
-  .deck{transform:none!important;width:1600px;height:auto}
-  .slide{position:relative;display:flex!important;width:1600px;height:900px;page-break-after:always;break-after:page}
-  #bar,#msg{display:none}
+  html,body{overflow:visible;background:#fff;height:auto}
+  #stage{position:static}
+  .deck{position:static;transform:none!important}
+  .slide{position:relative;display:block!important;width:1600px;height:900px;break-after:page;page-break-after:always}
+  #bar,#msg,#rot{display:none!important}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
 <body>
 <div id="msg">장부를 불러오는 중입니다</div>
+<div id="rot">휴대폰은 가로로 돌리면 크게 보입니다</div>
 <div id="stage"><div class="deck" id="deck"></div></div>
-<div id="bar"><button id="prev" aria-label="이전">&#8249; 이전</button><span id="pg"></span><button id="next" aria-label="다음">다음 &#8250;</button><button id="fs">전체 화면</button><button onclick="window.print()">PDF로 저장</button><a href="/admin/finance/">장부로</a></div>
+<div id="bar"><button id="prev" aria-label="이전 장">&#8249; 이전</button><span id="pg"></span><button id="next" aria-label="다음 장">다음 &#8250;</button><button id="fs">전체 화면</button><button id="pdf">PDF로 저장</button><a id="home" href="/admin/finance/">장부로</a></div>
 <script>
 (async () => {
   const $ = s => document.querySelector(s);
   const W = n => Math.round(n).toLocaleString('ko-KR');
-  const P = n => '(' + W(n) + ')';
-  const man = n => (n / 10000).toLocaleString('ko-KR');
+  const eok = n => { const e = Math.floor(n / 1e8), m = Math.round((n % 1e8) / 1e4); return (e ? e + '억 ' : '') + (m ? m.toLocaleString('ko-KR') + '만' : '') + '원'; };
+  const man = n => (n / 1e4).toLocaleString('ko-KR') + '만원';
   const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const dot = s => s.replace(/-/g, '.');
   const kdate = s => { const [y, m, d] = s.split('-').map(Number); return `${y}년 ${m}월 ${d}일`; };
@@ -108,24 +133,23 @@ body:hover #bar{opacity:1}
     [F, D] = await Promise.all([get('/api/finance'), get('data.json')]);
   } catch (e) { $('#msg').textContent = e.message; return; }
 
+  // ---- 장부에서 계산 ----
   const nm = e => (e.counterparty || String(e.item || '').replace(/\s*-\s*기부.*$/, '')).trim();
   const E = F.entries.filter(e => !e.planned);
   const inPeriod = e => e.no > D.start_after && e.date <= D.asof;
-  const before = e => e.no <= D.start_after;
   const sgn = e => e.type === 'income' ? e.amount : -e.amount;
-  const open = D.carry + E.filter(before).reduce((s, e) => s + sgn(e), 0);
+  const open = D.carry + E.filter(e => e.no <= D.start_after).reduce((s, e) => s + sgn(e), 0);
   const cur = E.filter(inPeriod);
   const inc = {}, exc = {};
-  for (const e of cur) (e.type === 'income' ? inc : exc)[e.category] = ((e.type === 'income' ? inc : exc)[e.category] || 0) + e.amount;
+  for (const e of cur) { const t = e.type === 'income' ? inc : exc; t[e.category] = (t[e.category] || 0) + e.amount; }
   const TI = Object.values(inc).reduce((a, b) => a + b, 0), TE = Object.values(exc).reduce((a, b) => a + b, 0);
   const close = open + TI - TE;
-  // 지출 묶음
-  const groups = D.expense_groups.map(g => ({ ...g, amt: g.cats.reduce((s, c) => s + (exc[c] || 0), 0) }));
+  const groups = D.expense_groups.map(g => ({ ...g, amt: g.cats.reduce((s, c) => s + (exc[c] || 0), 0) })).filter(g => g.amt);
   const known = new Set(D.expense_groups.flatMap(g => g.cats));
-  const other = Object.entries(exc).filter(([c]) => !known.has(c)).reduce((s, [, v]) => s + v, 0);
-  if (other) groups.push({ label: '미분류 지출', amt: other, note: '분류 안 된 계정: ' + Object.keys(exc).filter(c => !known.has(c)).join(', ') });
+  const unk = Object.keys(exc).filter(c => !known.has(c));
+  if (unk.length) groups.push({ label: '미분류 지출', amt: unk.reduce((s, c) => s + exc[c], 0), note: '분류 안 된 계정: ' + unk.join(', ') });
   groups.sort((a, b) => b.amt - a.amt);
-  // 기부
+  const incRows = Object.entries(inc).filter(([, v]) => v).sort((a, b) => b[1] - a[1]).map(([c, v]) => [D.income_labels[c] || c, v]);
   const isDon = e => e.type === 'income' && e.category === '기부금';
   const cum = {}; for (const e of E.filter(e => isDon(e) && e.date <= D.asof)) cum[nm(e)] = (cum[nm(e)] || 0) + e.amount;
   for (const [k, v] of Object.entries(D.adjust || {})) cum[k] = (cum[k] || 0) + v;
@@ -137,58 +161,61 @@ body:hover #bar{opacity:1}
   const key = n => { const c = coh(n), m = c.match(/(\d+)/); const g = c.startsWith('경영') ? 0 : c.startsWith('대학원') ? 1 : 2; let y = m ? +m[1] : 999; if (g === 0 && y < 30) y += 100; return [g, y, n]; };
   const cmp = (a, b) => { const x = key(a), y = key(b); return x[0] - y[0] || x[1] - y[1] || x[2].localeCompare(y[2], 'ko'); };
   const tiers = obj => { const t = {}; for (const [n, a] of Object.entries(obj)) (t[a] = t[a] || []).push(n); return Object.entries(t).map(([a, ns]) => [+a, ns.sort(cmp)]).sort((a, b) => b[0] - a[0]); };
-  const tierHTML = list => list.map(([a, ns]) => `<div class="tier"><div class="amt num">${man(a)}<span class="u">만원</span></div><div class="ppl">${ns.map(n => `<span>${esc(n)}${coh(n) ? `<em>${esc(coh(n))}</em>` : ''}</span>`).join('')}</div></div>`).join('');
+  const who = n => `<span>${esc(n)}${coh(n) ? `<em>${esc(coh(n))}</em>` : ''}</span>`;
+  const tierHTML = (list, st) => `<div class="tiers" style="${st}">${list.map(([a, ns]) => `<div class="tier"><div class="a num">${man(a)}</div><div class="p">${ns.map(who).join('')}</div></div>`).join('')}</div>`;
 
   const startDate = cur.length ? cur.map(e => e.date).sort()[0] : D.asof;
   const period = `${dot(startDate)} ~ ${dot(D.asof)}`;
-  const foot = `<div class="foot"><span>${esc(D.org)}</span><span>${dot(D.asof)} 기준</span></div>`;
-  const incRows = Object.entries(inc).sort((a, b) => b[1] - a[1]).map(([c, v]) => `<tr class="s"><td>${esc(D.income_labels[c] || c)}</td><td class="n"></td><td class="num">${W(v)}</td></tr>`).join('');
-  const maxG = Math.max(...groups.map(g => g.amt), 1);
-  const ct = tiers(cum), hi = ct.filter(t => t[0] >= 3000000), lo = ct.filter(t => t[0] < 3000000);
+  const foot = n => `<div class="foot"><span>${esc(D.org)}</span><span>${dot(D.asof)} 기준<b>${n}</b></span></div>`;
+  const head = (k, t, sub) => `<div class="kick">${k}</div><div class="ttl">${t}${sub ? `<small>${sub}</small>` : ''}</div>`;
+  const ct = tiers(cum), maxG = Math.max(...groups.map(g => g.amt), 1);
+  const t100 = (ct.find(t => t[0] === 1e6) || [0, []])[1];
 
   const S = [];
-  S.push(`<section class="slide cover"><div class="kicker">Annual Financial Report</div><h1>${esc(D.asof.slice(0, 4))}년 결산 보고</h1><div class="org">${esc(D.org)}</div>
-    <div class="meta"><div>결산 기간<b class="num">${period}</b></div><div>기말 잔액<b class="num">${W(close)}원</b></div><div>감사<b>${esc(D.auditor)}</b></div></div></section>`);
-  S.push(`<section class="slide"><div class="kicker">Summary</div><h2>결산 요약<small>${dot(D.asof)} 기준</small></h2><div class="rule"></div>
-    <div class="kpis">
-      <div class="kpi"><div class="l">2021년 이전 이월회비</div><div class="v num">${man(D.carry).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(D.carry)}원</div></div>
-      <div class="kpi"><div class="l">누적 기부금</div><div class="v num">${man(CUM)}<span class="u">만원</span></div><div class="s">총 기부 인원 ${NP}명</div></div>
-      <div class="kpi"><div class="l">누적 지출 <span style="font-size:14px;color:var(--ink-3)">(이자 등 기타수입 차감 후)</span></div><div class="v num">${man(cumExp).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(cumExp)}원</div></div>
-      <div class="kpi"><div class="l">현재 잔액</div><div class="v num">${man(close).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(close)}원</div></div>
+  S.push(`<section class="slide dark cover"><div class="kick">ANNUAL FINANCIAL REPORT</div><h1>${esc(D.asof.slice(0, 4))}년 결산 보고</h1><div class="org">${esc(D.org)}</div>
+    <div class="stats"><div class="st" style="flex:4.5"><span>결산 기간</span><b class="num">${period}</b></div><div class="st" style="flex:3.6"><span>기말 잔액</span><b class="num">${W(close)}원</b></div><div class="st" style="flex:3"><span>감사</span><b>${esc(D.auditor)}</b></div></div></section>`);
+  S.push(`<section class="slide">${head('SUMMARY', '결산 요약', dot(D.asof) + ' 기준 누적')}
+    <div class="cards">
+      <div class="card"><div class="l">2021년 이전 이월회비</div><div class="v num">${eok(D.carry)}</div><div class="s num">${W(D.carry)}원</div></div>
+      <div class="card"><div class="l">누적 기부금</div><div class="v num">${eok(CUM)}</div><div class="s">총 기부 인원 ${NP}명</div></div>
+      <div class="card"><div class="l">누적 지출</div><div class="v num">${eok(cumExp)}</div><div class="s">이자 등 기타수입 차감 후</div></div>
+      <div class="card hi"><div class="l">현재 잔액</div><div class="v num">${eok(close)}</div><div class="s num">${W(close)}원</div></div>
     </div>
-    <div class="twocol">
-      <div class="block"><h3>이번 결산기 수입<span class="num">${W(TI)}원</span></h3><div class="bars">${Object.entries(inc).sort((a, b) => b[1] - a[1]).map(([c, v]) => `<div class="row"><span>${esc(D.income_labels[c] || c)}</span><span class="bar"><i class="g" style="width:${Math.max(1, v / TI * 100)}%"></i></span><span class="a num">${W(v)}</span></div>`).join('')}</div></div>
-      <div class="block"><h3>이번 결산기 지출<span class="num">${W(TE)}원</span></h3><div class="bars">${groups.map(g => `<div class="row"><span>${esc(g.label)}</span><span class="bar"><i style="width:${Math.max(1, g.amt / maxG * 100)}%"></i></span><span class="a num">${W(g.amt)}</span></div>`).join('')}</div></div>
-    </div>${foot}</section>`);
-  S.push(`<section class="slide"><div class="kicker">Statement of Receipts and Payments</div><h2>수입 및 지출 결산서<small>${period}</small></h2><div class="rule"></div>
-    <table class="stmt">
-      <tr class="h"><td>${esc(D.prev_close_label)} 잔고</td><td class="n"></td><td class="num">${W(open)}</td></tr>
-      <tr class="h"><td>수입</td><td class="n"></td><td class="num">${W(TI)}</td></tr>${incRows}
-      <tr class="h"><td>지출</td><td class="n"></td><td class="num neg">${P(TE)}</td></tr>
-      ${groups.map(g => `<tr class="s"><td>${esc(g.label)}</td><td class="n">${esc(g.note || '')}</td><td class="num neg">${P(g.amt)}</td></tr>`).join('')}
-      <tr class="end"><td>${esc(kdate(D.asof))} 잔고</td><td class="n">단위: 원</td><td class="num">${W(close)}</td></tr>
-    </table>${foot}</section>`);
-  S.push(`<section class="slide"><div class="kicker">With Gratitude</div><h2>지난 1년간 기부해 주신 분<small>${NY}명 · ${W(YR)}원</small></h2><div class="rule"></div>
-    <div class="tiers big">${tierHTML(tiers(yr))}</div><div class="thanks">${period} 사이에 보내 주신 마음에 깊이 감사드립니다.</div>${foot}</section>`);
-  S.push(`<section class="slide"><div class="kicker">Honor Roll</div><h2>누적 기부금 ${W(CUM)}원<small>총 ${NP}명 · 300만원 이상</small></h2><div class="rule"></div>
-    <div class="tiers">${tierHTML(hi)}</div>${foot}</section>`);
-  S.push(`<section class="slide"><div class="kicker">Honor Roll</div><h2>누적 기부금 ${W(CUM)}원<small>총 ${NP}명 · 200만원 이하</small></h2><div class="rule" style="margin-bottom:24px"></div>
-    <div class="tiers dense">${tierHTML(lo)}</div>${foot}</section>`);
-  S.push(`<section class="slide"><div class="kicker">Audit Opinion</div><h2>감사 의견</h2><div class="rule"></div>
+    <div class="eq"><div><span>이월회비</span><b class="num">${eok(D.carry)}</b></div><i>+</i><div><span>누적 기부금</span><b class="num">${eok(CUM)}</b></div><i>−</i><div><span>누적 지출</span><b class="num">${eok(cumExp)}</b></div><i>=</i><div><span>현재 잔액</span><b class="num last">${eok(close)}</b></div></div>${foot(2)}</section>`);
+  S.push(`<section class="slide">${head('THIS PERIOD', '이번 결산기 수입과 지출', period)}
+    <div class="io"><div class="inc"><div class="l">수입</div><div class="big num">${eok(TI)}</div>${incRows.map(([l, v]) => `<div class="r"><span>${esc(l)}</span><b class="num">${W(v)}원</b></div>`).join('')}<div class="end">기말 잔액<b class="num">${W(close)}원</b></div></div>
+    <div class="exp"><h3>지출<b class="num">${eok(TE)}</b></h3><div class="bars">${groups.map(g => `<div class="row"><span>${esc(g.label)}</span><div class="bt"><i style="width:${Math.max(0.4, g.amt / maxG * 70)}%"></i><em class="num">${man(Math.round(g.amt / 1e4) * 1e4)}</em></div></div>`).join('')}</div></div></div>${foot(3)}</section>`);
+  S.push(`<section class="slide">${head('STATEMENT', '수입 및 지출 결산서', period + ' · 단위: 원')}
+    <table class="stmt num"><tr class="h"><td>${esc(D.prev_close_label)} 잔고</td><td class="n"></td><td>${W(open)}</td></tr>
+    <tr class="h"><td>수입</td><td class="n"></td><td>${W(TI)}</td></tr>${incRows.map(([l, v]) => `<tr class="s"><td>${esc(l)}</td><td class="n"></td><td>${W(v)}</td></tr>`).join('')}
+    <tr class="h"><td>지출</td><td class="n"></td><td>(${W(TE)})</td></tr>${groups.map(g => `<tr class="s"><td>${esc(g.label)}</td><td class="n">${esc(g.note || '')}</td><td>(${W(g.amt)})</td></tr>`).join('')}
+    <tr class="end"><td>${esc(kdate(D.asof))} 잔고</td><td></td><td>${W(close)}</td></tr></table>${foot(4)}</section>`);
+  S.push(`<section class="slide dark">${head('WITH GRATITUDE', '지난 1년간 기부해 주신 분')}
+    <div class="total num">${NY}명<i>·</i>${eok(YR)}</div>${tierHTML(tiers(yr), '--ns:22px;--as:22px;--cw:240px;--pad:13px;margin-top:26px')}
+    <div class="thanks">${period} 사이에 보내 주신 마음에 깊이 감사드립니다.</div></section>`);
+  S.push(`<section class="slide">${head('HONOR ROLL', '누적 기부금 ' + eok(CUM), `총 ${NP}명 · 300만원 이상`)}${tierHTML(ct.filter(t => t[0] >= 3e6), '--ns:18px;--as:18px;--cw:200px;--pad:8px;--rg:4px;margin-top:26px')}${foot(6)}</section>`);
+  const mid = ct.filter(t => t[0] < 3e6 && t[0] !== 1e6);
+  S.push(`<section class="slide">${head('HONOR ROLL', '누적 기부금 ' + eok(CUM), `총 ${NP}명 · ${mid.map(t => man(t[0])).join(' · ')}`)}${tierHTML(mid, '--ns:18px;--as:20px;--cw:200px;--pad:16px;--rg:12px;margin-top:40px')}${foot(7)}</section>`);
+  S.push(`<section class="slide">${head('HONOR ROLL', '100만원 기부', t100.length + '명')}<div class="grid100" style="grid-template-rows:repeat(${Math.ceil(t100.length / 7)},1fr)">${t100.map(who).join('')}</div>${foot(8)}</section>`);
+  S.push(`<section class="slide dark">${head('AUDIT OPINION', '감사 의견')}
     <div class="audit"><p>본인은 ${esc(D.org)}의 ${esc(kdate(startDate))}부터 ${esc(kdate(D.asof))}까지 수입 및 지출 사항을 감사하였습니다.</p>
     <p>본인의 의견으로는 본 동창회의 수입 및 지출은 정당하고 적정하게 집행 관리되었으며, 수입 및 지출 보고서는 적정하게 표시되어 있습니다.</p></div>
-    <div class="sign">감사 ${esc(D.auditor)}</div>${foot}</section>`);
+    <div class="sign">감사<b>${esc(D.auditor)}</b></div></section>`);
 
   const deck = $('#deck'); deck.innerHTML = S.join(''); $('#msg').remove();
-  const slides = [...deck.children]; let i = Math.min(slides.length - 1, Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+  const slides = [...deck.children];
+  let i = Math.min(slides.length - 1, Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
   const show = () => { slides.forEach((s, k) => s.classList.toggle('on', k === i)); $('#pg').textContent = `${i + 1} / ${slides.length}`; history.replaceState(null, '', '#' + (i + 1)); };
-  const fit = () => { const s = Math.min(innerWidth / 1600, innerHeight / 900); deck.style.transform = `scale(${s})`; };
+  const fit = () => { const st = $('#stage'), w = st.clientWidth, h = st.clientHeight, s = Math.min(w / 1600, h / 900); deck.style.transform = `translate(${(w - 1600 * s) / 2}px,${(h - 900 * s) / 2}px) scale(${s})`; };
   const go = d => { i = Math.min(slides.length - 1, Math.max(0, i + d)); show(); };
   addEventListener('resize', fit); fit(); show();
   addEventListener('keydown', e => { if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); go(1); } else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); go(-1); } else if (e.key === 'Home') { i = 0; show(); } else if (e.key === 'End') { i = slides.length - 1; show(); } else if (e.key === 'f') document.documentElement.requestFullscreen?.(); });
   $('#stage').addEventListener('click', e => go(e.clientX < innerWidth / 3 ? -1 : 1));
+  let tx = null; $('#stage').addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+  $('#stage').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; tx = null; if (Math.abs(dx) > 40) { e.preventDefault(); go(dx < 0 ? 1 : -1); } });
   $('#prev').onclick = () => go(-1); $('#next').onclick = () => go(1);
-  $('#fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  $('#fs').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  $('#pdf').onclick = () => window.print();
 })();
 </script>
 </body>
