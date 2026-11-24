@@ -123,7 +123,7 @@ body:hover #bar{opacity:1}
   const groups = D.expense_groups.map(g => ({ ...g, amt: g.cats.reduce((s, c) => s + (exc[c] || 0), 0) }));
   const known = new Set(D.expense_groups.flatMap(g => g.cats));
   const other = Object.entries(exc).filter(([c]) => !known.has(c)).reduce((s, [, v]) => s + v, 0);
-  if (other) { const g = groups.find(g => g.label === '기타잡비'); if (g) g.amt += other; else groups.push({ label: '기타', amt: other, note: '' }); }
+  if (other) groups.push({ label: '미분류 지출', amt: other, note: '분류 안 된 계정: ' + Object.keys(exc).filter(c => !known.has(c)).join(', ') });
   groups.sort((a, b) => b.amt - a.amt);
   // 기부
   const isDon = e => e.type === 'income' && e.category === '기부금';
@@ -153,7 +153,7 @@ body:hover #bar{opacity:1}
     <div class="kpis">
       <div class="kpi"><div class="l">2021년 이전 이월회비</div><div class="v num">${man(D.carry).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(D.carry)}원</div></div>
       <div class="kpi"><div class="l">누적 기부금</div><div class="v num">${man(CUM)}<span class="u">만원</span></div><div class="s">총 기부 인원 ${NP}명</div></div>
-      <div class="kpi"><div class="l">누적 지출</div><div class="v num">${man(cumExp).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(cumExp)}원</div></div>
+      <div class="kpi"><div class="l">누적 지출 <span style="font-size:14px;color:var(--ink-3)">(이자 등 기타수입 차감 후)</span></div><div class="v num">${man(cumExp).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(cumExp)}원</div></div>
       <div class="kpi"><div class="l">현재 잔액</div><div class="v num">${man(close).split('.')[0]}<span class="u">만원</span></div><div class="s num">${W(close)}원</div></div>
     </div>
     <div class="twocol">
