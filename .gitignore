@@ -13,3 +13,6 @@ site/public/admin/event2027/files/response_*
 # 작업 정리 문서 (금액·관계자 포함) — 공개 저장소에 올리지 않는다
 동문회_정리*.md
 site/public/admin/meetings/files/
+
+# 발표용 결산 페이지의 학번·보정 데이터 — 공개 저장소에 올리지 않는다
+site/public/admin/finance/report/data.json
